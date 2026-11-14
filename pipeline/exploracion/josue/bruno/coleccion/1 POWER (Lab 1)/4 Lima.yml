@@ -1,0 +1,17 @@
+info:
+  name: 4 Lima
+  type: http
+  seq: 4
+
+http:
+  method: GET
+  url: https://power.larc.nasa.gov/api/temporal/monthly/point?parameters={{power_params}}&community=AG&latitude=-12.05&longitude=-77.05&start={{inicio}}&end={{fin}}&format=JSON
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+docs: 'Lab 1, punto Lima (guia 12). Revisa properties.parameter: claves AAAAMM, la que termina en 13 es el promedio anual; -999 = sin dato. Unidades en parameters.'

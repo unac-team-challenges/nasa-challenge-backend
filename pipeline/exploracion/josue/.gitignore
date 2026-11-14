@@ -1,0 +1,5 @@
+# Generados al correr los scripts (no se versionan)
+.venv/
+data/
+salida/
+__pycache__/

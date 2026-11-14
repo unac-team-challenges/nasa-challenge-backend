@@ -39,8 +39,9 @@ def anual(lat, lon, inicio, fin):
     r.raise_for_status()
     df = pd.DataFrame(r.json()["properties"]["parameter"])  # índice = YYYYMM
     df = df[~df.index.str.endswith("13")]  # 13 = promedio anual
-    df = df.replace(-999, np.nan)  # -999 = sin dato
-    return df.groupby(df.index.str[:4]).mean()
+    df = df.replace(-999, np.nan).dropna()  # -999 = sin dato
+    g = df.groupby(df.index.str[:4])
+    return g.mean()[g.size() == 12]  # solo años completos: nunca NaN ni promedios sesgados
 
 
 if __name__ == "__main__":
@@ -51,6 +52,6 @@ if __name__ == "__main__":
         for reg, (lat, lon) in REGIONES.items()
     ]
     Path(__file__).parent.parent.joinpath("data", "power.json").write_text(
-        json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8"
+        json.dumps(out, ensure_ascii=False, indent=1, allow_nan=False), encoding="utf-8"
     )
     print(f"{len(out)} regiones -> data/power.json")

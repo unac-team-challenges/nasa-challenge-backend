@@ -1,0 +1,12 @@
+name: Peru
+variables:
+  - name: edl_user
+    secret: true
+  - name: edl_pass
+    secret: true
+  - name: power_params
+    value: T2M,T2M_MAX,T2M_MIN,PRECTOTCORR,GWETTOP,RH2M,QV2M
+  - name: inicio
+    value: "1981"
+  - name: fin
+    value: "2024"
