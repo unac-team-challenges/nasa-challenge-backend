@@ -1,4 +1,4 @@
-use crate::models::{gpm, power};
+use crate::models::{gpm, power, variable::Variable};
 use std::{collections::HashMap, sync::Arc};
 
 // JSON ya procesados por pipeline/. La API nunca calcula en vivo.
@@ -52,5 +52,16 @@ impl Datos {
 
     pub fn buscar_gpm(&self, nombre: &str) -> Option<&gpm::Region> {
         self.indice_gpm.get(&clave(nombre)).map(|&i| &self.gpm[i])
+    }
+
+    /// Serie anual (año, valor) de una variable en una región; `None` si la región no existe.
+    pub fn serie(&self, v: Variable, region: &str) -> Option<Vec<(u16, f64)>> {
+        fn anios<M>(r: &crate::models::Region<M>, f: impl Fn(&M) -> f64) -> Vec<(u16, f64)> {
+            r.anios.iter().filter_map(|(a, m)| Some((a.parse().ok()?, f(m)))).collect()
+        }
+        match v {
+            Variable::Lluvia => self.buscar_gpm(region).map(|r| anios(r, |m| m.lluvia_mm_dia)),
+            Variable::Temperatura => self.buscar(region).map(|r| anios(r, |m| m.t2m)),
+        }
     }
 }
