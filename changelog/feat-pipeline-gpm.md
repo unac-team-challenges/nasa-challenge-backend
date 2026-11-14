@@ -12,6 +12,9 @@ PR: #9 → `developer`
 ## Corregido (revisión de #9)
 - `allow_nan=False` y solo años completos (12 meses válidos), igual que `power.py`. Así el año en curso del cron nunca entra incompleto.
 
+## Decisión (2026-11-14)
+- Lluvia del producto = **GPM IMERG**; CHIRPS (#11) se descarta. Registrado en `docs/reglas-datos.md` (sección 3b). Se mezcló `developer` en la rama para traer ese archivo.
+
 ## Pendiente
 - Guardar los secrets de Earthdata en el repo. La cuenta debe tener aceptados los términos de "NASA GESDISC DATA ARCHIVE"; si no, GES DISC responde 403 "EULA Acceptance Failure".
 - Decidir si se usa la capital o el promedio del departamento (ver comentario en #9 y el hallazgo de la costa en #11).

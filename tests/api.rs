@@ -40,7 +40,19 @@ async fn power_lima_tiene_anios_y_medidas() {
     assert_eq!(s, StatusCode::OK);
     let anios = b["anios"].as_object().unwrap();
     assert!(!anios.is_empty());
-    assert!(anios.values().all(|m| m["PRECTOTCORR"].is_number() && m["T2M"].is_number()));
+    assert!(anios.values().all(|m| ["PRECTOTCORR", "T2M", "T2M_MAX", "T2M_MIN"].iter().all(|k| m[*k].is_number())));
+}
+
+#[tokio::test]
+async fn gpm_lima_tiene_lluvia_por_anio() {
+    let (s, _, b) = get("/gpm/lima", None).await;
+    assert_eq!(s, StatusCode::OK);
+    assert_eq!(b["region"], "Lima");
+    let anios = b["anios"].as_object().unwrap();
+    assert!(!anios.is_empty());
+    assert!(anios.values().all(|m| m["lluvia_mm_dia"].is_number()));
+    assert_eq!(get("/gpm/ANCASH", None).await.0, StatusCode::OK);
+    assert_eq!(get("/gpm/noexiste", None).await.0, StatusCode::NOT_FOUND);
 }
 
 #[tokio::test]
@@ -72,5 +84,6 @@ async fn cors_permite_localhost_y_extra_pero_no_otros() {
 
 #[test]
 fn json_con_forma_incorrecta_se_rechaza() {
-    assert!(Datos::desde_json(r#"[{"region":"X","lat":1,"lon":2,"anios":{"2020":{"T2M":null}}}]"#).is_err());
+    assert!(Datos::desde_json(r#"[{"region":"X","lat":1,"lon":2,"anios":{"2020":{"T2M":null}}}]"#, "[]").is_err());
+    assert!(Datos::desde_json("[]", r#"[{"region":"X","lat":1,"lon":2,"anios":{"2020":{"lluvia_mm_dia":null}}}]"#).is_err());
 }

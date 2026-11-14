@@ -33,6 +33,8 @@ for _ in $(seq 40); do curl -sf "$URL/regiones" >/dev/null && break; sleep 0.5; 
 
 chk "GET /regiones devuelve 25"           bash -c "curl -sf $URL/regiones | jq -e 'length == 25'"
 chk "GET /power/lima devuelve años"       bash -c "curl -sf $URL/power/lima | jq -e '.anios | length > 0'"
+chk "GET /gpm/lima devuelve lluvia"       bash -c "curl -sf $URL/gpm/lima | jq -e '[.anios[].lluvia_mm_dia] | length > 0 and all(type == \"number\")'"
+chk "GET /gpm/noexiste -> 404"            bash -c "[ \"\$(curl -s -o /dev/null -w '%{http_code}' $URL/gpm/noexiste)\" = 404 ]"
 chk "GET /power/%C3%81ncash (acentos)"    bash -c "curl -sf $URL/power/%C3%81ncash | jq -e '.region == \"Áncash\"'"
 chk "GET /health"                         bash -c "curl -sf $URL/health | jq -e '.status == \"ok\"'"
 chk "GET /power/ancash (sin tilde)"       bash -c "curl -sf $URL/power/ancash | jq -e '.region == \"Áncash\"'"

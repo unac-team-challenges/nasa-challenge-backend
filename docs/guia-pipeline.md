@@ -14,7 +14,7 @@ Referencia que ya funciona: `pipeline/power.py` (NASA POWER). Copia su estructur
 |---|---|---|---|
 | Lluvia | **GPM IMERG** (`GPM_3IMERGM` v07), ~10 km, desde 2000 | **CHIRPS v2**, ~5 km, desde 1981 | GPM: Earthdata. CHIRPS: ninguna |
 | Temperatura | **MERRA-2** (`M2TMNXSLV`, variable `T2M`), ~50 km | POWER `T2M` (usa MERRA-2 por debajo) | MERRA-2: Earthdata. POWER: ninguna |
-| Ya hecho | POWER (`PRECTOTCORR`, `T2M`) en `pipeline/power.py` | | Ninguna |
+| Ya hecho | POWER (`PRECTOTCORR`, `T2M`, `T2M_MAX`, `T2M_MIN`) en `pipeline/power.py` | | Ninguna |
 
 Orden sugerido: **1) GPM, 2) MERRA-2, 3) CHIRPS** (opcional, para comparar).
 
@@ -44,7 +44,7 @@ Reglas:
 ## 3. Credenciales (Earthdata) para GPM y MERRA-2
 
 1. Cuenta gratis en https://urs.earthdata.nasa.gov.
-2. En local, archivo `.env` en la raíz del repo (ya está en `.gitignore`, **nunca commitear**):
+2. En local: `cp .env.example .env` y rellena. `.env` está en la raíz del repo y en `.gitignore` (**nunca commitear**):
    ```
    EARTHDATA_USERNAME=...
    EARTHDATA_PASSWORD=...
@@ -76,7 +76,7 @@ Prueba rápida que ya funciona: buscar `GPM_3IMERGM`, `version="07"`, 1 mes, `co
 - `short_name="M2TMNXSLV"`, variable `T2M`. Un archivo por mes, ~75 MB (94 variables dentro), malla 0.5° × 0.625°, longitudes de -180 a 180.
 - **Unidad: Kelvin.** Restar 273.15 para °C.
 - Descargar 72 meses completos son unos 5 GB. ⚠️ Mejor probar `earthaccess.open()` (lectura remota) con `xarray.open_dataset(f, engine="h5netcdf")` para leer solo `T2M`, y borrar lo descargado al terminar. Si no funciona, descargar mes a mes y borrar cada archivo tras leerlo.
-- Si es demasiado trabajo, la alternativa válida es quedarse con `T2M` de POWER.
+- **Decidido (2026-11-14):** la temperatura es MERRA-2 vía POWER (`T2M`, `T2M_MAX`, `T2M_MIN`). Esta sección solo aplica si algún día se necesita otra variable de MERRA-2 que POWER no tenga.
 
 ## 6. CHIRPS v2 (opcional)
 

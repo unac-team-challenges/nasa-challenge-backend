@@ -9,6 +9,10 @@
 |---|---|---|---|
 | `PRECTOTCORR` | Precipitación total, corregida por sesgo | mm/día | El valor es el promedio diario del mes. Para el total mensual, multiplicar por los días del mes. |
 | `T2M` | Temperatura del aire a 2 m del suelo | °C | Promedio mensual. Es la temperatura "de clima", no la de la superficie. |
+| `T2M_MAX` | Temperatura máxima a 2 m | °C | Promedio de las máximas diarias del mes. |
+| `T2M_MIN` | Temperatura mínima a 2 m | °C | Promedio de las mínimas diarias del mes. |
+
+**Fuente de temperatura (decisión del equipo, 2026-11-14):** MERRA-2, a través de POWER. POWER ya usa MERRA-2 por debajo, así que no se baja MERRA-2 aparte (cada archivo pesa ~75 MB).
 
 - **Corregida (`CORR`)**: se ajusta el modelo con observaciones (GPCP) para reducir el error. Por eso se prefiere a `PRECTOT`.
 - **Resumen por región (2015-2020)**: Loreto y Madre de Dios son las más lluviosas (6-8 mm/día). La costa (Tacna, Lima, Callao) casi no llueve (~0.1). La temperatura baja con la altura: Huancavelica y Pasco ~5-7 °C, y la selva ~25-27 °C.
@@ -27,7 +31,7 @@
 `datos["properties"]["parameter"]` contiene un diccionario por variable, con claves `YYYYMM`:
 
 ```
-{"PRECTOTCORR": {"201701": 1.2, ..., "201713": 0.9}, "T2M": {...}}
+{"PRECTOTCORR": {"201701": 1.2, ..., "201713": 0.9}, "T2M": {...}, "T2M_MAX": {...}, "T2M_MIN": {...}}
 ```
 
 ## Limpieza (lo que hace el script)
@@ -43,5 +47,7 @@
 ## Hallazgo útil: Niño Costero 2017
 En 2017 la lluvia subió mucho en la costa norte: Piura pasó de 0.28 a 1.84 mm/día, Lambayeque de 0.32 a 0.94 y Tumbes de 1.34 a 2.84. Es la misma señal que se busca con GPM IMERG en marzo de 2017.
 
+Reglas generales (años completos, costa, fuentes): [`reglas-datos.md`](reglas-datos.md).
+
 ## Archivos
-- `pipeline/power.py`: consulta las 25 regiones y escribe `data/power.json` (tabla región × año con `PRECTOTCORR` y `T2M`).
+- `pipeline/power.py`: consulta las 25 regiones y escribe `data/power.json` (tabla región × año con `PRECTOTCORR`, `T2M`, `T2M_MAX` y `T2M_MIN`).
