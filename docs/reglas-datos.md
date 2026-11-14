@@ -20,7 +20,7 @@ Valen para todo `pipeline/*.py` y todo `data/*.json`, hoy y en los que se añada
 ## 3b. Fuentes elegidas (decididas el 2026-11-14)
 | Variable | Fuente del producto | Archivo | Notas |
 |---|---|---|---|
-| **Lluvia** | **GPM IMERG** (NASA, `GPM_3IMERGM` v07, ~10 km) | `data/gpm.json` | Es la única lluvia que muestra la ficha. Periodo reciente 2001–2024 (IMERG empieza en jun 2000). |
+| **Lluvia** | **GPM IMERG** (NASA, `GPM_3IMERGM` v07, ~10 km) | `data/gpm.json` | Es la única lluvia que muestra la ficha. Periodo: 2001–2024 (primer y último año completos que eligió el equipo; el pipeline descarta años incompletos, así que 2025 no entra). |
 | **Temperatura** | **MERRA-2 vía POWER** (`T2M`, `T2M_MAX`, `T2M_MIN`) | `data/power.json` | POWER ya usa MERRA-2: no se baja MERRA-2 aparte. |
 
 - **Unidad geográfica: promedio del departamento** (todas las regiones, no solo la costa), no el píxel de la capital. Los JSON de hoy siguen siendo del píxel de la capital hasta que el pipeline lo implemente (parte de Josue; hay un cálculo de partida en `pipeline/exploracion/`).

@@ -82,8 +82,82 @@ async fn cors_permite_localhost_y_extra_pero_no_otros() {
     }
 }
 
+#[tokio::test]
+async fn api_variables_lista_lluvia_y_temperatura() {
+    let (s, _, b) = get("/api/variables", None).await;
+    assert_eq!(s, StatusCode::OK);
+    let ids: Vec<_> = b.as_array().unwrap().iter().map(|v| v["id"].as_str().unwrap()).collect();
+    assert_eq!(ids, ["lluvia", "temperatura"]);
+    assert!(b[0]["anio_inicio"].is_number() && b[0]["unidad"] == "mm/día");
+}
+
+#[tokio::test]
+async fn api_zonas_son_25_con_ubigeo_texto() {
+    let (s, _, b) = get("/api/zonas?variable=lluvia", None).await;
+    assert_eq!(s, StatusCode::OK);
+    let zonas = b.as_array().unwrap();
+    assert_eq!(zonas.len(), 25);
+    let mut ids: Vec<_> = zonas.iter().map(|z| z["id"].as_str().unwrap().to_string()).collect();
+    ids.sort();
+    ids.dedup();
+    assert_eq!(ids.len(), 25);
+    assert_eq!(ids[0], "01");
+    assert_eq!(ids[24], "25");
+    let nombre = |id: &str| zonas.iter().find(|z| z["id"] == id).unwrap()["nombre"].clone();
+    assert_eq!(nombre("07"), "Callao");
+    assert_eq!(nombre("15"), "Lima");
+}
+
+#[tokio::test]
+async fn api_zona_devuelve_serie_por_variable() {
+    for (var, unidad) in [("lluvia", "mm/día"), ("temperatura", "°C")] {
+        let (s, _, b) = get(&format!("/api/zonas/15?variable={var}"), None).await;
+        assert_eq!(s, StatusCode::OK);
+        assert_eq!((b["id"].as_str(), b["nombre"].as_str(), b["unidad"].as_str()), (Some("15"), Some("Lima"), Some(unidad)));
+        let serie = b["serie"].as_array().unwrap();
+        assert!(!serie.is_empty());
+        assert!(serie.iter().all(|p| p["anio"].is_number() && p["valor"].is_number()));
+    }
+}
+
+#[tokio::test]
+async fn api_variable_es_obligatoria_y_valida() {
+    for ruta in ["/api/zonas", "/api/zonas/15", "/api/zonas?variable=viento", "/api/zonas/15?variable="] {
+        let (s, _, b) = get(ruta, None).await;
+        assert_eq!(s, StatusCode::BAD_REQUEST, "{ruta}");
+        assert!(b["error"].as_str().unwrap().contains("lluvia"));
+    }
+}
+
+#[tokio::test]
+async fn api_zona_inexistente_da_404() {
+    for id in ["00", "26", "99", "lima"] {
+        assert_eq!(get(&format!("/api/zonas/{id}?variable=lluvia"), None).await.0, StatusCode::NOT_FOUND, "{id}");
+    }
+}
+
 #[test]
 fn json_con_forma_incorrecta_se_rechaza() {
     assert!(Datos::desde_json(r#"[{"region":"X","lat":1,"lon":2,"anios":{"2020":{"T2M":null}}}]"#, "[]").is_err());
     assert!(Datos::desde_json("[]", r#"[{"region":"X","lat":1,"lon":2,"anios":{"2020":{"lluvia_mm_dia":null}}}]"#).is_err());
+}
+
+/// `openapi.json` (raíz del repo) es el contrato que copia el frontend: no puede quedar viejo.
+/// Si cambias rutas o structs: `UPDATE_OPENAPI=1 cargo test openapi`.
+#[test]
+fn openapi_json_esta_al_dia() {
+    let actual = nasa_challenge_backend::openapi::json();
+    if std::env::var("UPDATE_OPENAPI").is_ok() {
+        std::fs::write("openapi.json", &actual).unwrap();
+    }
+    let guardado = std::fs::read_to_string("openapi.json").unwrap_or_default();
+    assert_eq!(guardado, actual, "openapi.json desactualizado: corre UPDATE_OPENAPI=1 cargo test openapi");
+}
+
+#[tokio::test]
+async fn openapi_se_sirve_con_las_3_rutas() {
+    let (s, _, b) = get("/api/openapi.json", None).await;
+    assert_eq!(s, StatusCode::OK);
+    let rutas = b["paths"].as_object().unwrap();
+    assert!(rutas.contains_key("/api/variables") && rutas.contains_key("/api/zonas") && rutas.contains_key("/api/zonas/{id}"));
 }

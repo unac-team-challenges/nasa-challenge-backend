@@ -21,3 +21,4 @@ PR → `developer`. Sigue la sección 3b de `docs/reglas-datos.md` y la sección
 - Las celdas por departamento coinciden con la tabla del lab 4. IMERG: Callao 1, Tumbes 37, Loreto 3054. POWER: Callao 0, Tumbes 1, Lambayeque 3.
 - Callao no tiene celdas propias en POWER: usa la celda de su capital (compartida con Lima) y lleva `nota`. Se respeta la decisión "Lima y Callao tal cual".
 - `lat` y `lon` siguen siendo la capital (punto del mapa).
+- Al unir `developer` (#20, "datos desde 2000") chocaron los periodos: se mantienen los de este PR (POWER 1981–2024, GPM 2001–2024) y se ajustaron README, CLAUDE.md y docs. `changelog/feat-datos-desde-2000.md` queda como historial de #20.
