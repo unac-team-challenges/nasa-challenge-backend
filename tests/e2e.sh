@@ -25,6 +25,7 @@ chk "tests/test_tendencias.py (semáforo, aviso, periodo)" python3 -m unittest -
 chk "variables.json tiene lluvia y temperatura" jq -e '[.[].id] == ["lluvia","temperatura"]' data/variables.json
 chk "variables.json: periodo 2001–2024 y lluvia de IMERG" jq -e 'all(.anio_inicio == 2001 and .anio_fin == 2024) and (.[0].fuente | test("IMERG"))' data/variables.json
 chk "zonas/lluvia.json: aviso del cambio de satélites de 2014 en las 25" jq -e 'all(.[].stats.aviso; type == "string" and test("2014"))' data/zonas/lluvia.json
+chk "zonas/lluvia.json: ninguna zona 'real' (solo IMERG, salto de 2014)" jq -e 'all(.[].stats.status; . != "real")' data/zonas/lluvia.json
 for v in lluvia temperatura; do
   chk "zonas/$v.json: 25 zonas con id 01–25" jq -e '[.[].id] == ([range(1;26)] | map(tostring | if length == 1 then "0" + . else . end))' data/zonas/$v.json
   chk "zonas/$v.json: stats numéricos (sin null/NaN)" jq -e '[.[].stats | to_entries[] | select(.key != "status" and .key != "aviso") | .value] | all(type == "number")' data/zonas/$v.json
