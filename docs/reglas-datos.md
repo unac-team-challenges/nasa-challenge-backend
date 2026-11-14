@@ -20,8 +20,8 @@ Valen para todo `pipeline/*.py` y todo `data/*.json`, hoy y en los que se añada
 ## 3b. Fuentes elegidas (decididas el 2026-11-14)
 | Variable | Fuente del producto | Archivo | Notas |
 |---|---|---|---|
-| **Lluvia** | **GPM IMERG** (NASA, `GPM_3IMERGM` v07, ~10 km) | `data/gpm.json` | Es la única lluvia que muestra la ficha. Periodo: 2001–2024 (elegido por el equipo). IMERG v07 mensual existe de **ene 1998 a sep 2025** (catálogo CMR de NASA, verificado el 2026-11-14): se puede ampliar hacia atrás y **2025 nunca será año completo**. |
-| **Temperatura** | **MERRA-2 vía POWER** (`T2M`, `T2M_MAX`, `T2M_MIN`) | `data/power.json` | POWER ya usa MERRA-2: no se baja MERRA-2 aparte. |
+| **Lluvia** | **GPM IMERG** (NASA, `GPM_3IMERGM` v07, ~10 km) | `data/gpm.json` | Es la única lluvia que muestra la ficha. Periodo: 2001–2024 (decidido el 2026-11-14, el mismo que la temperatura). IMERG v07 mensual existe de **ene 1998 a sep 2025** (catálogo CMR de NASA, verificado el 2026-11-14): se puede ampliar hacia atrás y **2025 nunca será año completo**. |
+| **Temperatura** | **MERRA-2 vía POWER** (`T2M`, `T2M_MAX`, `T2M_MIN`) | `data/power.json` | POWER ya usa MERRA-2: no se baja MERRA-2 aparte. Periodo: 2001–2024. |
 
 - **Unidad geográfica: promedio del departamento** (todas las regiones, no solo la costa), no el píxel de la capital. `pipeline/power.py` y `pipeline/gpm.py` ya lo calculan (máscara en `pipeline/departamentos.py`); `lat`/`lon` siguen siendo la capital, solo como punto del mapa.
 - **Temperatura en la primera versión: solo `T2M`.** `T2M_MAX` y `T2M_MIN` quedan en `power.json` como extra si sobra tiempo; la API no las expone todavía.

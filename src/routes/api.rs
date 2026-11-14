@@ -90,6 +90,7 @@ pub async fn zona(
         variable: v.id(),
         unidad: v.unidad(),
         fuente: v.fuente(),
+        nota: d.nota(v, nombre).map(String::from),
         serie: serie.into_iter().map(|(anio, valor)| Punto { anio, valor }).collect(),
     }))
 }

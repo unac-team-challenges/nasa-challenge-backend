@@ -1,6 +1,6 @@
 """Descarga NASA POWER (mensual) de las 25 regiones y escribe data/power.json.
 
-Uso: python pipeline/power.py [inicio] [fin]   (por defecto 1981 2024)
+Uso: python pipeline/power.py [inicio] [fin]   (por defecto 2001 2024)
 
 Cada valor es el promedio de las celdas de POWER (~0,5° × 0,625°, MERRA-2)
 del departamento (regla 3b de docs/reglas-datos.md), con la API regional
@@ -89,7 +89,7 @@ def por_departamento(df):
 if __name__ == "__main__":
     from departamentos import a_json
 
-    inicio, fin = (sys.argv[1:3] + ["1981", "2024"][len(sys.argv[1:3]):])[:2]
+    inicio, fin = (sys.argv[1:3] + ["2001", "2024"][len(sys.argv[1:3]):])[:2]
     por_var, celdas = {}, {}
     for var in VARIABLES:
         por_var[var], celdas = por_departamento(malla(var, inicio, fin))
