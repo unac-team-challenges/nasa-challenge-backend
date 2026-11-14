@@ -1,0 +1,17 @@
+info:
+  name: 7 Recuadro Peru NE (regional)
+  type: http
+  seq: 7
+
+http:
+  method: GET
+  url: https://power.larc.nasa.gov/api/temporal/monthly/regional?parameters=T2M&community=AG&latitude-min=-9&latitude-max=0&longitude-min=-73&longitude-max=-68.5&start={{inicio}}&end={{fin}}&format=JSON
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+docs: 'Cuadricula POWER, cuarto NE del recuadro de Peru. La API acepta maximo 10 grados por lado (verificado), por eso Peru va en 4 recuadros. Un parametro por peticion.'

@@ -1,0 +1,16 @@
+# Labs 1, 4 y 5 corren solo con la biblioteca estándar.
+# El resto (power_departamentos, validar_lab5, correr_bruno, graficos, lab2) necesita:
+earthaccess
+xarray
+h5netcdf
+netcdf4
+requests
+pandas
+geopandas
+matplotlib
+regionmask
+scipy
+pymannkendall
+statsmodels
+dask
+pyyaml

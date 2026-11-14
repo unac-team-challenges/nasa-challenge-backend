@@ -1,0 +1,22 @@
+//! Forma de `data/power.json`. Si el JSON no encaja, la API no arranca.
+use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct Medidas {
+    /// Lluvia corregida, mm/día.
+    #[serde(rename = "PRECTOTCORR")]
+    pub prectotcorr: f64,
+    /// Temperatura a 2 m, °C.
+    #[serde(rename = "T2M")]
+    pub t2m: f64,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct Region {
+    pub region: String,
+    pub lat: f64,
+    pub lon: f64,
+    /// Promedio anual por año ("2015", ...).
+    pub anios: BTreeMap<String, Medidas>,
+}

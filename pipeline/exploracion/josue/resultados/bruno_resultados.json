@@ -1,0 +1,280 @@
+[
+  {
+    "peticion": "1 POWER (Lab 1)/1 Piura",
+    "metodo": "GET",
+    "http": 200,
+    "segundos": 0.94,
+    "kb": 58.1,
+    "resumen": {
+      "variables": [
+        "GWETTOP",
+        "PRECTOTCORR",
+        "QV2M",
+        "RH2M",
+        "T2M",
+        "T2M_MAX",
+        "T2M_MIN"
+      ],
+      "meses": 528,
+      "faltantes_-999": {
+        "GWETTOP": 0,
+        "PRECTOTCORR": 0,
+        "QV2M": 0,
+        "RH2M": 0,
+        "T2M": 0,
+        "T2M_MAX": 0,
+        "T2M_MIN": 0
+      },
+      "unidades": {
+        "GWETTOP": "1",
+        "PRECTOTCORR": "mm/day",
+        "QV2M": "g/kg",
+        "RH2M": "%",
+        "T2M": "C",
+        "T2M_MAX": "C",
+        "T2M_MIN": "C"
+      }
+    },
+    "estado": "ok"
+  },
+  {
+    "peticion": "1 POWER (Lab 1)/2 Tumbes",
+    "metodo": "GET",
+    "http": 200,
+    "segundos": 0.91,
+    "kb": 58.1,
+    "resumen": {
+      "variables": [
+        "GWETTOP",
+        "PRECTOTCORR",
+        "QV2M",
+        "RH2M",
+        "T2M",
+        "T2M_MAX",
+        "T2M_MIN"
+      ],
+      "meses": 528,
+      "faltantes_-999": {
+        "GWETTOP": 0,
+        "PRECTOTCORR": 0,
+        "QV2M": 0,
+        "RH2M": 0,
+        "T2M": 0,
+        "T2M_MAX": 0,
+        "T2M_MIN": 0
+      },
+      "unidades": {
+        "GWETTOP": "1",
+        "PRECTOTCORR": "mm/day",
+        "QV2M": "g/kg",
+        "RH2M": "%",
+        "T2M": "C",
+        "T2M_MAX": "C",
+        "T2M_MIN": "C"
+      }
+    },
+    "estado": "ok"
+  },
+  {
+    "peticion": "1 POWER (Lab 1)/3 Puno",
+    "metodo": "GET",
+    "http": 200,
+    "segundos": 1.19,
+    "kb": 56.8,
+    "resumen": {
+      "variables": [
+        "GWETTOP",
+        "PRECTOTCORR",
+        "QV2M",
+        "RH2M",
+        "T2M",
+        "T2M_MAX",
+        "T2M_MIN"
+      ],
+      "meses": 528,
+      "faltantes_-999": {
+        "GWETTOP": 0,
+        "PRECTOTCORR": 0,
+        "QV2M": 0,
+        "RH2M": 0,
+        "T2M": 0,
+        "T2M_MAX": 0,
+        "T2M_MIN": 0
+      },
+      "unidades": {
+        "GWETTOP": "1",
+        "PRECTOTCORR": "mm/day",
+        "QV2M": "g/kg",
+        "RH2M": "%",
+        "T2M": "C",
+        "T2M_MAX": "C",
+        "T2M_MIN": "C"
+      }
+    },
+    "estado": "ok"
+  },
+  {
+    "peticion": "1 POWER (Lab 1)/4 Lima",
+    "metodo": "GET",
+    "http": 200,
+    "segundos": 1.14,
+    "kb": 57.8,
+    "resumen": {
+      "variables": [
+        "GWETTOP",
+        "PRECTOTCORR",
+        "QV2M",
+        "RH2M",
+        "T2M",
+        "T2M_MAX",
+        "T2M_MIN"
+      ],
+      "meses": 528,
+      "faltantes_-999": {
+        "GWETTOP": 0,
+        "PRECTOTCORR": 0,
+        "QV2M": 0,
+        "RH2M": 0,
+        "T2M": 0,
+        "T2M_MAX": 0,
+        "T2M_MIN": 0
+      },
+      "unidades": {
+        "GWETTOP": "1",
+        "PRECTOTCORR": "mm/day",
+        "QV2M": "g/kg",
+        "RH2M": "%",
+        "T2M": "C",
+        "T2M_MAX": "C",
+        "T2M_MIN": "C"
+      }
+    },
+    "estado": "ok"
+  },
+  {
+    "peticion": "1 POWER (Lab 1)/5 Iquitos",
+    "metodo": "GET",
+    "http": 200,
+    "segundos": 1.17,
+    "kb": 58.2,
+    "resumen": {
+      "variables": [
+        "GWETTOP",
+        "PRECTOTCORR",
+        "QV2M",
+        "RH2M",
+        "T2M",
+        "T2M_MAX",
+        "T2M_MIN"
+      ],
+      "meses": 528,
+      "faltantes_-999": {
+        "GWETTOP": 0,
+        "PRECTOTCORR": 0,
+        "QV2M": 0,
+        "RH2M": 0,
+        "T2M": 0,
+        "T2M_MAX": 0,
+        "T2M_MIN": 0
+      },
+      "unidades": {
+        "GWETTOP": "1",
+        "PRECTOTCORR": "mm/day",
+        "QV2M": "g/kg",
+        "RH2M": "%",
+        "T2M": "C",
+        "T2M_MAX": "C",
+        "T2M_MIN": "C"
+      }
+    },
+    "estado": "ok"
+  },
+  {
+    "peticion": "1 POWER (Lab 1)/6 Recuadro Peru NO (regional)",
+    "metodo": "GET",
+    "http": 200,
+    "segundos": 1.77,
+    "kb": 2243.4,
+    "resumen": {
+      "celdas": 266,
+      "mensajes": []
+    },
+    "estado": "ok"
+  },
+  {
+    "peticion": "1 POWER (Lab 1)/7 Recuadro Peru NE (regional)",
+    "metodo": "GET",
+    "http": 200,
+    "segundos": 1.49,
+    "kb": 1122.8,
+    "resumen": {
+      "celdas": 133,
+      "mensajes": []
+    },
+    "estado": "ok"
+  },
+  {
+    "peticion": "1 POWER (Lab 1)/8 Recuadro Peru SO (regional)",
+    "metodo": "GET",
+    "http": 200,
+    "segundos": 1.77,
+    "kb": 2348.6,
+    "resumen": {
+      "celdas": 280,
+      "mensajes": []
+    },
+    "estado": "ok"
+  },
+  {
+    "peticion": "1 POWER (Lab 1)/9 Recuadro Peru SE (regional)",
+    "metodo": "GET",
+    "http": 200,
+    "segundos": 1.68,
+    "kb": 1157.1,
+    "resumen": {
+      "celdas": 140,
+      "mensajes": []
+    },
+    "estado": "ok"
+  },
+  {
+    "peticion": "3 AppEEARS (Lab 3)/1 Login AppEEARS",
+    "estado": "saltada",
+    "motivo": "requiere credencial Earthdata"
+  },
+  {
+    "peticion": "3 AppEEARS (Lab 3)/2 Capas MOD13A3",
+    "metodo": "GET",
+    "http": 200,
+    "segundos": 0.47,
+    "kb": 5.9,
+    "resumen": {
+      "capas": [
+        "_1_km_monthly_EVI",
+        "_1_km_monthly_MIR_reflectance",
+        "_1_km_monthly_NDVI",
+        "_1_km_monthly_NIR_reflectance",
+        "_1_km_monthly_VI_Quality",
+        "_1_km_monthly_blue_reflectance",
+        "_1_km_monthly_pixel_reliability",
+        "_1_km_monthly_red_reflectance",
+        "_1_km_monthly_relative_azimuth_angle",
+        "_1_km_monthly_sun_zenith_angle",
+        "_1_km_monthly_view_zenith_angle"
+      ],
+      "NDVI": {
+        "ScaleFactor": 0.0001,
+        "FillValue": -3000,
+        "ValidMin": -0.200000003,
+        "ValidMax": 1.0,
+        "Units": ""
+      }
+    },
+    "estado": "ok"
+  },
+  {
+    "peticion": "3 AppEEARS (Lab 3)/3 Mis tareas",
+    "estado": "saltada",
+    "motivo": "requiere credencial Earthdata"
+  }
+]
