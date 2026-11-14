@@ -43,5 +43,7 @@
 ## Hallazgo útil: Niño Costero 2017
 En 2017 la lluvia subió mucho en la costa norte: Piura pasó de 0.28 a 1.84 mm/día, Lambayeque de 0.32 a 0.94 y Tumbes de 1.34 a 2.84. Es la misma señal que se busca con GPM IMERG en marzo de 2017.
 
+Reglas generales (años completos, costa, fuentes): [`reglas-datos.md`](reglas-datos.md).
+
 ## Archivos
 - `pipeline/power.py`: consulta las 25 regiones y escribe `data/power.json` (tabla región × año con `PRECTOTCORR` y `T2M`).
