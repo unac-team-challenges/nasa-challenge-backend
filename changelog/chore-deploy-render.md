@@ -7,4 +7,4 @@
 ## Notas
 - Sin cambios de código: la API ya lee `PORT` y escucha en `0.0.0.0`.
 - Axum, no Rocket: se usan solo los comandos de build/start de la guía oficial de Rust de Render, que valen para cualquier framework.
-- Pendiente (manual, cuenta de Render): crear el Blueprint y definir `CORS_ORIGINS` con la URL de Vercel.
+- Pendiente (Sebastian, cuenta de Render): conectar el repo: crear el Blueprint y definir `CORS_ORIGINS` con la URL de Vercel.
