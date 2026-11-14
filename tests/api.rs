@@ -40,7 +40,7 @@ async fn power_lima_tiene_anios_y_medidas() {
     assert_eq!(s, StatusCode::OK);
     let anios = b["anios"].as_object().unwrap();
     assert!(!anios.is_empty());
-    assert!(anios.values().all(|m| m["PRECTOTCORR"].is_number() && m["T2M"].is_number()));
+    assert!(anios.values().all(|m| ["PRECTOTCORR", "T2M", "T2M_MAX", "T2M_MIN"].iter().all(|k| m[*k].is_number())));
 }
 
 #[tokio::test]
