@@ -7,3 +7,5 @@ xarray
 h5netcdf
 h5py
 rasterio
+geopandas
+regionmask

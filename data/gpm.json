@@ -3,24 +3,25 @@
   "region": "Amazonas",
   "lat": -6.23,
   "lon": -77.87,
+  "celdas": 317,
   "anios": {
    "2015": {
-    "lluvia_mm_dia": 2.544
+    "lluvia_mm_dia": 4.8986
    },
    "2016": {
-    "lluvia_mm_dia": 2.066
+    "lluvia_mm_dia": 4.6304
    },
    "2017": {
-    "lluvia_mm_dia": 2.724
+    "lluvia_mm_dia": 5.7143
    },
    "2018": {
-    "lluvia_mm_dia": 2.498
+    "lluvia_mm_dia": 5.1037
    },
    "2019": {
-    "lluvia_mm_dia": 2.264
+    "lluvia_mm_dia": 4.7504
    },
    "2020": {
-    "lluvia_mm_dia": 1.848
+    "lluvia_mm_dia": 3.9687
    }
   }
  },
@@ -28,24 +29,25 @@
   "region": "Áncash",
   "lat": -9.53,
   "lon": -77.53,
+  "celdas": 290,
   "anios": {
    "2015": {
-    "lluvia_mm_dia": 1.688
+    "lluvia_mm_dia": 1.5176
    },
    "2016": {
-    "lluvia_mm_dia": 1.536
+    "lluvia_mm_dia": 1.3436
    },
    "2017": {
-    "lluvia_mm_dia": 1.932
+    "lluvia_mm_dia": 1.8458
    },
    "2018": {
-    "lluvia_mm_dia": 2.234
+    "lluvia_mm_dia": 1.8771
    },
    "2019": {
-    "lluvia_mm_dia": 0.946
+    "lluvia_mm_dia": 0.9669
    },
    "2020": {
-    "lluvia_mm_dia": 0.58
+    "lluvia_mm_dia": 0.646
    }
   }
  },
@@ -53,24 +55,25 @@
   "region": "Apurímac",
   "lat": -13.63,
   "lon": -72.88,
+  "celdas": 176,
   "anios": {
    "2015": {
-    "lluvia_mm_dia": 2.014
+    "lluvia_mm_dia": 1.9961
    },
    "2016": {
-    "lluvia_mm_dia": 1.576
+    "lluvia_mm_dia": 1.6851
    },
    "2017": {
-    "lluvia_mm_dia": 2.138
+    "lluvia_mm_dia": 2.1904
    },
    "2018": {
-    "lluvia_mm_dia": 2.048
+    "lluvia_mm_dia": 1.9702
    },
    "2019": {
-    "lluvia_mm_dia": 2.18
+    "lluvia_mm_dia": 2.2979
    },
    "2020": {
-    "lluvia_mm_dia": 1.61
+    "lluvia_mm_dia": 1.7212
    }
   }
  },
@@ -78,24 +81,25 @@
   "region": "Arequipa",
   "lat": -16.4,
   "lon": -71.54,
+  "celdas": 538,
   "anios": {
    "2015": {
-    "lluvia_mm_dia": 0.542
+    "lluvia_mm_dia": 0.7981
    },
    "2016": {
-    "lluvia_mm_dia": 0.43
+    "lluvia_mm_dia": 0.6866
    },
    "2017": {
-    "lluvia_mm_dia": 0.718
+    "lluvia_mm_dia": 0.8414
    },
    "2018": {
-    "lluvia_mm_dia": 0.45
+    "lluvia_mm_dia": 0.7757
    },
    "2019": {
-    "lluvia_mm_dia": 0.61
+    "lluvia_mm_dia": 0.8765
    },
    "2020": {
-    "lluvia_mm_dia": 0.95
+    "lluvia_mm_dia": 0.9947
    }
   }
  },
@@ -103,24 +107,25 @@
   "region": "Ayacucho",
   "lat": -13.16,
   "lon": -74.22,
+  "celdas": 364,
   "anios": {
    "2015": {
-    "lluvia_mm_dia": 2.38
+    "lluvia_mm_dia": 1.7972
    },
    "2016": {
-    "lluvia_mm_dia": 1.712
+    "lluvia_mm_dia": 1.4272
    },
    "2017": {
-    "lluvia_mm_dia": 2.226
+    "lluvia_mm_dia": 1.8322
    },
    "2018": {
-    "lluvia_mm_dia": 1.964
+    "lluvia_mm_dia": 1.6344
    },
    "2019": {
-    "lluvia_mm_dia": 2.122
+    "lluvia_mm_dia": 1.8773
    },
    "2020": {
-    "lluvia_mm_dia": 1.528
+    "lluvia_mm_dia": 1.4624
    }
   }
  },
@@ -128,24 +133,25 @@
   "region": "Cajamarca",
   "lat": -7.16,
   "lon": -78.51,
+  "celdas": 269,
   "anios": {
    "2015": {
-    "lluvia_mm_dia": 1.718
+    "lluvia_mm_dia": 2.2246
    },
    "2016": {
-    "lluvia_mm_dia": 1.342
+    "lluvia_mm_dia": 1.8088
    },
    "2017": {
-    "lluvia_mm_dia": 1.716
+    "lluvia_mm_dia": 2.5334
    },
    "2018": {
-    "lluvia_mm_dia": 1.7
+    "lluvia_mm_dia": 2.1516
    },
    "2019": {
-    "lluvia_mm_dia": 1.472
+    "lluvia_mm_dia": 1.8822
    },
    "2020": {
-    "lluvia_mm_dia": 1.05
+    "lluvia_mm_dia": 1.5661
    }
   }
  },
@@ -153,24 +159,26 @@
   "region": "Callao",
   "lat": -12.06,
   "lon": -77.13,
+  "celdas": 1,
+  "nota": "Promedio de solo 1 celda(s): dato poco confiable",
   "anios": {
    "2015": {
-    "lluvia_mm_dia": 0.288
+    "lluvia_mm_dia": 0.25
    },
    "2016": {
-    "lluvia_mm_dia": 0.248
+    "lluvia_mm_dia": 0.236
    },
    "2017": {
-    "lluvia_mm_dia": 0.35
+    "lluvia_mm_dia": 0.376
    },
    "2018": {
-    "lluvia_mm_dia": 0.576
+    "lluvia_mm_dia": 0.646
    },
    "2019": {
-    "lluvia_mm_dia": 0.298
+    "lluvia_mm_dia": 0.306
    },
    "2020": {
-    "lluvia_mm_dia": 0.264
+    "lluvia_mm_dia": 0.26
    }
   }
  },
@@ -178,24 +186,25 @@
   "region": "Cusco",
   "lat": -13.53,
   "lon": -71.97,
+  "celdas": 603,
   "anios": {
    "2015": {
-    "lluvia_mm_dia": 1.806
+    "lluvia_mm_dia": 4.9753
    },
    "2016": {
-    "lluvia_mm_dia": 1.808
+    "lluvia_mm_dia": 4.3505
    },
    "2017": {
-    "lluvia_mm_dia": 1.926
+    "lluvia_mm_dia": 4.9145
    },
    "2018": {
-    "lluvia_mm_dia": 2.066
+    "lluvia_mm_dia": 4.8812
    },
    "2019": {
-    "lluvia_mm_dia": 2.066
+    "lluvia_mm_dia": 4.7987
    },
    "2020": {
-    "lluvia_mm_dia": 1.64
+    "lluvia_mm_dia": 3.6715
    }
   }
  },
@@ -203,24 +212,25 @@
   "region": "Huancavelica",
   "lat": -12.79,
   "lon": -74.98,
+  "celdas": 186,
   "anios": {
    "2015": {
-    "lluvia_mm_dia": 1.85
+    "lluvia_mm_dia": 1.7051
    },
    "2016": {
-    "lluvia_mm_dia": 1.414
+    "lluvia_mm_dia": 1.3176
    },
    "2017": {
-    "lluvia_mm_dia": 1.76
+    "lluvia_mm_dia": 1.7134
    },
    "2018": {
-    "lluvia_mm_dia": 1.536
+    "lluvia_mm_dia": 1.5668
    },
    "2019": {
-    "lluvia_mm_dia": 1.802
+    "lluvia_mm_dia": 1.6311
    },
    "2020": {
-    "lluvia_mm_dia": 1.252
+    "lluvia_mm_dia": 1.2048
    }
   }
  },
@@ -228,24 +238,25 @@
   "region": "Huánuco",
   "lat": -9.93,
   "lon": -76.24,
+  "celdas": 306,
   "anios": {
    "2015": {
-    "lluvia_mm_dia": 2.562
+    "lluvia_mm_dia": 4.8794
    },
    "2016": {
-    "lluvia_mm_dia": 2.406
+    "lluvia_mm_dia": 5.0131
    },
    "2017": {
-    "lluvia_mm_dia": 3.806
+    "lluvia_mm_dia": 6.5643
    },
    "2018": {
-    "lluvia_mm_dia": 3.424
+    "lluvia_mm_dia": 5.839
    },
    "2019": {
-    "lluvia_mm_dia": 1.954
+    "lluvia_mm_dia": 4.3081
    },
    "2020": {
-    "lluvia_mm_dia": 1.344
+    "lluvia_mm_dia": 3.1366
    }
   }
  },
@@ -253,24 +264,25 @@
   "region": "Ica",
   "lat": -14.07,
   "lon": -75.73,
+  "celdas": 175,
   "anios": {
    "2015": {
-    "lluvia_mm_dia": 0.28
+    "lluvia_mm_dia": 0.3463
    },
    "2016": {
-    "lluvia_mm_dia": 0.194
+    "lluvia_mm_dia": 0.2483
    },
    "2017": {
-    "lluvia_mm_dia": 0.286
+    "lluvia_mm_dia": 0.3976
    },
    "2018": {
-    "lluvia_mm_dia": 0.274
+    "lluvia_mm_dia": 0.3446
    },
    "2019": {
-    "lluvia_mm_dia": 0.298
+    "lluvia_mm_dia": 0.3635
    },
    "2020": {
-    "lluvia_mm_dia": 0.242
+    "lluvia_mm_dia": 0.3301
    }
   }
  },
@@ -278,24 +290,25 @@
   "region": "Junín",
   "lat": -12.07,
   "lon": -75.21,
+  "celdas": 365,
   "anios": {
    "2015": {
-    "lluvia_mm_dia": 1.96
+    "lluvia_mm_dia": 3.6465
    },
    "2016": {
-    "lluvia_mm_dia": 1.618
+    "lluvia_mm_dia": 3.0282
    },
    "2017": {
-    "lluvia_mm_dia": 1.978
+    "lluvia_mm_dia": 4.3131
    },
    "2018": {
-    "lluvia_mm_dia": 1.95
+    "lluvia_mm_dia": 3.7615
    },
    "2019": {
-    "lluvia_mm_dia": 1.79
+    "lluvia_mm_dia": 3.4317
    },
    "2020": {
-    "lluvia_mm_dia": 1.292
+    "lluvia_mm_dia": 2.3866
    }
   }
  },
@@ -303,24 +316,25 @@
   "region": "La Libertad",
   "lat": -8.11,
   "lon": -79.03,
+  "celdas": 214,
   "anios": {
    "2015": {
-    "lluvia_mm_dia": 0.586
+    "lluvia_mm_dia": 1.5426
    },
    "2016": {
-    "lluvia_mm_dia": 0.472
+    "lluvia_mm_dia": 1.3052
    },
    "2017": {
-    "lluvia_mm_dia": 0.664
+    "lluvia_mm_dia": 1.727
    },
    "2018": {
-    "lluvia_mm_dia": 0.698
+    "lluvia_mm_dia": 1.6129
    },
    "2019": {
-    "lluvia_mm_dia": 0.536
+    "lluvia_mm_dia": 1.2905
    },
    "2020": {
-    "lluvia_mm_dia": 0.358
+    "lluvia_mm_dia": 0.944
    }
   }
  },
@@ -328,24 +342,25 @@
   "region": "Lambayeque",
   "lat": -6.77,
   "lon": -79.84,
+  "celdas": 118,
   "anios": {
    "2015": {
-    "lluvia_mm_dia": 0.574
+    "lluvia_mm_dia": 0.8446
    },
    "2016": {
-    "lluvia_mm_dia": 0.528
+    "lluvia_mm_dia": 0.7374
    },
    "2017": {
-    "lluvia_mm_dia": 1.136
+    "lluvia_mm_dia": 1.7331
    },
    "2018": {
-    "lluvia_mm_dia": 0.602
+    "lluvia_mm_dia": 0.7549
    },
    "2019": {
-    "lluvia_mm_dia": 0.544
+    "lluvia_mm_dia": 0.7467
    },
    "2020": {
-    "lluvia_mm_dia": 0.438
+    "lluvia_mm_dia": 0.5547
    }
   }
  },
@@ -353,24 +368,25 @@
   "region": "Lima",
   "lat": -12.05,
   "lon": -77.04,
+  "celdas": 290,
   "anios": {
    "2015": {
-    "lluvia_mm_dia": 0.306
+    "lluvia_mm_dia": 0.8154
    },
    "2016": {
-    "lluvia_mm_dia": 0.3
+    "lluvia_mm_dia": 0.7125
    },
    "2017": {
-    "lluvia_mm_dia": 0.448
+    "lluvia_mm_dia": 1.1661
    },
    "2018": {
-    "lluvia_mm_dia": 0.618
+    "lluvia_mm_dia": 1.1504
    },
    "2019": {
-    "lluvia_mm_dia": 0.344
+    "lluvia_mm_dia": 0.8494
    },
    "2020": {
-    "lluvia_mm_dia": 0.3
+    "lluvia_mm_dia": 0.6414
    }
   }
  },
@@ -378,24 +394,25 @@
   "region": "Loreto",
   "lat": -3.75,
   "lon": -73.25,
+  "celdas": 3054,
   "anios": {
    "2015": {
-    "lluvia_mm_dia": 10.182
+    "lluvia_mm_dia": 8.1805
    },
    "2016": {
-    "lluvia_mm_dia": 9.506
+    "lluvia_mm_dia": 7.4739
    },
    "2017": {
-    "lluvia_mm_dia": 9.574
+    "lluvia_mm_dia": 8.084
    },
    "2018": {
-    "lluvia_mm_dia": 8.942
+    "lluvia_mm_dia": 7.3422
    },
    "2019": {
-    "lluvia_mm_dia": 10.25
+    "lluvia_mm_dia": 8.633
    },
    "2020": {
-    "lluvia_mm_dia": 7.602
+    "lluvia_mm_dia": 6.1704
    }
   }
  },
@@ -403,24 +420,25 @@
   "region": "Madre de Dios",
   "lat": -12.59,
   "lon": -69.19,
+  "celdas": 704,
   "anios": {
    "2015": {
-    "lluvia_mm_dia": 6.522
+    "lluvia_mm_dia": 6.8379
    },
    "2016": {
-    "lluvia_mm_dia": 5.486
+    "lluvia_mm_dia": 6.1287
    },
    "2017": {
-    "lluvia_mm_dia": 6.71
+    "lluvia_mm_dia": 6.4106
    },
    "2018": {
-    "lluvia_mm_dia": 6.992
+    "lluvia_mm_dia": 6.9923
    },
    "2019": {
-    "lluvia_mm_dia": 6.766
+    "lluvia_mm_dia": 6.9426
    },
    "2020": {
-    "lluvia_mm_dia": 5.82
+    "lluvia_mm_dia": 5.5602
    }
   }
  },
@@ -428,24 +446,25 @@
   "region": "Moquegua",
   "lat": -17.19,
   "lon": -70.93,
+  "celdas": 131,
   "anios": {
    "2015": {
-    "lluvia_mm_dia": 0.38
+    "lluvia_mm_dia": 0.7733
    },
    "2016": {
-    "lluvia_mm_dia": 0.28
+    "lluvia_mm_dia": 0.6145
    },
    "2017": {
-    "lluvia_mm_dia": 0.42
+    "lluvia_mm_dia": 0.7842
    },
    "2018": {
-    "lluvia_mm_dia": 0.304
+    "lluvia_mm_dia": 0.6999
    },
    "2019": {
-    "lluvia_mm_dia": 0.414
+    "lluvia_mm_dia": 0.7536
    },
    "2020": {
-    "lluvia_mm_dia": 0.592
+    "lluvia_mm_dia": 0.9578
    }
   }
  },
@@ -453,24 +472,25 @@
   "region": "Pasco",
   "lat": -10.68,
   "lon": -76.26,
+  "celdas": 199,
   "anios": {
    "2015": {
-    "lluvia_mm_dia": 1.702
+    "lluvia_mm_dia": 5.4327
    },
    "2016": {
-    "lluvia_mm_dia": 1.676
+    "lluvia_mm_dia": 5.0576
    },
    "2017": {
-    "lluvia_mm_dia": 2.602
+    "lluvia_mm_dia": 7.2954
    },
    "2018": {
-    "lluvia_mm_dia": 2.332
+    "lluvia_mm_dia": 6.1962
    },
    "2019": {
-    "lluvia_mm_dia": 1.478
+    "lluvia_mm_dia": 4.9169
    },
    "2020": {
-    "lluvia_mm_dia": 0.994
+    "lluvia_mm_dia": 3.6344
    }
   }
  },
@@ -478,24 +498,25 @@
   "region": "Piura",
   "lat": -5.19,
   "lon": -80.63,
+  "celdas": 291,
   "anios": {
    "2015": {
-    "lluvia_mm_dia": 0.51
+    "lluvia_mm_dia": 1.0768
    },
    "2016": {
-    "lluvia_mm_dia": 0.58
+    "lluvia_mm_dia": 1.0974
    },
    "2017": {
-    "lluvia_mm_dia": 2.596
+    "lluvia_mm_dia": 2.5692
    },
    "2018": {
-    "lluvia_mm_dia": 0.39
+    "lluvia_mm_dia": 0.8762
    },
    "2019": {
-    "lluvia_mm_dia": 0.53
+    "lluvia_mm_dia": 1.0623
    },
    "2020": {
-    "lluvia_mm_dia": 0.286
+    "lluvia_mm_dia": 0.7459
    }
   }
  },
@@ -503,24 +524,25 @@
   "region": "Puno",
   "lat": -15.84,
   "lon": -70.02,
+  "celdas": 567,
   "anios": {
    "2015": {
-    "lluvia_mm_dia": 1.67
+    "lluvia_mm_dia": 3.4983
    },
    "2016": {
-    "lluvia_mm_dia": 1.534
+    "lluvia_mm_dia": 3.141
    },
    "2017": {
-    "lluvia_mm_dia": 1.838
+    "lluvia_mm_dia": 3.5271
    },
    "2018": {
-    "lluvia_mm_dia": 1.9
+    "lluvia_mm_dia": 3.8506
    },
    "2019": {
-    "lluvia_mm_dia": 1.658
+    "lluvia_mm_dia": 3.381
    },
    "2020": {
-    "lluvia_mm_dia": 1.538
+    "lluvia_mm_dia": 2.9775
    }
   }
  },
@@ -528,24 +550,25 @@
   "region": "San Martín",
   "lat": -6.03,
   "lon": -76.97,
+  "celdas": 420,
   "anios": {
    "2015": {
-    "lluvia_mm_dia": 4.626
+    "lluvia_mm_dia": 4.6081
    },
    "2016": {
-    "lluvia_mm_dia": 3.836
+    "lluvia_mm_dia": 4.1343
    },
    "2017": {
-    "lluvia_mm_dia": 4.716
+    "lluvia_mm_dia": 4.9469
    },
    "2018": {
-    "lluvia_mm_dia": 4.052
+    "lluvia_mm_dia": 4.5998
    },
    "2019": {
-    "lluvia_mm_dia": 3.978
+    "lluvia_mm_dia": 4.2783
    },
    "2020": {
-    "lluvia_mm_dia": 2.864
+    "lluvia_mm_dia": 3.1872
    }
   }
  },
@@ -553,24 +576,25 @@
   "region": "Tacna",
   "lat": -18.01,
   "lon": -70.25,
+  "celdas": 138,
   "anios": {
    "2015": {
-    "lluvia_mm_dia": 0.256
+    "lluvia_mm_dia": 0.5872
    },
    "2016": {
-    "lluvia_mm_dia": 0.19
+    "lluvia_mm_dia": 0.3944
    },
    "2017": {
-    "lluvia_mm_dia": 0.248
+    "lluvia_mm_dia": 0.5448
    },
    "2018": {
-    "lluvia_mm_dia": 0.226
+    "lluvia_mm_dia": 0.5298
    },
    "2019": {
-    "lluvia_mm_dia": 0.34
+    "lluvia_mm_dia": 0.5696
    },
    "2020": {
-    "lluvia_mm_dia": 0.372
+    "lluvia_mm_dia": 0.6712
    }
   }
  },
@@ -578,24 +602,25 @@
   "region": "Tumbes",
   "lat": -3.57,
   "lon": -80.45,
+  "celdas": 37,
   "anios": {
    "2015": {
-    "lluvia_mm_dia": 1.752
+    "lluvia_mm_dia": 1.5571
    },
    "2016": {
-    "lluvia_mm_dia": 2.218
+    "lluvia_mm_dia": 1.794
    },
    "2017": {
-    "lluvia_mm_dia": 3.04
+    "lluvia_mm_dia": 2.9112
    },
    "2018": {
-    "lluvia_mm_dia": 1.324
+    "lluvia_mm_dia": 1.1068
    },
    "2019": {
-    "lluvia_mm_dia": 1.694
+    "lluvia_mm_dia": 1.5405
    },
    "2020": {
-    "lluvia_mm_dia": 1.37
+    "lluvia_mm_dia": 1.1197
    }
   }
  },
@@ -603,24 +628,25 @@
   "region": "Ucayali",
   "lat": -8.38,
   "lon": -74.55,
+  "celdas": 867,
   "anios": {
    "2015": {
-    "lluvia_mm_dia": 4.876
+    "lluvia_mm_dia": 5.8526
    },
    "2016": {
-    "lluvia_mm_dia": 4.988
+    "lluvia_mm_dia": 5.7567
    },
    "2017": {
-    "lluvia_mm_dia": 6.662
+    "lluvia_mm_dia": 6.6584
    },
    "2018": {
-    "lluvia_mm_dia": 5.682
+    "lluvia_mm_dia": 6.0748
    },
    "2019": {
-    "lluvia_mm_dia": 6.316
+    "lluvia_mm_dia": 5.9669
    },
    "2020": {
-    "lluvia_mm_dia": 4.296
+    "lluvia_mm_dia": 4.0526
    }
   }
  }
