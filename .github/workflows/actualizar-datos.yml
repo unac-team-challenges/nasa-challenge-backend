@@ -21,8 +21,8 @@ jobs:
           cache: pip
           cache-dependency-path: pipeline/requirements.txt
       - run: pip install -r pipeline/requirements.txt
-      - run: python pipeline/power.py 2000 "$(date +%Y)"
-      - run: python -W ignore pipeline/gpm.py 2000 "$(date +%Y)"
+      - run: python pipeline/power.py 1981 "$(date +%Y)"
+      - run: python -W ignore pipeline/gpm.py 2001 "$(date +%Y)"
         env:
           EARTHDATA_USERNAME: ${{ secrets.EARTHDATA_USERNAME }}
           EARTHDATA_PASSWORD: ${{ secrets.EARTHDATA_PASSWORD }}

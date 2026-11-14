@@ -20,10 +20,10 @@ Valen para todo `pipeline/*.py` y todo `data/*.json`, hoy y en los que se añada
 ## 3b. Fuentes elegidas (decididas el 2026-11-14)
 | Variable | Fuente del producto | Archivo | Notas |
 |---|---|---|---|
-| **Lluvia** | **GPM IMERG** (NASA, `GPM_3IMERGM` v07, ~10 km) | `data/gpm.json` | Es la única lluvia que muestra la ficha. Periodo: 2000–2024 hoy. IMERG v07 mensual existe de **ene 1998 a sep 2025** (catálogo CMR de NASA, verificado el 2026-11-14): 1998–1999 se pueden añadir y **2025 nunca será año completo**. |
+| **Lluvia** | **GPM IMERG** (NASA, `GPM_3IMERGM` v07, ~10 km) | `data/gpm.json` | Es la única lluvia que muestra la ficha. Periodo: 2001–2024 (elegido por el equipo). IMERG v07 mensual existe de **ene 1998 a sep 2025** (catálogo CMR de NASA, verificado el 2026-11-14): se puede ampliar hacia atrás y **2025 nunca será año completo**. |
 | **Temperatura** | **MERRA-2 vía POWER** (`T2M`, `T2M_MAX`, `T2M_MIN`) | `data/power.json` | POWER ya usa MERRA-2: no se baja MERRA-2 aparte. |
 
-- **Unidad geográfica: promedio del departamento** (todas las regiones, no solo la costa), no el píxel de la capital. Los JSON de hoy siguen siendo del píxel de la capital hasta que el pipeline lo implemente (parte de Josue; hay un cálculo de partida en `pipeline/exploracion/`).
+- **Unidad geográfica: promedio del departamento** (todas las regiones, no solo la costa), no el píxel de la capital. `pipeline/power.py` y `pipeline/gpm.py` ya lo calculan (máscara en `pipeline/departamentos.py`); `lat`/`lon` siguen siendo la capital, solo como punto del mapa.
 - **Temperatura en la primera versión: solo `T2M`.** `T2M_MAX` y `T2M_MIN` quedan en `power.json` como extra si sobra tiempo; la API no las expone todavía.
 - **CHIRPS descartado**: no es de NASA y daría una segunda lluvia que contradice a IMERG en la costa (regla 3). La rama `feat/pipeline-chirps` queda en GitHub por si se retoma; no entra a `developer`.
 - **`PRECTOTCORR` de POWER** sigue en `power.json` solo como referencia: la ficha no la muestra.
@@ -39,7 +39,7 @@ Valen para todo `pipeline/*.py` y todo `data/*.json`, hoy y en los que se añada
 Un solo píxel de la capital no representa la región cuando las fuentes discrepan. Caso real (comparación hecha antes de descartar CHIRPS): Piura 2017 = 2,60 (GPM) vs 0,33 (CHIRPS); en el desierto costero GPM sobreestima (~100 mm/año de más).
 
 Al detectar un caso así:
-1. **Usar el promedio del departamento** en vez del píxel de la capital: ya es la regla para todas las regiones (sección 3b). Mientras el pipeline no lo implemente, estas regiones llevan la `nota` (ver `pipeline/exploracion/lab4_departamentos.py` y `pipeline/exploracion/josue/`).
+1. **Usar el promedio del departamento** en vez del píxel de la capital: ya es la regla para todas las regiones (sección 3b). Ya está implementado; la `nota` queda solo para las regiones con menos de 4 celdas (p. ej. Callao en POWER, que usa la celda de su capital).
 2. **Mostrar siempre fuente y unidad** en la respuesta de la API.
 3. **Añadir un campo `nota`** en las regiones afectadas (p. ej. "IMERG sobreestima la lluvia en el desierto costero").
 4. **Documentar el caso** aquí o en `docs/datos.md` (qué región, qué fuentes, cuánto difieren).

@@ -161,24 +161,38 @@ async fn datos_se_cachean_pero_health_no() {
 #[test]
 fn campos_desconocidos_y_regiones_distintas_se_rechazan() {
     let medida_ok = r#"{"PRECTOTCORR":1,"T2M":2,"T2M_MAX":3,"T2M_MIN":0}"#;
-    let region = |m: &str| format!(r#"[{{"region":"X","lat":1,"lon":2,"anios":{{"2020":{m}}}}}]"#);
+    let region = |m: &str| format!(r#"[{{"region":"X","lat":1,"lon":2,"celdas":4,"anios":{{"2020":{m}}}}}]"#);
     let gpm_ok = region(r#"{"lluvia_mm_dia":1}"#);
     assert!(Datos::desde_json(&region(medida_ok), &gpm_ok).is_ok());
     // un campo de más en las medidas
     let power_extra = region(r#"{"PRECTOTCORR":1,"T2M":2,"T2M_MAX":3,"T2M_MIN":0,"nuevo":1}"#);
     assert!(Datos::desde_json(&power_extra, &gpm_ok).is_err());
     // un campo de más en la región
-    let region_extra = r#"[{"region":"X","lat":1,"lon":2,"nota":"x","anios":{}}]"#;
+    let region_extra = r#"[{"region":"X","lat":1,"lon":2,"celdas":4,"nuevo":"x","anios":{}}]"#;
     assert!(Datos::desde_json(region_extra, "[]").is_err());
     // power.json y gpm.json con regiones distintas
     let otra = gpm_ok.replace("\"X\"", "\"Y\"");
     assert!(Datos::desde_json(&region(medida_ok), &otra).is_err());
+    // `celdas` es obligatorio; `nota` es opcional
+    assert!(Datos::desde_json(r#"[{"region":"X","lat":1,"lon":2,"anios":{}}]"#, "[]").is_err());
+    let con_nota = r#"[{"region":"X","lat":1,"lon":2,"celdas":1,"nota":"x","anios":{}}]"#;
+    assert!(Datos::desde_json(con_nota, con_nota).is_ok());
+}
+
+#[tokio::test]
+async fn callao_lleva_celdas_y_nota_y_lima_no_lleva_nota() {
+    let (_, _, callao) = get("/power/callao", None).await;
+    assert_eq!(callao["celdas"], 0);
+    assert!(callao["nota"].is_string());
+    let (_, _, lima) = get("/power/lima", None).await;
+    assert!(lima["celdas"].as_u64().unwrap() >= 4);
+    assert!(lima.get("nota").is_none());
 }
 
 #[test]
 fn json_con_forma_incorrecta_se_rechaza() {
-    assert!(Datos::desde_json(r#"[{"region":"X","lat":1,"lon":2,"anios":{"2020":{"T2M":null}}}]"#, "[]").is_err());
-    assert!(Datos::desde_json("[]", r#"[{"region":"X","lat":1,"lon":2,"anios":{"2020":{"lluvia_mm_dia":null}}}]"#).is_err());
+    assert!(Datos::desde_json(r#"[{"region":"X","lat":1,"lon":2,"celdas":4,"anios":{"2020":{"T2M":null}}}]"#, "[]").is_err());
+    assert!(Datos::desde_json("[]", r#"[{"region":"X","lat":1,"lon":2,"celdas":4,"anios":{"2020":{"lluvia_mm_dia":null}}}]"#).is_err());
 }
 
 /// `openapi.json` (raíz del repo) es el contrato que copia el frontend: no puede quedar viejo.

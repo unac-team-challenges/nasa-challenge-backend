@@ -15,7 +15,7 @@
 **Fuente de temperatura (decisión del equipo, 2026-11-14):** MERRA-2, a través de POWER. POWER ya usa MERRA-2 por debajo, así que no se baja MERRA-2 aparte (cada archivo pesa ~75 MB).
 
 - **Corregida (`CORR`)**: se ajusta el modelo con observaciones (GPCP) para reducir el error. Por eso se prefiere a `PRECTOT`.
-- **Resumen por región (primera versión, 2015-2020; ahora el JSON cubre 2000–2025)**: Loreto y Madre de Dios son las más lluviosas (6-8 mm/día). La costa (Tacna, Lima, Callao) casi no llueve (~0.1). La temperatura baja con la altura: Huancavelica y Pasco ~5-7 °C, y la selva ~25-27 °C.
+- **Resumen por región (primera versión, 2015-2020; ahora el JSON cubre 1981–2024)**: Loreto y Madre de Dios son las más lluviosas (6-8 mm/día). La costa (Tacna, Lima, Callao) casi no llueve (~0.1). La temperatura baja con la altura: Huancavelica y Pasco ~5-7 °C, y la selva ~25-27 °C.
 
 ## Parámetros de la consulta
 

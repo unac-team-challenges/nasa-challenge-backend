@@ -6,3 +6,5 @@ python-dotenv
 xarray
 h5netcdf
 h5py
+geopandas
+regionmask
