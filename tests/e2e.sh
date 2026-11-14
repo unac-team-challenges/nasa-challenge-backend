@@ -20,6 +20,18 @@ chk "pipeline/power.py compila" python3 -m py_compile pipeline/power.py
 chk "gpm.json es JSON válido con 25 regiones" jq -e 'length == 25' data/gpm.json
 chk "gpm.json: todos los valores son números (sin null/NaN)" jq -e '[.[].anios[][]] | length > 0 and all(type == "number")' data/gpm.json
 chk "pipeline/gpm.py compila" python3 -m py_compile pipeline/gpm.py
+chk "pipeline/tendencias.py compila" python3 -m py_compile pipeline/tendencias.py
+chk "tests/test_tendencias.py (semáforo, aviso, periodo)" python3 -m unittest -q tests/test_tendencias.py
+chk "variables.json tiene lluvia y temperatura" jq -e '[.[].id] == ["lluvia","temperatura"]' data/variables.json
+chk "variables.json: periodo 2001–2024 y lluvia de IMERG" jq -e 'all(.anio_inicio == 2001 and .anio_fin == 2024) and (.[0].fuente | test("IMERG"))' data/variables.json
+chk "zonas/lluvia.json: aviso del cambio de satélites de 2014 en las 25" jq -e 'all(.[].stats.aviso; type == "string" and test("2014"))' data/zonas/lluvia.json
+for v in lluvia temperatura; do
+  chk "zonas/$v.json: 25 zonas con id 01–25" jq -e '[.[].id] == ([range(1;26)] | map(tostring | if length == 1 then "0" + . else . end))' data/zonas/$v.json
+  chk "zonas/$v.json: stats numéricos (sin null/NaN)" jq -e '[.[].stats | to_entries[] | select(.key != "status" and .key != "aviso") | .value] | all(type == "number")' data/zonas/$v.json
+  chk "zonas/$v.json: periodo 2001–2024" jq -e 'all(.[].stats; .year_start == 2001 and .year_end == 2024)' data/zonas/$v.json
+  chk "zonas/$v.json: status válido" jq -e 'all(.[].stats.status; IN("real","posible_casualidad","pocos_datos"))' data/zonas/$v.json
+  chk "zonas/$v/: 25 fichas con serie numérica" bash -c "ls data/zonas/$v/*.json | wc -l | grep -qx 25 && jq -s -e 'all(.[].serie[]; (.anio|type==\"number\") and (.valor|type==\"number\"))' data/zonas/$v/*.json"
+done
 
 echo "== tests de integración (cargo test)"
 chk "cargo test" cargo test --quiet

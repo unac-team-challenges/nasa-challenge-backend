@@ -1,0 +1,121 @@
+{
+ "id": "17",
+ "nombre": "Madre de Dios",
+ "lat": -12.59,
+ "lon": -69.19,
+ "celdas": 25,
+ "variable": "temperatura",
+ "unidad": "°C",
+ "fuente": "MERRA-2 vía NASA POWER (T2M)",
+ "serie": [
+  {
+   "anio": 2001,
+   "valor": 24.5025
+  },
+  {
+   "anio": 2002,
+   "valor": 25.2746
+  },
+  {
+   "anio": 2003,
+   "valor": 24.9828
+  },
+  {
+   "anio": 2004,
+   "valor": 25.0804
+  },
+  {
+   "anio": 2005,
+   "valor": 25.6376
+  },
+  {
+   "anio": 2006,
+   "valor": 24.8763
+  },
+  {
+   "anio": 2007,
+   "valor": 24.9994
+  },
+  {
+   "anio": 2008,
+   "valor": 25.0179
+  },
+  {
+   "anio": 2009,
+   "valor": 24.3887
+  },
+  {
+   "anio": 2010,
+   "valor": 24.9848
+  },
+  {
+   "anio": 2011,
+   "valor": 24.4743
+  },
+  {
+   "anio": 2012,
+   "valor": 24.5585
+  },
+  {
+   "anio": 2013,
+   "valor": 24.5361
+  },
+  {
+   "anio": 2014,
+   "valor": 24.3817
+  },
+  {
+   "anio": 2015,
+   "valor": 25.062
+  },
+  {
+   "anio": 2016,
+   "valor": 25.588
+  },
+  {
+   "anio": 2017,
+   "valor": 25.2217
+  },
+  {
+   "anio": 2018,
+   "valor": 24.6263
+  },
+  {
+   "anio": 2019,
+   "valor": 25.0967
+  },
+  {
+   "anio": 2020,
+   "valor": 25.2281
+  },
+  {
+   "anio": 2021,
+   "valor": 25.2401
+  },
+  {
+   "anio": 2022,
+   "valor": 24.527
+  },
+  {
+   "anio": 2023,
+   "valor": 25.5111
+  },
+  {
+   "anio": 2024,
+   "valor": 26.5818
+  }
+ ],
+ "stats": {
+  "year_start": 2001,
+  "year_end": 2024,
+  "n_years": 24,
+  "slope_per_decade": 0.143619,
+  "intercept": -3.89473,
+  "ci_low": -0.1099,
+  "ci_high": 0.4495,
+  "p_value": 0.267327,
+  "lag1": 0.1823,
+  "q_value": 0.318246,
+  "status": "posible_casualidad"
+ }
+}

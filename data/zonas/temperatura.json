@@ -1,0 +1,506 @@
+[
+ {
+  "id": "01",
+  "nombre": "Amazonas",
+  "lat": -6.23,
+  "lon": -77.87,
+  "celdas": 8,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2024,
+   "n_years": 24,
+   "slope_per_decade": 0.196273,
+   "intercept": -19.163847,
+   "ci_low": -0.1734,
+   "ci_high": 0.6244,
+   "p_value": 0.139144,
+   "lag1": 0.3425,
+   "q_value": 0.17393,
+   "status": "posible_casualidad"
+  }
+ },
+ {
+  "id": "02",
+  "nombre": "Áncash",
+  "lat": -9.53,
+  "lon": -77.53,
+  "celdas": 10,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2024,
+   "n_years": 24,
+   "slope_per_decade": 0.262854,
+   "intercept": -39.082001,
+   "ci_low": 0.0452,
+   "ci_high": 0.4762,
+   "p_value": 0.023129,
+   "lag1": 0.2479,
+   "q_value": 0.044479,
+   "status": "real"
+  }
+ },
+ {
+  "id": "03",
+  "nombre": "Apurímac",
+  "lat": -13.63,
+  "lon": -72.88,
+  "celdas": 6,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2024,
+   "n_years": 24,
+   "slope_per_decade": 0.499857,
+   "intercept": -92.13735,
+   "ci_low": 0.259,
+   "ci_high": 0.7963,
+   "p_value": 0.00049,
+   "lag1": 0.1942,
+   "q_value": 0.010605,
+   "status": "real"
+  }
+ },
+ {
+  "id": "04",
+  "nombre": "Arequipa",
+  "lat": -16.4,
+  "lon": -71.54,
+  "celdas": 17,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2024,
+   "n_years": 24,
+   "slope_per_decade": 0.318173,
+   "intercept": -52.192332,
+   "ci_low": 0.1167,
+   "ci_high": 0.5716,
+   "p_value": 0.002606,
+   "lag1": 0.2115,
+   "q_value": 0.013028,
+   "status": "real"
+  }
+ },
+ {
+  "id": "05",
+  "nombre": "Ayacucho",
+  "lat": -13.16,
+  "lon": -74.22,
+  "celdas": 11,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2024,
+   "n_years": 24,
+   "slope_per_decade": 0.342298,
+   "intercept": -58.278796,
+   "ci_low": 0.1328,
+   "ci_high": 0.6115,
+   "p_value": 0.011232,
+   "lag1": 0.2039,
+   "q_value": 0.035099,
+   "status": "real"
+  }
+ },
+ {
+  "id": "06",
+  "nombre": "Cajamarca",
+  "lat": -7.16,
+  "lon": -78.51,
+  "celdas": 8,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2024,
+   "n_years": 24,
+   "slope_per_decade": 0.237614,
+   "intercept": -29.853275,
+   "ci_low": -0.0537,
+   "ci_high": 0.5522,
+   "p_value": 0.113051,
+   "lag1": 0.2327,
+   "q_value": 0.148751,
+   "status": "posible_casualidad"
+  }
+ },
+ {
+  "id": "07",
+  "nombre": "Callao",
+  "lat": -12.06,
+  "lon": -77.13,
+  "celdas": 0,
+  "nota": "Sin celdas propias de POWER: se usa la celda de la capital (compartida con Lima)",
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2024,
+   "n_years": 24,
+   "slope_per_decade": 0.353312,
+   "intercept": -52.883741,
+   "ci_low": 0.0416,
+   "ci_high": 0.5238,
+   "p_value": 0.030337,
+   "lag1": 0.1837,
+   "q_value": 0.054174,
+   "status": "pocos_datos"
+  }
+ },
+ {
+  "id": "08",
+  "nombre": "Cusco",
+  "lat": -13.53,
+  "lon": -71.97,
+  "celdas": 20,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2024,
+   "n_years": 24,
+   "slope_per_decade": 0.3313,
+   "intercept": -52.361775,
+   "ci_low": 0.0673,
+   "ci_high": 0.6005,
+   "p_value": 0.023129,
+   "lag1": 0.2133,
+   "q_value": 0.044479,
+   "status": "real"
+  }
+ },
+ {
+  "id": "09",
+  "nombre": "Huancavelica",
+  "lat": -12.79,
+  "lon": -74.98,
+  "celdas": 5,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2024,
+   "n_years": 24,
+   "slope_per_decade": 0.3285,
+   "intercept": -58.049025,
+   "ci_low": 0.1273,
+   "ci_high": 0.6098,
+   "p_value": 0.00602,
+   "lag1": 0.3319,
+   "q_value": 0.025084,
+   "status": "real"
+  }
+ },
+ {
+  "id": "10",
+  "nombre": "Huánuco",
+  "lat": -9.93,
+  "lon": -76.24,
+  "celdas": 9,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2024,
+   "n_years": 24,
+   "slope_per_decade": 0.55451,
+   "intercept": -94.455498,
+   "ci_low": 0.2206,
+   "ci_high": 0.9197,
+   "p_value": 0.002187,
+   "lag1": 0.5404,
+   "q_value": 0.013028,
+   "status": "real",
+   "aviso": "Años muy parecidos entre sí (lag1 alto): la tendencia puede parecer más segura de lo que es"
+  }
+ },
+ {
+  "id": "11",
+  "nombre": "Ica",
+  "lat": -14.07,
+  "lon": -75.73,
+  "celdas": 6,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2024,
+   "n_years": 24,
+   "slope_per_decade": 0.335816,
+   "intercept": -50.486628,
+   "ci_low": 0.0856,
+   "ci_high": 0.5682,
+   "p_value": 0.015109,
+   "lag1": 0.2469,
+   "q_value": 0.037772,
+   "status": "real"
+  }
+ },
+ {
+  "id": "12",
+  "nombre": "Junín",
+  "lat": -12.07,
+  "lon": -75.21,
+  "celdas": 13,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2024,
+   "n_years": 24,
+   "slope_per_decade": 0.261764,
+   "intercept": -38.305833,
+   "ci_low": 0.0482,
+   "ci_high": 0.5217,
+   "p_value": 0.044729,
+   "lag1": 0.1349,
+   "q_value": 0.074548,
+   "status": "posible_casualidad"
+  }
+ },
+ {
+  "id": "13",
+  "nombre": "La Libertad",
+  "lat": -8.11,
+  "lon": -79.03,
+  "celdas": 7,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2024,
+   "n_years": 24,
+   "slope_per_decade": 0.172567,
+   "intercept": -17.219542,
+   "ci_low": -0.1193,
+   "ci_high": 0.4625,
+   "p_value": 0.428178,
+   "lag1": 0.2224,
+   "q_value": 0.465411,
+   "status": "posible_casualidad"
+  }
+ },
+ {
+  "id": "14",
+  "nombre": "Lambayeque",
+  "lat": -6.77,
+  "lon": -79.84,
+  "celdas": 3,
+  "nota": "Promedio de solo 3 celda(s): dato poco confiable",
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2024,
+   "n_years": 24,
+   "slope_per_decade": 0.193709,
+   "intercept": -16.520063,
+   "ci_low": -0.1687,
+   "ci_high": 0.5055,
+   "p_value": 0.459608,
+   "lag1": 0.1207,
+   "q_value": 0.478758,
+   "status": "pocos_datos"
+  }
+ },
+ {
+  "id": "15",
+  "nombre": "Lima",
+  "lat": -12.05,
+  "lon": -77.04,
+  "celdas": 9,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2024,
+   "n_years": 24,
+   "slope_per_decade": 0.301649,
+   "intercept": -46.991454,
+   "ci_low": 0.0193,
+   "ci_high": 0.5251,
+   "p_value": 0.064497,
+   "lag1": 0.2298,
+   "q_value": 0.094848,
+   "status": "posible_casualidad"
+  }
+ },
+ {
+  "id": "16",
+  "nombre": "Loreto",
+  "lat": -3.75,
+  "lon": -73.25,
+  "celdas": 97,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2024,
+   "n_years": 24,
+   "slope_per_decade": 0.2614,
+   "intercept": -27.1567,
+   "ci_low": -0.0046,
+   "ci_high": 0.5535,
+   "p_value": 0.020119,
+   "lag1": 0.329,
+   "q_value": 0.044479,
+   "status": "real"
+  }
+ },
+ {
+  "id": "17",
+  "nombre": "Madre de Dios",
+  "lat": -12.59,
+  "lon": -69.19,
+  "celdas": 25,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2024,
+   "n_years": 24,
+   "slope_per_decade": 0.143619,
+   "intercept": -3.89473,
+   "ci_low": -0.1099,
+   "ci_high": 0.4495,
+   "p_value": 0.267327,
+   "lag1": 0.1823,
+   "q_value": 0.318246,
+   "status": "posible_casualidad"
+  }
+ },
+ {
+  "id": "18",
+  "nombre": "Moquegua",
+  "lat": -17.19,
+  "lon": -70.93,
+  "celdas": 5,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2024,
+   "n_years": 24,
+   "slope_per_decade": 0.303667,
+   "intercept": -50.038567,
+   "ci_low": 0.1124,
+   "ci_high": 0.535,
+   "p_value": 0.008265,
+   "lag1": 0.1384,
+   "q_value": 0.029518,
+   "status": "real"
+  }
+ },
+ {
+  "id": "19",
+  "nombre": "Pasco",
+  "lat": -10.68,
+  "lon": -76.26,
+  "celdas": 5,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2024,
+   "n_years": 24,
+   "slope_per_decade": 0.459094,
+   "intercept": -72.877957,
+   "ci_low": 0.1275,
+   "ci_high": 0.8007,
+   "p_value": 0.013043,
+   "lag1": 0.3546,
+   "q_value": 0.036232,
+   "status": "real"
+  }
+ },
+ {
+  "id": "20",
+  "nombre": "Piura",
+  "lat": -5.19,
+  "lon": -80.63,
+  "celdas": 10,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2024,
+   "n_years": 24,
+   "slope_per_decade": 0.193091,
+   "intercept": -15.941145,
+   "ci_low": -0.1227,
+   "ci_high": 0.4972,
+   "p_value": 0.315573,
+   "lag1": 0.0836,
+   "q_value": 0.358605,
+   "status": "posible_casualidad"
+  }
+ },
+ {
+  "id": "21",
+  "nombre": "Puno",
+  "lat": -15.84,
+  "lon": -70.02,
+  "celdas": 19,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2024,
+   "n_years": 24,
+   "slope_per_decade": 0.195478,
+   "intercept": -30.441833,
+   "ci_low": -0.0002,
+   "ci_high": 0.4518,
+   "p_value": 0.05723,
+   "lag1": 0.224,
+   "q_value": 0.089421,
+   "status": "posible_casualidad"
+  }
+ },
+ {
+  "id": "22",
+  "nombre": "San Martín",
+  "lat": -6.03,
+  "lon": -76.97,
+  "celdas": 15,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2024,
+   "n_years": 24,
+   "slope_per_decade": 0.24645,
+   "intercept": -28.910913,
+   "ci_low": -0.1053,
+   "ci_high": 0.8331,
+   "p_value": 0.072509,
+   "lag1": 0.4524,
+   "q_value": 0.100706,
+   "status": "posible_casualidad"
+  }
+ },
+ {
+  "id": "23",
+  "nombre": "Tacna",
+  "lat": -18.01,
+  "lon": -70.25,
+  "celdas": 4,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2024,
+   "n_years": 24,
+   "slope_per_decade": 0.414486,
+   "intercept": -68.119372,
+   "ci_low": 0.1746,
+   "ci_high": 0.6166,
+   "p_value": 0.001273,
+   "lag1": 0.2257,
+   "q_value": 0.010605,
+   "status": "real"
+  }
+ },
+ {
+  "id": "24",
+  "nombre": "Tumbes",
+  "lat": -3.57,
+  "lon": -80.45,
+  "celdas": 1,
+  "nota": "Promedio de solo 1 celda(s): dato poco confiable",
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2024,
+   "n_years": 24,
+   "slope_per_decade": 0.183449,
+   "intercept": -10.896243,
+   "ci_low": -0.196,
+   "ci_high": 0.5157,
+   "p_value": 0.597354,
+   "lag1": 0.0393,
+   "q_value": 0.597354,
+   "status": "pocos_datos"
+  }
+ },
+ {
+  "id": "25",
+  "nombre": "Ucayali",
+  "lat": -8.38,
+  "lon": -74.55,
+  "celdas": 31,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2024,
+   "n_years": 24,
+   "slope_per_decade": 0.767,
+   "intercept": -128.4494,
+   "ci_low": 0.4296,
+   "ci_high": 1.2535,
+   "p_value": 0.001057,
+   "lag1": 0.2191,
+   "q_value": 0.010605,
+   "status": "real"
+  }
+ }
+]

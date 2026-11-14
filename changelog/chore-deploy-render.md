@@ -1,0 +1,10 @@
+# chore/deploy-render
+
+## Añadido
+- `render.yaml` (Blueprint de Render): servicio web Rust, plan free, build `cargo build --release`, start `cargo run --release`, health check `/health`.
+- Sección «Despliegue (Render)» en `README.md`.
+
+## Notas
+- Sin cambios de código: la API ya lee `PORT` y escucha en `0.0.0.0`.
+- Axum, no Rocket: se usan solo los comandos de build/start de la guía oficial de Rust de Render, que valen para cualquier framework.
+- Pendiente (Sebastian, cuenta de Render): conectar el repo: crear el Blueprint y definir `CORS_ORIGINS` con la URL de Vercel.

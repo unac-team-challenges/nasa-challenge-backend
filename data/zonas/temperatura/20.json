@@ -1,0 +1,121 @@
+{
+ "id": "20",
+ "nombre": "Piura",
+ "lat": -5.19,
+ "lon": -80.63,
+ "celdas": 10,
+ "variable": "temperatura",
+ "unidad": "°C",
+ "fuente": "MERRA-2 vía NASA POWER (T2M)",
+ "serie": [
+  {
+   "anio": 2001,
+   "valor": 22.3426
+  },
+  {
+   "anio": 2002,
+   "valor": 23.1019
+  },
+  {
+   "anio": 2003,
+   "valor": 22.9624
+  },
+  {
+   "anio": 2004,
+   "valor": 22.7625
+  },
+  {
+   "anio": 2005,
+   "valor": 22.7823
+  },
+  {
+   "anio": 2006,
+   "valor": 23.1622
+  },
+  {
+   "anio": 2007,
+   "valor": 22.5161
+  },
+  {
+   "anio": 2008,
+   "valor": 22.4385
+  },
+  {
+   "anio": 2009,
+   "valor": 23.1646
+  },
+  {
+   "anio": 2010,
+   "valor": 22.8678
+  },
+  {
+   "anio": 2011,
+   "valor": 22.5024
+  },
+  {
+   "anio": 2012,
+   "valor": 22.9535
+  },
+  {
+   "anio": 2013,
+   "valor": 22.591
+  },
+  {
+   "anio": 2014,
+   "valor": 23.3371
+  },
+  {
+   "anio": 2015,
+   "valor": 23.9373
+  },
+  {
+   "anio": 2016,
+   "valor": 23.6035
+  },
+  {
+   "anio": 2017,
+   "valor": 22.6372
+  },
+  {
+   "anio": 2018,
+   "valor": 22.8833
+  },
+  {
+   "anio": 2019,
+   "valor": 23.3033
+  },
+  {
+   "anio": 2020,
+   "valor": 22.9551
+  },
+  {
+   "anio": 2021,
+   "valor": 22.586
+  },
+  {
+   "anio": 2022,
+   "valor": 22.1647
+  },
+  {
+   "anio": 2023,
+   "valor": 24.0075
+  },
+  {
+   "anio": 2024,
+   "valor": 23.5291
+  }
+ ],
+ "stats": {
+  "year_start": 2001,
+  "year_end": 2024,
+  "n_years": 24,
+  "slope_per_decade": 0.193091,
+  "intercept": -15.941145,
+  "ci_low": -0.1227,
+  "ci_high": 0.4972,
+  "p_value": 0.315573,
+  "lag1": 0.0836,
+  "q_value": 0.358605,
+  "status": "posible_casualidad"
+ }
+}
