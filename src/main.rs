@@ -6,9 +6,17 @@ use axum::{
 };
 use serde_json::{json, Value};
 use std::sync::Arc;
+use tower_http::cors::{AllowOrigin, CorsLayer};
 
 // JSON ya procesado por pipeline/power.py. La API nunca calcula en vivo.
 const POWER: &str = include_str!("../data/power.json");
+
+// CORS solo para localhost. Añadir aquí la URL de Vercel cuando exista.
+fn origen_permitido(o: &str) -> bool {
+    ["http://localhost", "http://127.0.0.1"]
+        .iter()
+        .any(|h| o.strip_prefix(h).is_some_and(|r| r.is_empty() || r.starts_with(':')))
+}
 
 type Datos = Arc<Vec<Value>>;
 
@@ -30,6 +38,9 @@ async fn main() {
     let app = Router::new()
         .route("/regiones", get(regiones))
         .route("/power/{region}", get(power))
+        .layer(CorsLayer::new().allow_origin(AllowOrigin::predicate(|o, _| {
+            o.to_str().is_ok_and(origen_permitido)
+        })))
         .with_state(datos);
     let addr = format!("0.0.0.0:{}", std::env::var("PORT").unwrap_or("3000".into()));
     let l = tokio::net::TcpListener::bind(&addr).await.unwrap();

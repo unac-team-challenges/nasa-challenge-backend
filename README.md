@@ -20,6 +20,10 @@ python pipeline/power.py 2015 2020   # regenera data/power.json
 cargo run                            # http://0.0.0.0:3000 (PORT para cambiarlo)
 ```
 
+Nota: NASA POWER tiene grilla de ~50 km, así que Lima y Callao caen en la misma celda y tienen datos idénticos. Se deja así.
+
+CORS: la API solo acepta orígenes `localhost`/`127.0.0.1`; añadir la URL de Vercel en `origen_permitido` (`src/main.rs`).
+
 | Endpoint | Respuesta |
 |---|---|
 | `GET /regiones` | Lista de regiones con lat/lon |
