@@ -31,7 +31,7 @@ REGIONES = {
 def anual(lat, lon, inicio, fin):
     r = requests.get(
         "https://power.larc.nasa.gov/api/temporal/monthly/point",
-        params={"parameters": "PRECTOTCORR,T2M", "community": "AG",
+        params={"parameters": "PRECTOTCORR,T2M,T2M_MAX,T2M_MIN", "community": "AG",
                 "latitude": lat, "longitude": lon,
                 "start": inicio, "end": fin, "format": "JSON"},
         timeout=60,
