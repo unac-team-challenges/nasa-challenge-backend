@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: developer
+          ref: developer # por ahora developer; cambiar a main cuando se decida (el cron solo corre si este archivo está en main)
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
