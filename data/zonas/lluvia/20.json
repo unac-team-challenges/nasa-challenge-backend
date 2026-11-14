@@ -1,0 +1,123 @@
+{
+ "id": "20",
+ "nombre": "Piura",
+ "lat": -5.19,
+ "lon": -80.63,
+ "celdas": 291,
+ "variable": "lluvia",
+ "unidad": "mm/día",
+ "fuente": "GPM IMERG v07 (NASA)",
+ "serie": [
+  {
+   "anio": 2001,
+   "valor": 1.574
+  },
+  {
+   "anio": 2002,
+   "valor": 1.4972
+  },
+  {
+   "anio": 2003,
+   "valor": 0.5875
+  },
+  {
+   "anio": 2004,
+   "valor": 0.6188
+  },
+  {
+   "anio": 2005,
+   "valor": 0.8223
+  },
+  {
+   "anio": 2006,
+   "valor": 1.2978
+  },
+  {
+   "anio": 2007,
+   "valor": 0.8127
+  },
+  {
+   "anio": 2008,
+   "valor": 2.0861
+  },
+  {
+   "anio": 2009,
+   "valor": 1.4608
+  },
+  {
+   "anio": 2010,
+   "valor": 1.2199
+  },
+  {
+   "anio": 2011,
+   "valor": 1.1141
+  },
+  {
+   "anio": 2012,
+   "valor": 2.0624
+  },
+  {
+   "anio": 2013,
+   "valor": 0.7322
+  },
+  {
+   "anio": 2014,
+   "valor": 0.8547
+  },
+  {
+   "anio": 2015,
+   "valor": 1.0768
+  },
+  {
+   "anio": 2016,
+   "valor": 1.0974
+  },
+  {
+   "anio": 2017,
+   "valor": 2.5692
+  },
+  {
+   "anio": 2018,
+   "valor": 0.8762
+  },
+  {
+   "anio": 2019,
+   "valor": 1.0623
+  },
+  {
+   "anio": 2020,
+   "valor": 0.7459
+  },
+  {
+   "anio": 2021,
+   "valor": 0.8889
+  },
+  {
+   "anio": 2022,
+   "valor": 0.8209
+  },
+  {
+   "anio": 2023,
+   "valor": 1.6318
+  },
+  {
+   "anio": 2024,
+   "valor": 0.8418
+  }
+ ],
+ "stats": {
+  "year_start": 2001,
+  "year_end": 2024,
+  "n_years": 24,
+  "slope_per_decade": -0.054667,
+  "intercept": 12.071217,
+  "ci_low": -0.3399,
+  "ci_high": 0.1925,
+  "p_value": 0.957875,
+  "lag1": -0.0768,
+  "pct_change_per_decade": -4.63,
+  "q_value": 0.957875,
+  "status": "posible_casualidad",
+  "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja."
+ }
+}

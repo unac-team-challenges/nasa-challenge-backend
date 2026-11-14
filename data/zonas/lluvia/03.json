@@ -1,0 +1,123 @@
+{
+ "id": "03",
+ "nombre": "Apurímac",
+ "lat": -13.63,
+ "lon": -72.88,
+ "celdas": 176,
+ "variable": "lluvia",
+ "unidad": "mm/día",
+ "fuente": "GPM IMERG v07 (NASA)",
+ "serie": [
+  {
+   "anio": 2001,
+   "valor": 2.765
+  },
+  {
+   "anio": 2002,
+   "valor": 2.7105
+  },
+  {
+   "anio": 2003,
+   "valor": 2.4652
+  },
+  {
+   "anio": 2004,
+   "valor": 2.4179
+  },
+  {
+   "anio": 2005,
+   "valor": 2.1056
+  },
+  {
+   "anio": 2006,
+   "valor": 2.5843
+  },
+  {
+   "anio": 2007,
+   "valor": 2.2686
+  },
+  {
+   "anio": 2008,
+   "valor": 2.2826
+  },
+  {
+   "anio": 2009,
+   "valor": 2.0434
+  },
+  {
+   "anio": 2010,
+   "valor": 2.1591
+  },
+  {
+   "anio": 2011,
+   "valor": 2.9151
+  },
+  {
+   "anio": 2012,
+   "valor": 2.5859
+  },
+  {
+   "anio": 2013,
+   "valor": 2.3225
+  },
+  {
+   "anio": 2014,
+   "valor": 2.3071
+  },
+  {
+   "anio": 2015,
+   "valor": 1.9961
+  },
+  {
+   "anio": 2016,
+   "valor": 1.6851
+  },
+  {
+   "anio": 2017,
+   "valor": 2.1904
+  },
+  {
+   "anio": 2018,
+   "valor": 1.9702
+  },
+  {
+   "anio": 2019,
+   "valor": 2.2979
+  },
+  {
+   "anio": 2020,
+   "valor": 1.7212
+  },
+  {
+   "anio": 2021,
+   "valor": 1.7648
+  },
+  {
+   "anio": 2022,
+   "valor": 1.7923
+  },
+  {
+   "anio": 2023,
+   "valor": 2.1927
+  },
+  {
+   "anio": 2024,
+   "valor": 2.0297
+  }
+ ],
+ "stats": {
+  "year_start": 2001,
+  "year_end": 2024,
+  "n_years": 24,
+  "slope_per_decade": -0.337208,
+  "intercept": 70.093827,
+  "ci_low": -0.4675,
+  "ci_high": -0.1427,
+  "p_value": 0.003671,
+  "lag1": 0.1544,
+  "pct_change_per_decade": -15.11,
+  "q_value": 0.01085,
+  "status": "real",
+  "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja."
+ }
+}

@@ -1,0 +1,123 @@
+{
+ "id": "12",
+ "nombre": "Junín",
+ "lat": -12.07,
+ "lon": -75.21,
+ "celdas": 365,
+ "variable": "lluvia",
+ "unidad": "mm/día",
+ "fuente": "GPM IMERG v07 (NASA)",
+ "serie": [
+  {
+   "anio": 2001,
+   "valor": 4.1141
+  },
+  {
+   "anio": 2002,
+   "valor": 4.2976
+  },
+  {
+   "anio": 2003,
+   "valor": 3.8469
+  },
+  {
+   "anio": 2004,
+   "valor": 3.8684
+  },
+  {
+   "anio": 2005,
+   "valor": 3.2264
+  },
+  {
+   "anio": 2006,
+   "valor": 3.8446
+  },
+  {
+   "anio": 2007,
+   "valor": 3.2898
+  },
+  {
+   "anio": 2008,
+   "valor": 3.7664
+  },
+  {
+   "anio": 2009,
+   "valor": 3.4991
+  },
+  {
+   "anio": 2010,
+   "valor": 3.0738
+  },
+  {
+   "anio": 2011,
+   "valor": 4.1723
+  },
+  {
+   "anio": 2012,
+   "valor": 3.9113
+  },
+  {
+   "anio": 2013,
+   "valor": 3.6904
+  },
+  {
+   "anio": 2014,
+   "valor": 3.722
+  },
+  {
+   "anio": 2015,
+   "valor": 3.6465
+  },
+  {
+   "anio": 2016,
+   "valor": 3.0282
+  },
+  {
+   "anio": 2017,
+   "valor": 4.3131
+  },
+  {
+   "anio": 2018,
+   "valor": 3.7615
+  },
+  {
+   "anio": 2019,
+   "valor": 3.4317
+  },
+  {
+   "anio": 2020,
+   "valor": 2.3866
+  },
+  {
+   "anio": 2021,
+   "valor": 2.6865
+  },
+  {
+   "anio": 2022,
+   "valor": 2.5985
+  },
+  {
+   "anio": 2023,
+   "valor": 2.5337
+  },
+  {
+   "anio": 2024,
+   "valor": 2.5408
+  }
+ ],
+ "stats": {
+  "year_start": 2001,
+  "year_end": 2024,
+  "n_years": 24,
+  "slope_per_decade": -0.598054,
+  "intercept": 124.026731,
+  "ci_low": -0.819,
+  "ci_high": -0.2497,
+  "p_value": 0.000876,
+  "lag1": 0.2529,
+  "pct_change_per_decade": -17.24,
+  "q_value": 0.01085,
+  "status": "real",
+  "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja."
+ }
+}

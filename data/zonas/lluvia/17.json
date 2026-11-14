@@ -1,0 +1,123 @@
+{
+ "id": "17",
+ "nombre": "Madre de Dios",
+ "lat": -12.59,
+ "lon": -69.19,
+ "celdas": 704,
+ "variable": "lluvia",
+ "unidad": "mm/día",
+ "fuente": "GPM IMERG v07 (NASA)",
+ "serie": [
+  {
+   "anio": 2001,
+   "valor": 7.9821
+  },
+  {
+   "anio": 2002,
+   "valor": 7.063
+  },
+  {
+   "anio": 2003,
+   "valor": 7.5026
+  },
+  {
+   "anio": 2004,
+   "valor": 6.3303
+  },
+  {
+   "anio": 2005,
+   "valor": 5.9353
+  },
+  {
+   "anio": 2006,
+   "valor": 6.229
+  },
+  {
+   "anio": 2007,
+   "valor": 6.7903
+  },
+  {
+   "anio": 2008,
+   "valor": 6.3227
+  },
+  {
+   "anio": 2009,
+   "valor": 6.69
+  },
+  {
+   "anio": 2010,
+   "valor": 5.6485
+  },
+  {
+   "anio": 2011,
+   "valor": 6.7879
+  },
+  {
+   "anio": 2012,
+   "valor": 6.9948
+  },
+  {
+   "anio": 2013,
+   "valor": 6.9243
+  },
+  {
+   "anio": 2014,
+   "valor": 7.3447
+  },
+  {
+   "anio": 2015,
+   "valor": 6.8379
+  },
+  {
+   "anio": 2016,
+   "valor": 6.1287
+  },
+  {
+   "anio": 2017,
+   "valor": 6.4106
+  },
+  {
+   "anio": 2018,
+   "valor": 6.9923
+  },
+  {
+   "anio": 2019,
+   "valor": 6.9426
+  },
+  {
+   "anio": 2020,
+   "valor": 5.5602
+  },
+  {
+   "anio": 2021,
+   "valor": 6.3712
+  },
+  {
+   "anio": 2022,
+   "valor": 5.9917
+  },
+  {
+   "anio": 2023,
+   "valor": 6.7092
+  },
+  {
+   "anio": 2024,
+   "valor": 5.373
+  }
+ ],
+ "stats": {
+  "year_start": 2001,
+  "year_end": 2024,
+  "n_years": 24,
+  "slope_per_decade": -0.349625,
+  "intercept": 77.061631,
+  "ci_low": -0.7238,
+  "ci_high": 0.0948,
+  "p_value": 0.315573,
+  "lag1": 0.0911,
+  "pct_change_per_decade": -5.32,
+  "q_value": 0.415227,
+  "status": "posible_casualidad",
+  "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja."
+ }
+}

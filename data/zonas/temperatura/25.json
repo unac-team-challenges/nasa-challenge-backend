@@ -1,0 +1,121 @@
+{
+ "id": "25",
+ "nombre": "Ucayali",
+ "lat": -8.38,
+ "lon": -74.55,
+ "celdas": 31,
+ "variable": "temperatura",
+ "unidad": "°C",
+ "fuente": "MERRA-2 vía NASA POWER (T2M)",
+ "serie": [
+  {
+   "anio": 2001,
+   "valor": 25.0019
+  },
+  {
+   "anio": 2002,
+   "valor": 25.4651
+  },
+  {
+   "anio": 2003,
+   "valor": 25.3926
+  },
+  {
+   "anio": 2004,
+   "valor": 25.1715
+  },
+  {
+   "anio": 2005,
+   "valor": 26.4612
+  },
+  {
+   "anio": 2006,
+   "valor": 25.4456
+  },
+  {
+   "anio": 2007,
+   "valor": 25.8486
+  },
+  {
+   "anio": 2008,
+   "valor": 25.0319
+  },
+  {
+   "anio": 2009,
+   "valor": 25.6909
+  },
+  {
+   "anio": 2010,
+   "valor": 26.676
+  },
+  {
+   "anio": 2011,
+   "valor": 25.1678
+  },
+  {
+   "anio": 2012,
+   "valor": 25.7476
+  },
+  {
+   "anio": 2013,
+   "valor": 25.9701
+  },
+  {
+   "anio": 2014,
+   "valor": 26.073
+  },
+  {
+   "anio": 2015,
+   "valor": 26.5374
+  },
+  {
+   "anio": 2016,
+   "valor": 26.7076
+  },
+  {
+   "anio": 2017,
+   "valor": 25.4361
+  },
+  {
+   "anio": 2018,
+   "valor": 25.3966
+  },
+  {
+   "anio": 2019,
+   "valor": 26.108
+  },
+  {
+   "anio": 2020,
+   "valor": 26.5361
+  },
+  {
+   "anio": 2021,
+   "valor": 26.5359
+  },
+  {
+   "anio": 2022,
+   "valor": 26.5304
+  },
+  {
+   "anio": 2023,
+   "valor": 28.2114
+  },
+  {
+   "anio": 2024,
+   "valor": 28.463
+  }
+ ],
+ "stats": {
+  "year_start": 2001,
+  "year_end": 2024,
+  "n_years": 24,
+  "slope_per_decade": 0.767,
+  "intercept": -128.4494,
+  "ci_low": 0.4296,
+  "ci_high": 1.2535,
+  "p_value": 0.001057,
+  "lag1": 0.2191,
+  "q_value": 0.010605,
+  "status": "real"
+ }
+}

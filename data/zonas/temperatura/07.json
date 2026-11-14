@@ -1,0 +1,122 @@
+{
+ "id": "07",
+ "nombre": "Callao",
+ "lat": -12.06,
+ "lon": -77.13,
+ "celdas": 0,
+ "nota": "Sin celdas propias de POWER: se usa la celda de la capital (compartida con Lima)",
+ "variable": "temperatura",
+ "unidad": "°C",
+ "fuente": "MERRA-2 vía NASA POWER (T2M)",
+ "serie": [
+  {
+   "anio": 2001,
+   "valor": 17.8692
+  },
+  {
+   "anio": 2002,
+   "valor": 18.3917
+  },
+  {
+   "anio": 2003,
+   "valor": 18.3192
+  },
+  {
+   "anio": 2004,
+   "valor": 18.0625
+  },
+  {
+   "anio": 2005,
+   "valor": 17.995
+  },
+  {
+   "anio": 2006,
+   "valor": 18.1117
+  },
+  {
+   "anio": 2007,
+   "valor": 17.6367
+  },
+  {
+   "anio": 2008,
+   "valor": 17.6958
+  },
+  {
+   "anio": 2009,
+   "valor": 18.2008
+  },
+  {
+   "anio": 2010,
+   "valor": 18.0025
+  },
+  {
+   "anio": 2011,
+   "valor": 17.7925
+  },
+  {
+   "anio": 2012,
+   "valor": 18.3458
+  },
+  {
+   "anio": 2013,
+   "valor": 18.035
+  },
+  {
+   "anio": 2014,
+   "valor": 18.415
+  },
+  {
+   "anio": 2015,
+   "valor": 19.0242
+  },
+  {
+   "anio": 2016,
+   "valor": 18.9067
+  },
+  {
+   "anio": 2017,
+   "valor": 18.5375
+  },
+  {
+   "anio": 2018,
+   "valor": 18.24
+  },
+  {
+   "anio": 2019,
+   "valor": 18.6817
+  },
+  {
+   "anio": 2020,
+   "valor": 18.4892
+  },
+  {
+   "anio": 2021,
+   "valor": 18.11
+  },
+  {
+   "anio": 2022,
+   "valor": 17.62
+  },
+  {
+   "anio": 2023,
+   "valor": 19.3667
+  },
+  {
+   "anio": 2024,
+   "valor": 18.94
+  }
+ ],
+ "stats": {
+  "year_start": 2001,
+  "year_end": 2024,
+  "n_years": 24,
+  "slope_per_decade": 0.353312,
+  "intercept": -52.883741,
+  "ci_low": 0.0416,
+  "ci_high": 0.5238,
+  "p_value": 0.030337,
+  "lag1": 0.1837,
+  "q_value": 0.054174,
+  "status": "pocos_datos"
+ }
+}

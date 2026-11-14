@@ -26,11 +26,12 @@ jobs:
         env:
           EARTHDATA_USERNAME: ${{ secrets.EARTHDATA_USERNAME }}
           EARTHDATA_PASSWORD: ${{ secrets.EARTHDATA_PASSWORD }}
+      - run: python pipeline/tendencias.py
       - name: Commit si cambió
         run: |
-          git diff --quiet data/ && exit 0
+          [ -z "$(git status --porcelain data/)" ] && exit 0  # también archivos nuevos
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/power.json data/gpm.json
-          git commit -m "chore: actualizar datos (POWER y GPM)"
+          git add data/
+          git commit -m "chore: actualizar datos (POWER, GPM y tendencias)"
           git push
