@@ -1,7 +1,8 @@
 //! Variables que ve el producto (contrato del Drive, `07-stack-decidido`).
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
+// El orden es el de `data/variables.json` y `TODAS`: `v as usize` es su índice en `Datos`.
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, ToSchema)]
 #[serde(rename_all = "lowercase")]
 pub enum Variable {
@@ -21,22 +22,16 @@ impl Variable {
             Variable::Temperatura => "temperatura",
         }
     }
-    pub fn unidad(self) -> &'static str {
-        match self {
-            Variable::Lluvia => "mm/día",
-            Variable::Temperatura => "°C",
-        }
-    }
-    pub fn fuente(self) -> &'static str {
-        match self {
-            Variable::Lluvia => "GPM IMERG v07 (NASA)",
-            Variable::Temperatura => "MERRA-2 vía NASA POWER (T2M)",
-        }
-    }
-    pub fn descripcion(self) -> &'static str {
-        match self {
-            Variable::Lluvia => "Lluvia: promedio diario de cada año",
-            Variable::Temperatura => "Temperatura del aire a 2 m: promedio de cada año",
-        }
-    }
+}
+
+/// `GET /api/variables`: una entrada de `data/variables.json`, tal cual.
+#[derive(Clone, Debug, Deserialize, Serialize, ToSchema)]
+#[serde(deny_unknown_fields)]
+pub struct VariableInfo {
+    pub id: String,
+    pub unidad: String,
+    pub fuente: String,
+    pub descripcion: String,
+    pub anio_inicio: u16,
+    pub anio_fin: u16,
 }
