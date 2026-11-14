@@ -1,0 +1,34 @@
+info:
+  name: 1 Login AppEEARS
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: https://appeears.earthdatacloud.nasa.gov/api/login
+  auth:
+    type: basic
+    username: "{{edl_user}}"
+    password: "{{edl_pass}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        // Guarda el token solo en memoria (no se escribe a disco).
+        const b = res.getBody();
+        if (res.getStatus() === 200 && b && b.token) {
+          bru.setEnvVar("appeears_token", b.token);
+          console.log("appeears_token listo, expira: " + b.expiration);
+        } else {
+          console.log("Login fallido: " + res.getStatus());
+        }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+docs: 'Lab 3 opcion B. Usuario y clave Earthdata vienen de variables SECRETAS del environment Peru (Bruno las cifra fuera de los .yml). Nunca escribirlas en este archivo.'
