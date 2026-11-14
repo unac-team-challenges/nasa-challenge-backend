@@ -1,0 +1,14 @@
+# Blueprint de Render para la API Axum. Build/Start como en la guía oficial de Rust de Render:
+# https://render.com/docs/deploy-rocket-rust (cargo build --release · cargo run --release)
+# La app escucha en 0.0.0.0:$PORT (Render define PORT), ver src/main.rs.
+services:
+  - type: web
+    name: nasa-challenge-backend
+    runtime: rust
+    plan: free
+    buildCommand: cargo build --release
+    startCommand: cargo run --release
+    healthCheckPath: /health
+    envVars:
+      - key: CORS_ORIGINS # URL(s) de Vercel separadas por coma, sin "/" final
+        sync: false
