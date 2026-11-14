@@ -1,6 +1,6 @@
-# Cálculo de tendencias (para Josue)
+# Cálculo de tendencias (para Sebastian)
 
-Qué hay hecho, qué falta calcular y cómo debe quedar. Fuente de las decisiones: Drive (`07-stack-decidido`, `13-datos-unificado-14nov`, `06-datos-a-usar`) y [`reglas-datos.md`](reglas-datos.md). **Los campos de tendencia están en progreso: lo marcado «por confirmar» lo decide el equipo/Josue.**
+**Tarea de Sebastian:** pendiente de Sen, Mann-Kendall y el resto de `stats` por zona y variable. Lo que hay hecho, qué falta calcular y cómo debe quedar. Fuente de las decisiones: Drive (`07-stack-decidido`, `13-datos-unificado-14nov`, `06-datos-a-usar`) y [`reglas-datos.md`](reglas-datos.md). **Los campos de tendencia están en progreso: lo marcado «por confirmar» lo decide el equipo/Sebastian.**
 
 ## 1. Qué tenemos (entrada)
 
@@ -8,19 +8,23 @@ Dos JSON en `data/`, generados por `pipeline/` (la API nunca calcula en vivo). M
 
 ```json
 [{"region": "Lima", "lat": -12.05, "lon": -77.04,
+  "celdas": 9,
   "anios": {"2017": {"PRECTOTCORR": 0.155, "T2M": 18.5375, "T2M_MAX": 24.3633, "T2M_MIN": 14.0408}}}]
 ```
 
+`celdas` = cuántas celdas de la malla entran en el promedio del departamento. Si son menos de 4 aparece también `nota` (texto): Callao, Tumbes y Lambayeque en POWER; Callao en GPM. **Copia la `nota` a tu salida** para que la ficha avise.
+
 | Variable del producto | Archivo | Campo | Unidad | Fuente | Periodo |
 |---|---|---|---|---|---|
-| **Lluvia** | `data/gpm.json` | `lluvia_mm_dia` | mm/día | GPM IMERG v07 (NASA, ~10 km) | **2000–2024** hoy (IMERG v07 existe de 1998 a sep 2025: el 2025 nunca estará completo; 1998–1999 pueden añadirse, ver `reglas-datos.md` §3b) |
-| **Temperatura** | `data/power.json` | `T2M` (+ `T2M_MAX`, `T2M_MIN`) | °C | MERRA-2 vía POWER (~50 km) | desde 2000 (POWER llega a 1981) |
+| **Lluvia** | `data/gpm.json` | `lluvia_mm_dia` | mm/día | GPM IMERG v07 (NASA, ~10 km) | **2001–2024** (IMERG v07 existe de 1998 a sep 2025: el 2025 nunca estará completo; ver `reglas-datos.md` §3b) |
+| **Temperatura** | `data/power.json` | `T2M` (+ `T2M_MAX`, `T2M_MIN`) | °C | MERRA-2 vía POWER (~50 km) | **2001–2024** (mismo periodo que la lluvia; POWER llega a 1981 pero se decidió usar 2001) |
 | Lluvia POWER | `data/power.json` | `PRECTOTCORR` | mm/día | POWER | solo referencia, **no** va a la ficha |
 
 - Ya vienen **promediados por año** y solo con **años completos (12 meses)**. Nunca `NaN`.
-- **Hoy** 25 regiones = 25 capitales (un píxel por región). **Decidido (2026-11-14): la unidad final es el promedio del departamento**, para todas las regiones; falta implementarlo en el pipeline y las tendencias deben calcularse sobre ese promedio (ver sección 6). Lima y Callao comparten celda POWER (idénticos): decisión aceptada.
-- `developer` hoy tiene 2015–2020; la ampliación a 2000+ va en la rama `feat/datos-desde-2000`. **Calcular con los años que haya y reportar `n_years`.**
-- API actual: `/power/{region}`, `/gpm/{region}`. Hasta que el contrato nuevo exista, sirve los promedios anuales.
+- **Unidad = promedio del departamento** (decidido y ya implementado en `pipeline/departamentos.py`): calcula las tendencias sobre estos JSON tal cual, sin volver a promediar. `lat`/`lon` son solo el punto del mapa (la capital).
+- **Callao en POWER** no tiene celdas propias (`celdas: 0`): usa la celda de su capital, igual que Lima, con `nota`. Acéptalo, no lo corrijas.
+- **Calcula con los años que haya y reporta `n_years`** (hoy 24 por serie; si el cron añade años, el cálculo no cambia).
+- API actual: `/power/{region}`, `/gpm/{region}` (JSON tal cual) y `/api/zonas/{id}?variable=` (serie + `nota`). Falta `stats`.
 
 ## 2. Qué hay que calcular
 
@@ -31,7 +35,7 @@ Por **zona** (25) y por **variable** (lluvia, temperatura; decidir si también `
 3. **Intervalo de la pendiente** con `scipy.stats.theilslopes(y, x, alpha=0.95)` (`pymannkendall` no lo da). También ×10.
 4. **Benjamini-Hochberg** entre las 25 zonas de **la misma variable** (`statsmodels.stats.multitest.multipletests(method="fdr_bh")`) → `q_value`.
 5. **`lag1`**: autocorrelación de un año al siguiente.
-6. **`status`**: `real` si `q_value < 0.05`; `pocos_datos` si `n_years < 10`; si no, `posible_casualidad` (umbrales **por confirmar por Josue**).
+6. **`status`**: `real` si `q_value < 0.05`; `pocos_datos` si `n_years < 10`; si no, `posible_casualidad` (umbrales **por confirmar por Sebastian**).
 
 Campos por zona (`stats`, contrato del `07`):
 
@@ -51,6 +55,8 @@ Guardar también `metadata.method` (método usado), unidad y fuente.
 
 ## 3. Cómo debe salir (propuesta, ajustable)
 
+- **Reparto:** tú entregas el script y el JSON con los nombres de campo del `07`; quien mantiene la API (Leandro) añade `stats` al modelo Rust y a `/api/zonas/{id}`, regenera `openapi.json` y publica. Avisa cuando el JSON esté en `developer`.
+- **Punto de partida:** `pipeline/exploracion/josue/scripts/lab5_tendencias.py` y `validar_lab5.py` ya hacen parte del cálculo; adáptalos a leer `data/*.json` en vez de la API.
 - Script `pipeline/tendencias.py` que **lee** `data/power.json` y `data/gpm.json` y **escribe** JSON en `data/` (misma regla: precalculado, `allow_nan=False`).
 - Forma sugerida alineada al Drive: lista de zonas por variable (sin series) y detalle por zona (serie + `stats`). Si se prefiere un solo `data/tendencias.json` por ahora, está bien: lo importante son los **nombres de campo del `07`**, porque la API Rust los va a deserializar tal cual.
 - `id` de zona = **ubigeo como texto**: 01 Amazonas · 02 Áncash · 03 Apurímac · 04 Arequipa · 05 Ayacucho · 06 Cajamarca · 07 Callao · 08 Cusco · 09 Huancavelica · 10 Huánuco · 11 Ica · 12 Junín · 13 La Libertad · 14 Lambayeque · 15 Lima · 16 Loreto · 17 Madre de Dios · 18 Moquegua · 19 Pasco · 20 Piura · 21 Puno · 22 San Martín · 23 Tacna · 24 Tumbes · 25 Ucayali.
@@ -60,7 +66,7 @@ Guardar también `metadata.method` (método usado), unidad y fuente.
 - Nunca `NaN`/`null`: una serie constante o muy corta puede dar `p`/`lag1` indefinidos; decidir un valor o `status: "pocos_datos"` y **no** escribir `NaN`.
 - Si cambias la forma de un JSON, avisa al equipo (CONDITIONS.md) y actualiza `docs/`.
 - Añade tu validación a `tests/e2e.sh` (`jq`) como se hizo con `power.json`/`gpm.json`.
-- Dependencias nuevas a `pipeline/requirements.txt` (`scipy`, `pymannkendall`, `statsmodels`).
+- Dependencias nuevas a `pipeline/requirements.txt` (`scipy`, `pymannkendall`, `statsmodels`) **con versión fija** (`paquete==x.y.z`), como las demás.
 - PR a `developer`, rama `feat/tendencias`, `changelog/feat-tendencias.md`, `bash tests/e2e.sh` en verde.
 
 ## 5. Trampas conocidas
@@ -73,10 +79,11 @@ Guardar también `metadata.method` (método usado), unidad y fuente.
 ## 6. Decisiones
 
 **Decididas (2026-11-14):**
-- Unidad geográfica = **promedio del departamento** (todas las regiones). Parte de Josue: adaptar el cálculo de `pipeline/exploracion/` (GeoJSON de departamentos + `regionmask`) para que `power.json` y `gpm.json` salgan por departamento, con la misma forma. Después se calculan las tendencias.
+- Unidad geográfica = **promedio del departamento** (todas las regiones). Hecho en la #22 (`pipeline/departamentos.py`).
 - Temperatura de la primera versión = `T2M`.
+- **Periodo = 2001–2024 para las dos variables** (POWER y GPM). Si hace falta un periodo largo (1981) o lluvia de largo plazo (GPCP), es otra decisión y otra columna de salida.
 
 **Pendientes:**
-1. Periodos: ¿temperatura 1981–2024 (largo) y 2001–2024 (reciente)? ¿Lluvia solo 2001–2024 o también largo plazo (GPCP)?
-2. Umbrales exactos del semáforo y `pct_change_per_decade`.
-3. Forma final de los archivos (por variable/por zona) y de las rutas `/api/...`.
+1. Umbrales exactos del semáforo (`status`) y `pct_change_per_decade`.
+2. Forma final de los archivos (por variable/por zona) y de las rutas `/api/...`.
+3. ¿También `T2M_MAX`/`T2M_MIN`? La primera versión solo `T2M`.

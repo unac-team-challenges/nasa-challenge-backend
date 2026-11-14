@@ -23,7 +23,7 @@ API de solo lectura (Rust/Axum) + pipeline de datos (Python) · NASA Space Apps 
 bash tests/e2e.sh                    # valida datos + cargo test + prueba la API (es el CI; requiere jq)
 cargo test cors                      # un test por nombre (tests/api.rs)
 cargo run                            # API en :3000 (PORT, CORS_ORIGINS)
-python pipeline/power.py 1981 2024   # regenera data/power.json
+python pipeline/power.py 2001 2024   # regenera data/power.json
 ```
 
 ## Lo esencial de la arquitectura
