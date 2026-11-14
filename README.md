@@ -36,6 +36,9 @@ bash tests/e2e.sh                    # verifica que todo corre
 
 CORS: siempre `localhost`/`127.0.0.1`. Para añadir la URL de Vercel: variable de entorno `CORS_ORIGINS=https://tu-app.vercel.app` (varias separadas por coma, sin `/` final).
 
+## Despliegue (Render)
+`render.yaml` define el servicio web (Rust, `cargo build --release` / `cargo run --release`, health check en `/health`). Pasos: Render → **New → Blueprint** → elegir este repo → rellenar `CORS_ORIGINS` con la URL de Vercel. Render inyecta `PORT` y la API ya escucha en `0.0.0.0:$PORT`. Cada push a la rama desplegada redespliega solo; si el build falla, sigue la versión anterior. Los datos van embebidos en el binario, así que no hay disco ni base de datos.
+
 ## Ramas
 - `developer`: aquí se integra todo (vista previa en Vercel).
 - `main`: solo lo que ya funciona (producción). Se actualiza únicamente con PR desde `developer`.
