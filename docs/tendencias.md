@@ -1,6 +1,8 @@
-# Cálculo de tendencias (para Josue)
+# Cálculo de tendencias (responsable: Sebastian)
 
-Qué hay hecho, qué falta calcular y cómo debe quedar. Fuente de las decisiones: Drive (`07-stack-decidido`, `13-datos-unificado-14nov`, `06-datos-a-usar`) y [`reglas-datos.md`](reglas-datos.md). **Los campos de tendencia están en progreso: lo marcado «por confirmar» lo decide el equipo/Josue.**
+> **Cambio del 14 nov 2026:** el cálculo de tendencias pasa de Josue a **Sebastian**. Josue sigue con los datos (descarga y promedio por departamento).
+
+Qué hay hecho, qué falta calcular y cómo debe quedar. Fuente de las decisiones: Drive (`07-stack-decidido`, `13-datos-unificado-14nov`, `06-datos-a-usar`) y [`reglas-datos.md`](reglas-datos.md). **Los campos de tendencia están en progreso: lo marcado «por confirmar» lo decide Sebastian con el equipo.**
 
 ## 1. Qué tenemos (entrada)
 
@@ -31,7 +33,7 @@ Por **zona** (25) y por **variable** (lluvia, temperatura; decidir si también `
 3. **Intervalo de la pendiente** con `scipy.stats.theilslopes(y, x, alpha=0.95)` (`pymannkendall` no lo da). También ×10.
 4. **Benjamini-Hochberg** entre las 25 zonas de **la misma variable** (`statsmodels.stats.multitest.multipletests(method="fdr_bh")`) → `q_value`.
 5. **`lag1`**: autocorrelación de un año al siguiente.
-6. **`status`**: `real` si `q_value < 0.05`; `pocos_datos` si `n_years < 10`; si no, `posible_casualidad` (umbrales **por confirmar por Josue**).
+6. **`status`**: `real` si `q_value < 0.05`; `pocos_datos` si `n_years < 10`; si no, `posible_casualidad` (umbrales **por confirmar por Sebastian**).
 
 Campos por zona (`stats`, contrato del `07`):
 
@@ -73,7 +75,7 @@ Guardar también `metadata.method` (método usado), unidad y fuente.
 ## 6. Decisiones
 
 **Decididas (2026-11-14):**
-- Unidad geográfica = **promedio del departamento** (todas las regiones). Parte de Josue: adaptar el cálculo de `pipeline/exploracion/` (GeoJSON de departamentos + `regionmask`) para que `power.json` y `gpm.json` salgan por departamento, con la misma forma. Después se calculan las tendencias.
+- Unidad geográfica = **promedio del departamento** (todas las regiones). Parte de Josue (datos): adaptar el cálculo de `pipeline/exploracion/` (GeoJSON de departamentos + `regionmask`) para que `power.json` y `gpm.json` salgan por departamento, con la misma forma. Después Sebastian calcula las tendencias sobre ese promedio.
 - Temperatura de la primera versión = `T2M`.
 
 **Pendientes:**
