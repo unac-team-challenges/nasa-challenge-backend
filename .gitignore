@@ -1,4 +1,26 @@
+# Rust
 target/
+
+# Python
 .venv/
-.env
+venv/
 __pycache__/
+*.pyc
+
+# Secretos (la plantilla .env.example sí se sube)
+.env
+.env.*
+!.env.example
+
+# Descargas de NASA (no se suben; ver CONDITIONS.md)
+*.hdf5
+*.h5
+*.nc
+*.nc4
+*.tif
+*.tiff
+
+# Editor / sistema
+.vscode/
+.idea/
+.DS_Store
