@@ -13,7 +13,7 @@ Dos JSON en `data/`, generados por `pipeline/` (la API nunca calcula en vivo). M
 
 | Variable del producto | Archivo | Campo | Unidad | Fuente | Periodo |
 |---|---|---|---|---|---|
-| **Lluvia** | `data/gpm.json` | `lluvia_mm_dia` | mm/día | GPM IMERG v07 (NASA, ~10 km) | **2001–2024** (IMERG empieza en jun 2000 y el 2025 no está completo; el pipeline descarta años incompletos) |
+| **Lluvia** | `data/gpm.json` | `lluvia_mm_dia` | mm/día | GPM IMERG v07 (NASA, ~10 km) | **2000–2024** hoy (IMERG v07 existe de 1998 a sep 2025: el 2025 nunca estará completo; 1998–1999 pueden añadirse, ver `reglas-datos.md` §3b) |
 | **Temperatura** | `data/power.json` | `T2M` (+ `T2M_MAX`, `T2M_MIN`) | °C | MERRA-2 vía POWER (~50 km) | desde 2000 (POWER llega a 1981) |
 | Lluvia POWER | `data/power.json` | `PRECTOTCORR` | mm/día | POWER | solo referencia, **no** va a la ficha |
 

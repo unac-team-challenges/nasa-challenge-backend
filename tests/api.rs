@@ -136,6 +136,45 @@ async fn api_zona_inexistente_da_404() {
     }
 }
 
+#[tokio::test]
+async fn ruta_inexistente_responde_json() {
+    for ruta in ["/noexiste", "/power/lima/"] {
+        let (s, _, b) = get(ruta, None).await;
+        assert_eq!(s, StatusCode::NOT_FOUND, "{ruta}");
+        assert!(b["error"].is_string(), "{ruta}");
+    }
+    let larga = "a".repeat(5000);
+    let (_, _, b) = get(&format!("/power/{larga}"), None).await;
+    assert!(b["error"].as_str().unwrap().len() < 200, "el error no debe reflejar toda la entrada");
+}
+
+#[tokio::test]
+async fn datos_se_cachean_pero_health_no() {
+    let cabecera = |ruta: &'static str| async move {
+        let res = router().oneshot(Request::get(ruta).body(Body::empty()).unwrap()).await.unwrap();
+        res.headers().get("cache-control").map(|v| v.to_str().unwrap().to_string())
+    };
+    assert!(cabecera("/gpm/lima").await.unwrap().contains("s-maxage"));
+    assert_eq!(cabecera("/health").await.as_deref(), Some("no-store"));
+}
+
+#[test]
+fn campos_desconocidos_y_regiones_distintas_se_rechazan() {
+    let medida_ok = r#"{"PRECTOTCORR":1,"T2M":2,"T2M_MAX":3,"T2M_MIN":0}"#;
+    let region = |m: &str| format!(r#"[{{"region":"X","lat":1,"lon":2,"anios":{{"2020":{m}}}}}]"#);
+    let gpm_ok = region(r#"{"lluvia_mm_dia":1}"#);
+    assert!(Datos::desde_json(&region(medida_ok), &gpm_ok).is_ok());
+    // un campo de más en las medidas
+    let power_extra = region(r#"{"PRECTOTCORR":1,"T2M":2,"T2M_MAX":3,"T2M_MIN":0,"nuevo":1}"#);
+    assert!(Datos::desde_json(&power_extra, &gpm_ok).is_err());
+    // un campo de más en la región
+    let region_extra = r#"[{"region":"X","lat":1,"lon":2,"nota":"x","anios":{}}]"#;
+    assert!(Datos::desde_json(region_extra, "[]").is_err());
+    // power.json y gpm.json con regiones distintas
+    let otra = gpm_ok.replace("\"X\"", "\"Y\"");
+    assert!(Datos::desde_json(&region(medida_ok), &otra).is_err());
+}
+
 #[test]
 fn json_con_forma_incorrecta_se_rechaza() {
     assert!(Datos::desde_json(r#"[{"region":"X","lat":1,"lon":2,"anios":{"2020":{"T2M":null}}}]"#, "[]").is_err());
