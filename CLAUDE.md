@@ -29,7 +29,7 @@ python pipeline/power.py 2015 2020   # regenera data/power.json
 ## Lo esencial de la arquitectura
 
 - `pipeline/` (Python) escribe `data/*.json`; `src/` (Rust) los sirve. Solo comparten esos JSON y la API **nunca calcula en vivo**.
-- `data/power.json` se embebe con `include_str!` **al compilar**: cambiar datos exige recompilar. Un JSON inválido (p. ej. `NaN`) impide que la API arranque.
+- `data/power.json` y `data/gpm.json` se embeben con `include_str!` **al compilar**: cambiar datos exige recompilar. Un JSON inválido (p. ej. `NaN`) impide que la API arranque.
 - Endpoint nuevo = handler en `src/routes/` + modelo en `src/models/` + test en `tests/api.rs`.
 - Flujo: PR a `developer` (nunca directo a `main`), rama `tipo/descripcion`, `changelog/<rama>.md`, CI `e2e` en verde (regla de equipo: GitHub no lo bloquea).
 - Secretos solo en `.env` local (plantilla `.env.example`) o *secrets* de GitHub; nunca en el repo.

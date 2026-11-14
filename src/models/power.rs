@@ -1,6 +1,5 @@
 //! Forma de `data/power.json`. Si el JSON no encaja, la API no arranca.
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Medidas {
@@ -18,11 +17,4 @@ pub struct Medidas {
     pub t2m_min: f64,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct Region {
-    pub region: String,
-    pub lat: f64,
-    pub lon: f64,
-    /// Promedio anual por año ("2015", ...).
-    pub anios: BTreeMap<String, Medidas>,
-}
+pub type Region = super::Region<Medidas>;
