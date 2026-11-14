@@ -1,5 +1,7 @@
 # Guía para Sebastián: scripts de extracción de datos
 
+> **Guía histórica.** `power.py` y `gpm.py` ya están hechos y calculan el promedio por departamento; CHIRPS y MERRA-2 aparte se descartaron. Las decisiones vigentes están en [`reglas-datos.md`](reglas-datos.md). Sigue sirviendo para añadir una fuente nueva.
+
 Objetivo: scripts en `pipeline/` (repo `nasa-challenge-backend`) que descarguen lluvia y temperatura de las 25 regiones del Perú y escriban JSON en `data/`. El API Axum solo lee esos JSON. **El API nunca calcula en vivo.**
 
 Referencia que ya funciona: `pipeline/power.py` (NASA POWER). Copia su estructura.

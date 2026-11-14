@@ -21,9 +21,9 @@
 
 | Parámetro | Valor | Significado |
 |---|---|---|
-| `temporal` | `monthly/point` | Datos mensuales de un solo punto (lat/lon). |
+| `temporal` | `monthly/regional` | Datos mensuales de un recuadro (máx. 10° por lado). `power.py` pide 4 recuadros que cubren Perú y promedia las celdas de cada departamento. |
 | `community` | `AG` | Comunidad agroclimática: define unidades y nombres de variables. |
-| `latitude`, `longitude` | capital de cada región | Punto de consulta. |
+| `latitude-min/max`, `longitude-min/max` | los 4 recuadros de Perú | Límites de cada consulta. `lat`/`lon` de cada región en el JSON siguen siendo su capital, solo como punto del mapa. |
 | `start`, `end` | años | Rango pedido. En mensual se piden como `YYYY`. |
 | `format` | `JSON` | Formato de respuesta. |
 
@@ -41,7 +41,7 @@
 
 ## Limitaciones
 - **Resolución gruesa**: Lima y Callao caen en la misma celda y dan valores idénticos. Decisión del equipo: se deja así.
-- **Una capital por región**: no representa toda la región. Cusco capital no equivale a su selva, y Loreto en Iquitos no equivale a sus Andes.
+- **Promedio del departamento** (no el píxel de la capital): todas las celdas cuyo centro cae dentro del departamento. Los departamentos con menos de 4 celdas (Callao, Tumbes, Lambayeque) llevan `nota`; Callao no tiene celdas propias y usa la de su capital.
 - **Es un modelo**: puede errar en zonas de montaña o con lluvias muy locales.
 
 ## Hallazgo útil: Niño Costero 2017

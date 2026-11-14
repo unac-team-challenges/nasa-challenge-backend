@@ -13,6 +13,8 @@ API de solo lectura (Rust/Axum) + pipeline de datos (Python) · NASA Space Apps 
 | [`CONDITIONS.md`](CONDITIONS.md) | Reglas obligatorias antes de abrir un PR (ramas, changelog, commits, CI, revisión) |
 | [`docs/reglas-datos.md`](docs/reglas-datos.md) | Reglas de datos: años completos, sin NaN, una fuente por JSON, costa |
 | [`docs/datos.md`](docs/datos.md) | Qué datos hay (POWER), variables, limpieza y límites |
+| [`docs/tendencias.md`](docs/tendencias.md) | Método y campos de las tendencias (`stats`), semáforo y avisos |
+| [`docs/vegetacion.md`](docs/vegetacion.md) | NDVI: qué se confirmó y qué zonas no se usan |
 | [`docs/guia-pipeline.md`](docs/guia-pipeline.md) | Cómo añadir una fuente nueva al pipeline y credenciales Earthdata |
 | [`README.md`](README.md) | Estructura, uso y endpoints |
 | `changelog/` | Un archivo por rama con lo que cambió |
@@ -23,7 +25,8 @@ API de solo lectura (Rust/Axum) + pipeline de datos (Python) · NASA Space Apps 
 bash tests/e2e.sh                    # valida datos + cargo test + prueba la API (es el CI; requiere jq)
 cargo test cors                      # un test por nombre (tests/api.rs)
 cargo run                            # API en :3000 (PORT, CORS_ORIGINS)
-python pipeline/power.py 2001 2024   # regenera data/power.json
+python pipeline/power.py 2001 2024   # regenera data/power.json (gpm.py: igual, con Earthdata)
+python pipeline/tendencias.py        # regenera data/variables.json y data/zonas/ (no los lee la API todavía)
 ```
 
 ## Lo esencial de la arquitectura
