@@ -17,13 +17,23 @@ Valen para todo `pipeline/*.py` y todo `data/*.json`, hoy y en los que se añada
 - Cada fuente tiene su archivo (`power.json`, `gpm.json`, `chirps.json`…) con la **unidad en el nombre de la variable** (`lluvia_mm_dia`).
 - **No se mezclan ni se promedian fuentes** en un solo valor: si discrepan, se muestran por separado con su nombre.
 
+## 3b. Fuentes elegidas (decididas el 2026-11-14)
+| Variable | Fuente del producto | Archivo | Notas |
+|---|---|---|---|
+| **Lluvia** | **GPM IMERG** (NASA, `GPM_3IMERGM` v07, ~10 km) | `data/gpm.json` | Es la única lluvia que muestra la ficha. Periodo reciente 2001–2024 (IMERG empieza en jun 2000). |
+| **Temperatura** | **MERRA-2 vía POWER** (`T2M`, `T2M_MAX`, `T2M_MIN`) | `data/power.json` | POWER ya usa MERRA-2: no se baja MERRA-2 aparte. |
+
+- **CHIRPS descartado**: no es de NASA y daría una segunda lluvia que contradice a IMERG en la costa (regla 3). La rama `feat/pipeline-chirps` queda en GitHub por si se retoma; no entra a `developer`.
+- **`PRECTOTCORR` de POWER** sigue en `power.json` solo como referencia: la ficha no la muestra.
+- Si hace falta lluvia de largo plazo (desde 1981/1983), es una decisión aparte (propuesta del Drive: GPCP v3.2).
+
 ## 4. Puntos poco fiables (la costa y casos parecidos)
-Un solo píxel de la capital no representa la región cuando las fuentes discrepan. Caso real: Piura 2017 = 2,60 (GPM) vs 0,33 (CHIRPS); en el desierto costero GPM sobreestima (~100 mm/año de más).
+Un solo píxel de la capital no representa la región cuando las fuentes discrepan. Caso real (comparación hecha antes de descartar CHIRPS): Piura 2017 = 2,60 (GPM) vs 0,33 (CHIRPS); en el desierto costero GPM sobreestima (~100 mm/año de más).
 
 Al detectar un caso así:
 1. **Usar el promedio del departamento** en vez del píxel de la capital (ver `pipeline/exploracion/lab4_departamentos.py` y `pipeline/exploracion/josue/`).
 2. **Mostrar siempre fuente y unidad** en la respuesta de la API.
-3. **Añadir un campo `nota`** en las regiones afectadas (p. ej. "GPM sobreestima en el desierto costero; CHIRPS no capta El Niño costero en el píxel de la ciudad").
+3. **Añadir un campo `nota`** en las regiones afectadas (p. ej. "IMERG sobreestima la lluvia en el desierto costero").
 4. **Documentar el caso** aquí o en `docs/datos.md` (qué región, qué fuentes, cuánto difieren).
 - Lima y Callao (misma celda POWER, datos idénticos) se dejan tal cual: decisión del equipo.
 
