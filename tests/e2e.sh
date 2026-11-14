@@ -17,6 +17,9 @@ chk "pipeline/power.py compila" python3 -m py_compile pipeline/power.py
 chk "gpm.json es JSON válido con 25 regiones" jq -e 'length == 25' data/gpm.json
 chk "gpm.json: todos los valores son números (sin null/NaN)" jq -e '[.[].anios[][]] | length > 0 and all(type == "number")' data/gpm.json
 chk "pipeline/gpm.py compila" python3 -m py_compile pipeline/gpm.py
+chk "chirps.json es JSON válido con 25 regiones" jq -e 'length == 25' data/chirps.json
+chk "chirps.json: todos los valores son números (sin null/NaN)" jq -e '[.[].anios[][]] | length > 0 and all(type == "number")' data/chirps.json
+chk "pipeline/chirps.py compila" python3 -m py_compile pipeline/chirps.py
 
 echo "== tests de integración (cargo test)"
 chk "cargo test" cargo test --quiet
