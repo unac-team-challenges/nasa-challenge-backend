@@ -2,8 +2,10 @@ pub mod config;
 pub mod data;
 pub mod error;
 pub mod models;
+pub mod openapi;
 pub mod routes;
 pub mod schema;
+pub mod ubigeo;
 
 use axum::Router;
 use data::Estado;

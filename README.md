@@ -27,6 +27,10 @@ bash tests/e2e.sh                    # verifica que todo corre
 |---|---|
 | `GET /health` | `{"status":"ok"}` |
 | `GET /regiones` | Lista de regiones con lat/lon |
+| `GET /api/variables` | Variables del producto (`lluvia`, `temperatura`) con unidad, fuente y rango de años |
+| `GET /api/zonas?variable=` | Las 25 zonas con ubigeo como texto (`"01"`–`"25"`), sin series. `variable` obligatoria (400 si falta o no existe) |
+| `GET /api/openapi.json` | Contrato OpenAPI (también en `openapi.json`; se regenera con `UPDATE_OPENAPI=1 cargo test openapi`) |
+| `GET /api/zonas/{id}?variable=` | Serie anual de la zona (`serie: [{anio, valor}]`); 404 si el ubigeo no existe. Los campos de tendencia (`stats`) llegan con el cálculo de Josue |
 | `GET /gpm/{region}` | Lluvia anual GPM IMERG de la región (`lluvia_mm_dia` por año; mismas reglas de búsqueda y 404 que `/power`) |
 | `GET /power/{region}` | Promedios anuales de la región (404 JSON si no existe; ignora mayúsculas y tildes: `/power/ancash`) |
 
