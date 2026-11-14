@@ -49,5 +49,11 @@ Complementa `../josue/conclusiones.md`, sin repetirlo. Aquí van los hallazgos d
 
 ## Lo que falta
 
-- [ ] Terminar el **Lab 3**: analizar el NDVI de Chavimochic, Olmos, Ica, Lima, la selva de Iquitos y el valle del Mantaro (valle frente a desierto, meses perdidos por nubes, antes y después).
+- [x] **Lab 3 terminado** (MODIS MOD13A3, 2001–2024):
+  - **Chavimochic:** área verde de 189 a 355 km², NDVI de 0,19 a 0,31; Sen +0,054 por década, p < 0,0001.
+  - **Ica-Villacurí:** de 118 a 222 km², NDVI de 0,14 a 0,20; Sen +0,027 por década, p < 0,0001.
+  - **Olmos:** sin tendencia (p = 0,43). El recuadro cayó sobre bosque seco natural y no sobre las tierras nuevas del proyecto: hay que moverlo.
+  - **Selva:** saturada (NDVI ~0,85 fijo); el NDVI no sirve ahí. **Lima** pierde 13 de 288 meses por la garúa; la selva, 8; la sierra, ninguno.
+  - Las imágenes de `resultados/lab3_antes_despues.png` sirven para el antes y después del Caso 2 (`react-compare-slider`).
+- [ ] Mover el recuadro de Olmos a las tierras irrigadas del proyecto y volver a pedirlo.
 - [ ] Coordinar con Josue quién corre el Lab 2 con una cuenta que funcione.
