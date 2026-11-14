@@ -249,7 +249,7 @@
       },
       "ZonaDetalle": {
         "type": "object",
-        "description": "`GET /api/zonas/{id}`: serie anual de la zona. `stats` (tendencia) llega con el cálculo de Josue.",
+        "description": "`GET /api/zonas/{id}`: serie anual de la zona. `stats` (tendencia) llega con el cálculo de Sebastian.",
         "required": [
           "id",
           "nombre",

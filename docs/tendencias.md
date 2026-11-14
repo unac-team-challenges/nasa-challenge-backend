@@ -1,6 +1,6 @@
-# Cálculo de tendencias (para Josue)
+# Cálculo de tendencias (para Sebastian)
 
-**Tarea de Josue:** pendiente de Sen, Mann-Kendall y el resto de `stats` por zona y variable. Lo que hay hecho, qué falta calcular y cómo debe quedar. Fuente de las decisiones: Drive (`07-stack-decidido`, `13-datos-unificado-14nov`, `06-datos-a-usar`) y [`reglas-datos.md`](reglas-datos.md). **Los campos de tendencia están en progreso: lo marcado «por confirmar» lo decide el equipo/Josue.**
+**Tarea de Sebastian:** pendiente de Sen, Mann-Kendall y el resto de `stats` por zona y variable. Lo que hay hecho, qué falta calcular y cómo debe quedar. Fuente de las decisiones: Drive (`07-stack-decidido`, `13-datos-unificado-14nov`, `06-datos-a-usar`) y [`reglas-datos.md`](reglas-datos.md). **Los campos de tendencia están en progreso: lo marcado «por confirmar» lo decide el equipo/Sebastian.**
 
 ## 1. Qué tenemos (entrada)
 
@@ -35,7 +35,7 @@ Por **zona** (25) y por **variable** (lluvia, temperatura; decidir si también `
 3. **Intervalo de la pendiente** con `scipy.stats.theilslopes(y, x, alpha=0.95)` (`pymannkendall` no lo da). También ×10.
 4. **Benjamini-Hochberg** entre las 25 zonas de **la misma variable** (`statsmodels.stats.multitest.multipletests(method="fdr_bh")`) → `q_value`.
 5. **`lag1`**: autocorrelación de un año al siguiente.
-6. **`status`**: `real` si `q_value < 0.05`; `pocos_datos` si `n_years < 10`; si no, `posible_casualidad` (umbrales **por confirmar por Josue**).
+6. **`status`**: `real` si `q_value < 0.05`; `pocos_datos` si `n_years < 10`; si no, `posible_casualidad` (umbrales **por confirmar por Sebastian**).
 
 Campos por zona (`stats`, contrato del `07`):
 
