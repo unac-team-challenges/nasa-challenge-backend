@@ -141,3 +141,23 @@ fn json_con_forma_incorrecta_se_rechaza() {
     assert!(Datos::desde_json(r#"[{"region":"X","lat":1,"lon":2,"anios":{"2020":{"T2M":null}}}]"#, "[]").is_err());
     assert!(Datos::desde_json("[]", r#"[{"region":"X","lat":1,"lon":2,"anios":{"2020":{"lluvia_mm_dia":null}}}]"#).is_err());
 }
+
+/// `openapi.json` (raíz del repo) es el contrato que copia el frontend: no puede quedar viejo.
+/// Si cambias rutas o structs: `UPDATE_OPENAPI=1 cargo test openapi`.
+#[test]
+fn openapi_json_esta_al_dia() {
+    let actual = nasa_challenge_backend::openapi::json();
+    if std::env::var("UPDATE_OPENAPI").is_ok() {
+        std::fs::write("openapi.json", &actual).unwrap();
+    }
+    let guardado = std::fs::read_to_string("openapi.json").unwrap_or_default();
+    assert_eq!(guardado, actual, "openapi.json desactualizado: corre UPDATE_OPENAPI=1 cargo test openapi");
+}
+
+#[tokio::test]
+async fn openapi_se_sirve_con_las_3_rutas() {
+    let (s, _, b) = get("/api/openapi.json", None).await;
+    assert_eq!(s, StatusCode::OK);
+    let rutas = b["paths"].as_object().unwrap();
+    assert!(rutas.contains_key("/api/variables") && rutas.contains_key("/api/zonas") && rutas.contains_key("/api/zonas/{id}"));
+}

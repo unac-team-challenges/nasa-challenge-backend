@@ -1,6 +1,7 @@
 //! Lo que la API devuelve cuando no es un modelo completo.
 use crate::models::power::Region;
 use serde::Serialize;
+use utoipa::ToSchema;
 
 #[derive(Serialize)]
 pub struct RegionResumen {
@@ -16,7 +17,7 @@ impl From<&Region> for RegionResumen {
 }
 
 /// `GET /api/variables`
-#[derive(Serialize)]
+#[derive(Serialize, ToSchema)]
 pub struct VariableInfo {
     pub id: &'static str,
     pub unidad: &'static str,
@@ -27,7 +28,7 @@ pub struct VariableInfo {
 }
 
 /// `GET /api/zonas`: una zona del mapa (sin serie).
-#[derive(Serialize)]
+#[derive(Serialize, ToSchema)]
 pub struct Zona {
     /// Ubigeo como texto: "01"–"25".
     pub id: &'static str,
@@ -36,14 +37,14 @@ pub struct Zona {
     pub lon: f64,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, ToSchema)]
 pub struct Punto {
     pub anio: u16,
     pub valor: f64,
 }
 
 /// `GET /api/zonas/{id}`: serie anual de la zona. `stats` (tendencia) llega con el cálculo de Josue.
-#[derive(Serialize)]
+#[derive(Serialize, ToSchema)]
 pub struct ZonaDetalle {
     pub id: &'static str,
     pub nombre: String,
@@ -53,4 +54,10 @@ pub struct ZonaDetalle {
     pub unidad: &'static str,
     pub fuente: &'static str,
     pub serie: Vec<Punto>,
+}
+
+/// Cuerpo de los errores 400 y 404.
+#[derive(Serialize, ToSchema)]
+pub struct ErrorRespuesta {
+    pub error: String,
 }

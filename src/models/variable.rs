@@ -1,7 +1,8 @@
 //! Variables que ve el producto (contrato del Drive, `07-stack-decidido`).
 use serde::Serialize;
+use utoipa::ToSchema;
 
-#[derive(Clone, Copy, Debug, PartialEq, Serialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, ToSchema)]
 #[serde(rename_all = "lowercase")]
 pub enum Variable {
     Lluvia,

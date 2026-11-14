@@ -4,7 +4,7 @@ use crate::{
     data::Estado,
     error::ApiError,
     models::variable::Variable,
-    schema::{Punto, VariableInfo, Zona, ZonaDetalle},
+    schema::{ErrorRespuesta, Punto, VariableInfo, Zona, ZonaDetalle},
     ubigeo,
 };
 use axum::{extract::{Path, Query, State}, Json};
@@ -23,6 +23,9 @@ fn variable(p: Params) -> Result<Variable, ApiError> {
     }
 }
 
+/// Variables del producto con unidad, fuente y rango de años.
+#[utoipa::path(get, path = "/api/variables", tag = "api",
+    responses((status = 200, body = Vec<VariableInfo>)))]
 pub async fn variables(State(d): State<Estado>) -> Json<Vec<VariableInfo>> {
     Json(
         Variable::TODAS
@@ -47,6 +50,10 @@ pub async fn variables(State(d): State<Estado>) -> Json<Vec<VariableInfo>> {
     )
 }
 
+/// Las 25 zonas (departamentos) sin series.
+#[utoipa::path(get, path = "/api/zonas", tag = "api",
+    params(("variable" = Variable, Query, description = "Obligatoria: el plan B estático la necesita en la ruta")),
+    responses((status = 200, body = Vec<Zona>), (status = 400, body = ErrorRespuesta)))]
 pub async fn zonas(State(d): State<Estado>, Query(p): Query<Params>) -> Result<Json<Vec<Zona>>, ApiError> {
     variable(p)?;
     Ok(Json(
@@ -59,6 +66,13 @@ pub async fn zonas(State(d): State<Estado>, Query(p): Query<Params>) -> Result<J
     ))
 }
 
+/// Serie anual de una zona (`id` = ubigeo como texto, "01"–"25").
+#[utoipa::path(get, path = "/api/zonas/{id}", tag = "api",
+    params(
+        ("id" = String, Path, description = "Ubigeo del departamento, como texto", example = "15"),
+        ("variable" = Variable, Query, description = "Obligatoria"),
+    ),
+    responses((status = 200, body = ZonaDetalle), (status = 400, body = ErrorRespuesta), (status = 404, body = ErrorRespuesta)))]
 pub async fn zona(
     State(d): State<Estado>,
     Path(id): Path<String>,
