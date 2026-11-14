@@ -42,7 +42,7 @@ pub struct Punto {
     pub valor: f64,
 }
 
-/// `GET /api/zonas/{id}`: serie anual de la zona. `stats` (tendencia) llega con el cálculo de Josue.
+/// `GET /api/zonas/{id}`: serie anual de la zona. `stats` (tendencia) llega con el cálculo de tendencias (Sebastian).
 #[derive(Serialize)]
 pub struct ZonaDetalle {
     pub id: &'static str,

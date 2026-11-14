@@ -10,7 +10,7 @@ Base: `feat/api-gpm` (#16). Mezclar #16 primero.
 - Tests en `tests/api.rs` y `tests/e2e.sh`; README actualizado.
 
 ## Pendiente
-- `stats` (tendencia: `slope_per_decade`, `q_value`, `status`…): lo calcula el pipeline de Josue (`docs/tendencias.md`); hasta entonces la ficha solo trae la serie.
+- `stats` (tendencia: `slope_per_decade`, `q_value`, `status`…): lo calcula el pipeline de tendencias de Sebastian (`docs/tendencias.md`); hasta entonces la ficha solo trae la serie.
 - `/api/casos/{id}` y `/api/hallazgos`: dependen de las tendencias.
 - Decidir capital frente a promedio del departamento y si entran `T2M_MAX`/`T2M_MIN`.
 - Las rutas `/power` y `/gpm` se mantienen.
