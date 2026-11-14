@@ -20,5 +20,5 @@ Resultado del Lab 3 de Favio (MODIS MOD13A3, 2001–2024, 6 zonas). Detalle y c�
 2. Repetir la solicitud con `scripts/lab3_appeears.py` (AppEEARS tardó ~3 h el 14-nov) y correr `lab3_analisis.py`.
 3. Mientras tanto la ficha de Olmos muestra «sin dato», nunca un valor del recuadro actual.
 
-## Pendiente (a cargo de Josue)
-La variable de vegetación en `pipeline/` y la revisión de `lab5_tendencias.py` (p-valor frente a IC). Ver la nota del equipo en Drive.
+## Pendiente (responsable por definir)
+La variable de vegetación en `pipeline/` y la revisión de `lab5_tendencias.py` (p-valor frente a IC). Falta asignar quién; ver la nota del equipo en Drive.
