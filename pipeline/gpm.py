@@ -1,6 +1,6 @@
 """Descarga GPM IMERG (mensual, V07) de las 25 regiones y escribe data/gpm.json.
 
-Uso: python pipeline/gpm.py [inicio] [fin]   (por defecto 2015 2020)
+Uso: python pipeline/gpm.py [inicio] [fin]   (por defecto 2000 2025)
 
 Necesita una cuenta Earthdata con los términos de GES DISC aceptados:
 variables EARTHDATA_USERNAME y EARTHDATA_PASSWORD (en .env o en el
@@ -79,7 +79,7 @@ def anio_promedio(anio, sesion, carpeta):
 
 
 if __name__ == "__main__":
-    inicio, fin = (sys.argv[1:3] + ["2015", "2020"][len(sys.argv[1:3]):])[:2]
+    inicio, fin = (sys.argv[1:3] + ["2000", "2025"][len(sys.argv[1:3]):])[:2]
     load_dotenv()
     earthaccess.login()  # .env/entorno, o ~/.netrc
     sesion = earthaccess.get_requests_https_session()

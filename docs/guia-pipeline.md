@@ -64,7 +64,7 @@ Prueba rápida que ya funciona: buscar `GPM_3IMERGM`, `version="07"`, 1 mes, `co
 
 ## 4. GPM IMERG (lluvia)
 
-- Búsqueda: `earthaccess.search_data(short_name="GPM_3IMERGM", version="07", temporal=("2015-01-01", "2020-12-31"))`. Un archivo por mes, ~18 MB cada uno.
+- Búsqueda: `earthaccess.search_data(short_name="GPM_3IMERGM", version="07", temporal=("2000-01-01", "2025-12-31"))`. Un archivo por mes, ~18 MB cada uno.
 - Formato: **HDF5**. ⚠️ Abrir con `xarray.open_dataset(ruta, group="Grid")` y leer la variable `precipitation`. Comprobar el nombre exacto de la variable y de las dimensiones en un archivo real.
 - **Unidad: mm/hora.** Multiplicar por 24 para mm/día (y así compararla con POWER).
 - Sacar el punto de cada región con `.sel(lat=..., lon=..., method="nearest")`.
@@ -97,7 +97,7 @@ pipeline/
   requirements.txt # añadir earthaccess, python-dotenv, xarray, h5netcdf (y netCDF4 si hace falta)
 ```
 
-Cada script: `python pipeline/gpm.py 2015 2020` → escribe `data/gpm.json`. Argumentos `inicio` y `fin` como en `power.py`.
+Cada script: `python pipeline/gpm.py 2000 2025` → escribe `data/gpm.json`. Argumentos `inicio` y `fin` como en `power.py`.
 
 ## 8. Cómo probar que está bien
 
