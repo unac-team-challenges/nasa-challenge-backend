@@ -83,7 +83,7 @@ Guardar también `metadata.method` (método usado), unidad y fuente.
 - Temperatura de la primera versión = `T2M`.
 - **Periodo = 2001–2024 para las dos variables** (POWER y GPM). Si hace falta un periodo largo (1981) o lluvia de largo plazo (GPCP), es otra decisión y otra columna de salida.
 
-- **Semáforo (umbrales de Josue, Sebastian 14 nov):** `pocos_datos` si `n_years < 20` o `celdas < 4`; `real` si `q_value < 0.05`; si no, `posible_casualidad`. `pct_change_per_decade` solo en lluvia.
+- **Semáforo (umbrales de Josue, Sebastian 14 nov):** `pocos_datos` si `n_years < 20` o `celdas < 4`; `real` si `q_value < 0.05`; si no, `posible_casualidad`. **Lluvia (solo IMERG): nunca `real`**; con `q < 0.05` sale `posible_casualidad`, por el salto de 2014. `pct_change_per_decade` solo en lluvia.
 - **`aviso`** (texto): en todas las zonas de lluvia, por el cambio de constelación de IMERG en 2014 (TRMM → GPM: la tendencia puede estar sesgada a la baja); y en cualquier zona si `lag1 > 0.5`. Si hay los dos, van en el mismo texto.
 - **Archivos:** uno por ruta: `data/variables.json`, `data/zonas/{variable}.json` (sin serie) y `data/zonas/{variable}/{id}.json` (serie + `stats`), generados por `pipeline/tendencias.py`.
 

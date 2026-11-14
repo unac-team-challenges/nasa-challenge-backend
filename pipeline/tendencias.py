@@ -15,7 +15,8 @@ años a los JSON de entrada. Método (docs/tendencias.md), sobre la serie anual:
 - Benjamini-Hochberg entre las 25 zonas de la misma variable -> q_value
 - lag1: autocorrelación de la serie sin tendencia (como lab5 de Josue)
 - status: pocos_datos si n_years < 20 o celdas < 4; real si q < 0.05;
-  si no, posible_casualidad.
+  si no, posible_casualidad. La lluvia (solo IMERG) nunca sale real: con q < 0.05
+  queda posible_casualidad, porque el salto de 2014 puede fingir la tendencia.
 - aviso (texto): siempre en lluvia (salto de IMERG en 2014) y si lag1 > 0.5.
 """
 import json
@@ -43,7 +44,8 @@ VARIABLES = {
         "porcentaje": True,
         # Regla 3b: la NASA advierte saltos de homogeneidad al pasar de TRMM a GPM.
         "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): "
-                 "la tendencia de lluvia puede estar sesgada a la baja.",
+                 "la tendencia de lluvia puede estar sesgada a la baja, por eso no se marca como real.",
+        "sin_real": True,
     },
     "temperatura": {
         "archivo": "power.json", "campo": "T2M",
@@ -80,14 +82,14 @@ def estadisticas(anios, y, porcentaje):
     return st
 
 
-def clasificar(st, q, celdas, aviso=None):
+def clasificar(st, q, celdas, aviso=None, sin_real=False):
     """Añade p_value/q_value redondeados, status y aviso. El status se decide
     con el q_value publicado, para que el JSON nunca se contradiga."""
     st["p_value"] = round(st["p_value"], 6)
     st["q_value"] = round(float(q), 6)
     if st["n_years"] < MIN_ANIOS or celdas < MIN_CELDAS:
         st["status"] = "pocos_datos"
-    elif st["q_value"] < ALFA:
+    elif st["q_value"] < ALFA and not sin_real:
         st["status"] = "real"
     else:
         st["status"] = "posible_casualidad"
@@ -122,7 +124,7 @@ def main():
 
         resumen = []
         for (fila, anios, y), st, q in zip(zonas, stats, qs):
-            clasificar(st, q, fila["celdas"], cfg.get("aviso"))
+            clasificar(st, q, fila["celdas"], cfg.get("aviso"), cfg.get("sin_real", False))
             zona = {"id": UBIGEO[fila["region"]], "nombre": fila["region"],
                     "lat": fila["lat"], "lon": fila["lon"], "celdas": fila["celdas"]}
             if "nota" in fila:
