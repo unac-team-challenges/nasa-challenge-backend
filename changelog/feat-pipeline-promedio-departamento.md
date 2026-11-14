@@ -1,17 +1,23 @@
 # feat/pipeline-promedio-departamento
 
-PR: base `feat/pipeline-chirps` (#11); pasa a `developer` cuando #9 y #11 se mezclen.
+PR → `developer`. Sigue la sección 3b de `docs/reglas-datos.md` y la sección 6 de `docs/tendencias.md`: unidad geográfica = promedio del departamento.
 
 ## Cambiado
-- `gpm.py` y `chirps.py`: cada valor es el **promedio de todas las celdas del departamento**, no el píxel de la capital. Se aplica la regla 4 de `docs/reglas-datos.md` a los 25 departamentos, para que todo el mapa use el mismo método.
-- `data/gpm.json` y `data/chirps.json` regenerados (2015–2020).
+- `gpm.py`: cada valor es el **promedio de todas las celdas de IMERG del departamento**, no el píxel de la capital. Periodo 2001–2024. Pide por OPeNDAP solo el recorte de Perú de cada mes (~60 KB en vez de 18 MB, en memoria, 4 en paralelo): 2001–2024 en ~3,5 min, con los mismos valores que el archivo completo.
+- `power.py`: API **regional** de POWER en 4 recuadros (máximo 10° por lado), igual que `pipeline/exploracion/josue/scripts/power_departamentos.py`, y promedio por departamento. Periodo 1981–2024. Un año entra solo si las 4 variables lo tienen completo.
+- `data/gpm.json` y `data/power.json` regenerados.
+- Workflow mensual: POWER desde 1981 y GPM desde 2001.
 
 ## Añadido
-- `pipeline/departamentos.py`: máscara de los 25 departamentos con `regionmask` (una celda pertenece al departamento que contiene su centro) y `a_json()` compartido.
+- `pipeline/departamentos.py`: máscara de los 25 departamentos con `regionmask` (una celda pertenece al departamento que contiene su centro), `UBIGEO` y `a_json()` compartido.
 - `pipeline/geo/peru_departamentos.geojson` (`juaneladio/peru-geojson`, MPL-2.0, 140 KB).
-- Campo `celdas` por región en `gpm.json` y `chirps.json`, y `nota` cuando el promedio usa menos de 4 celdas (Callao en GPM). **Aviso de contrato:** dos campos nuevos por región; `anios` no cambia de forma.
+- **Aviso de contrato:** dos campos nuevos por región en `power.json` y `gpm.json`: `celdas` (cuántas entran en el promedio) y `nota` (si hay menos de 4 celdas). `anios` no cambia de forma; la API los ignora (no usa `deny_unknown_fields`).
 - `pipeline/requirements.txt`: `geopandas`, `regionmask`.
 
+## Quitado
+- CHIRPS (`chirps.py`, `data/chirps.json`), descartado por el equipo en #11.
+
 ## Notas
-- Celdas por departamento: iguales a la tabla del lab 4 (`pipeline/exploracion/lab4_departamentos.py`). IMERG: Callao 1, Tumbes 37, Loreto 3054.
-- `lat` y `lon` siguen siendo la capital (punto para el mapa), no el centro del promedio.
+- Las celdas por departamento coinciden con la tabla del lab 4. IMERG: Callao 1, Tumbes 37, Loreto 3054. POWER: Callao 0, Tumbes 1, Lambayeque 3.
+- Callao no tiene celdas propias en POWER: usa la celda de su capital (compartida con Lima) y lleva `nota`. Se respeta la decisión "Lima y Callao tal cual".
+- `lat` y `lon` siguen siendo la capital (punto del mapa).
