@@ -16,6 +16,7 @@ Léelo cada vez que abras un PR. La plantilla del PR te lo recuerda.
 ## Reglas del proyecto
 - **La API nunca calcula en vivo**: lo calculado vive en `data/*.json`, generado por `pipeline/`.
 - **Contrato de datos**: no cambies la forma de los JSON sin avisar al equipo (ver [`docs/datos.md`](docs/datos.md) y [`docs/guia-pipeline.md`](docs/guia-pipeline.md)).
+- **Reglas de datos** (solo años completos, una fuente por JSON, tratamiento de la costa): [`docs/reglas-datos.md`](docs/reglas-datos.md). Obligatorias para todo `pipeline/`.
 - **Nunca `NaN` en los JSON**: no es JSON válido y la API no arranca. El pipeline usa `allow_nan=False`.
 - Si cambias `pipeline/`, regenera `data/` y commitea el JSON resultante.
 - **No subir**: `.env`, credenciales, archivos descargados (`.hdf5`, `.nc4`, `.tif`), `target/`, `.venv/`.

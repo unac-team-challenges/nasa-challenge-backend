@@ -1,0 +1,31 @@
+# Reglas de datos (decisiones del equipo)
+
+Valen para todo `pipeline/*.py` y todo `data/*.json`, hoy y en los que se añadan (POWER, GPM, CHIRPS, MERRA-2, NDVI…). Decididas el 2026-11-14.
+
+## 1. Solo años completos (12 meses)
+- Un año entra al JSON **solo si tiene los 12 meses con dato**. Nunca el año en curso ni uno con meses vacíos.
+- **Por qué**: un promedio de ene–oct no se puede comparar con años enteros (la estación del año lo sesga), y si el pipeline pide meses que aún no existen (CHIRPS, GPM) falla y el cron no guarda nada.
+- **Cómo**: contar meses con dato por año y descartar los que no sean 12. Ejemplo en `pipeline/power.py` (`g.size() == 12`).
+- Efecto: el último año del JSON es el año anterior. El año nuevo entra en enero siguiente.
+
+## 2. Nunca `NaN` ni `null` en los JSON
+- `json.dumps(..., allow_nan=False)` siempre. Un `NaN` hace caer la API al arrancar.
+- Un punto sin dato (p. ej. mar en CHIRPS) se trata como `NaN` *dentro* del script; si deja un año incompleto, ese año se descarta (regla 1).
+- El CI valida cada `data/*.json` con `jq` en `tests/e2e.sh`.
+
+## 3. Una fuente = un JSON = un número
+- Cada fuente tiene su archivo (`power.json`, `gpm.json`, `chirps.json`…) con la **unidad en el nombre de la variable** (`lluvia_mm_dia`).
+- **No se mezclan ni se promedian fuentes** en un solo valor: si discrepan, se muestran por separado con su nombre.
+
+## 4. Puntos poco fiables (la costa y casos parecidos)
+Un solo píxel de la capital no representa la región cuando las fuentes discrepan. Caso real: Piura 2017 = 2,60 (GPM) vs 0,33 (CHIRPS); en el desierto costero GPM sobreestima (~100 mm/año de más).
+
+Al detectar un caso así:
+1. **Usar el promedio del departamento** en vez del píxel de la capital (ver `pipeline/exploracion/lab4_departamentos.py` y `pipeline/exploracion/josue/`).
+2. **Mostrar siempre fuente y unidad** en la respuesta de la API.
+3. **Añadir un campo `nota`** en las regiones afectadas (p. ej. "GPM sobreestima en el desierto costero; CHIRPS no capta El Niño costero en el píxel de la ciudad").
+4. **Documentar el caso** aquí o en `docs/datos.md` (qué región, qué fuentes, cuánto difieren).
+- Lima y Callao (misma celda POWER, datos idénticos) se dejan tal cual: decisión del equipo.
+
+## 5. Cómo añadir una regla
+Una PR a `developer` que edite este archivo y lo enlace desde el changelog. Cambiar una regla = avisar al equipo.

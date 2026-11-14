@@ -1,0 +1,7 @@
+.venv/
+scripts/data/
+scripts/salida/
+__pycache__/
+*.nc
+*.hdf5
+*.tif

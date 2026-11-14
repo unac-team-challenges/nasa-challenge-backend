@@ -44,7 +44,7 @@ Reglas:
 ## 3. Credenciales (Earthdata) para GPM y MERRA-2
 
 1. Cuenta gratis en https://urs.earthdata.nasa.gov.
-2. En local, archivo `.env` en la raíz del repo (ya está en `.gitignore`, **nunca commitear**):
+2. En local: `cp .env.example .env` y rellena. `.env` está en la raíz del repo y en `.gitignore` (**nunca commitear**):
    ```
    EARTHDATA_USERNAME=...
    EARTHDATA_PASSWORD=...
