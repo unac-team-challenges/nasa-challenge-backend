@@ -35,7 +35,7 @@ Por **zona** (25) y por **variable** (lluvia, temperatura; decidir si también `
 3. **Intervalo de la pendiente** con `scipy.stats.theilslopes(y, x, alpha=0.95)` (`pymannkendall` no lo da). También ×10.
 4. **Benjamini-Hochberg** entre las 25 zonas de **la misma variable** (`statsmodels.stats.multitest.multipletests(method="fdr_bh")`) → `q_value`.
 5. **`lag1`**: autocorrelación de un año al siguiente.
-6. **`status`**: `real` si `q_value < 0.05`; `pocos_datos` si `n_years < 10`; si no, `posible_casualidad` (umbrales **por confirmar por Sebastian**).
+6. **`status`**: `real` si `q_value < 0.05`; `pocos_datos` si `n_years < 20` o `celdas < 4`; si no, `posible_casualidad` (ver sección 6).
 
 Campos por zona (`stats`, contrato del `07`):
 
@@ -83,7 +83,9 @@ Guardar también `metadata.method` (método usado), unidad y fuente.
 - Temperatura de la primera versión = `T2M`.
 - **Periodo = 2001–2024 para las dos variables** (POWER y GPM). Si hace falta un periodo largo (1981) o lluvia de largo plazo (GPCP), es otra decisión y otra columna de salida.
 
+- **Semáforo (umbrales de Josue, Sebastian 14 nov):** `pocos_datos` si `n_years < 20` o `celdas < 4`; `real` si `q_value < 0.05`; si no, `posible_casualidad`. `pct_change_per_decade` solo en lluvia.
+- **`aviso`** (texto): en todas las zonas de lluvia, por el cambio de constelación de IMERG en 2014 (TRMM → GPM: la tendencia puede estar sesgada a la baja); y en cualquier zona si `lag1 > 0.5`. Si hay los dos, van en el mismo texto.
+- **Archivos:** uno por ruta: `data/variables.json`, `data/zonas/{variable}.json` (sin serie) y `data/zonas/{variable}/{id}.json` (serie + `stats`), generados por `pipeline/tendencias.py`.
+
 **Pendientes:**
-1. Umbrales exactos del semáforo (`status`) y `pct_change_per_decade`.
-2. Forma final de los archivos (por variable/por zona) y de las rutas `/api/...`.
-3. ¿También `T2M_MAX`/`T2M_MIN`? La primera versión solo `T2M`.
+1. ¿También `T2M_MAX`/`T2M_MIN`? La primera versión solo `T2M`.

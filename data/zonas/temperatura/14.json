@@ -1,0 +1,122 @@
+{
+ "id": "14",
+ "nombre": "Lambayeque",
+ "lat": -6.77,
+ "lon": -79.84,
+ "celdas": 3,
+ "nota": "Promedio de solo 3 celda(s): dato poco confiable",
+ "variable": "temperatura",
+ "unidad": "°C",
+ "fuente": "MERRA-2 vía NASA POWER (T2M)",
+ "serie": [
+  {
+   "anio": 2001,
+   "valor": 22.1139
+  },
+  {
+   "anio": 2002,
+   "valor": 22.7692
+  },
+  {
+   "anio": 2003,
+   "valor": 22.5817
+  },
+  {
+   "anio": 2004,
+   "valor": 22.32
+  },
+  {
+   "anio": 2005,
+   "valor": 22.1256
+  },
+  {
+   "anio": 2006,
+   "valor": 22.5583
+  },
+  {
+   "anio": 2007,
+   "valor": 21.8139
+  },
+  {
+   "anio": 2008,
+   "valor": 21.98
+  },
+  {
+   "anio": 2009,
+   "valor": 22.6006
+  },
+  {
+   "anio": 2010,
+   "valor": 22.1642
+  },
+  {
+   "anio": 2011,
+   "valor": 22.0244
+  },
+  {
+   "anio": 2012,
+   "valor": 22.5972
+  },
+  {
+   "anio": 2013,
+   "valor": 22.1022
+  },
+  {
+   "anio": 2014,
+   "valor": 22.7711
+  },
+  {
+   "anio": 2015,
+   "valor": 23.4847
+  },
+  {
+   "anio": 2016,
+   "valor": 23.1056
+  },
+  {
+   "anio": 2017,
+   "valor": 22.5022
+  },
+  {
+   "anio": 2018,
+   "valor": 22.3794
+  },
+  {
+   "anio": 2019,
+   "valor": 22.8892
+  },
+  {
+   "anio": 2020,
+   "valor": 22.4256
+  },
+  {
+   "anio": 2021,
+   "valor": 22.0233
+  },
+  {
+   "anio": 2022,
+   "valor": 21.5272
+  },
+  {
+   "anio": 2023,
+   "valor": 23.5831
+  },
+  {
+   "anio": 2024,
+   "valor": 23.0078
+  }
+ ],
+ "stats": {
+  "year_start": 2001,
+  "year_end": 2024,
+  "n_years": 24,
+  "slope_per_decade": 0.193709,
+  "intercept": -16.520063,
+  "ci_low": -0.1687,
+  "ci_high": 0.5055,
+  "p_value": 0.459608,
+  "lag1": 0.1207,
+  "q_value": 0.478758,
+  "status": "pocos_datos"
+ }
+}

@@ -25,6 +25,7 @@ Valen para todo `pipeline/*.py` y todo `data/*.json`, hoy y en los que se añada
 
 - **Unidad geográfica: promedio del departamento** (todas las regiones, no solo la costa), no el píxel de la capital. `pipeline/power.py` y `pipeline/gpm.py` ya lo calculan (máscara en `pipeline/departamentos.py`); `lat`/`lon` siguen siendo la capital, solo como punto del mapa.
 - **Temperatura en la primera versión: solo `T2M`.** `T2M_MAX` y `T2M_MIN` quedan en `power.json` como extra si sobra tiempo; la API no las expone todavía.
+- **Aviso en la tendencia de lluvia:** IMERG cambia de constelación de satélites en 2014 (TRMM → GPM) y la tendencia puede salir sesgada a la baja; `pipeline/tendencias.py` lo escribe en el `aviso` de cada zona de lluvia.
 - **CHIRPS descartado**: no es de NASA y daría una segunda lluvia que contradice a IMERG en la costa (regla 3). La rama `feat/pipeline-chirps` queda en GitHub por si se retoma; no entra a `developer`.
 - **`PRECTOTCORR` de POWER** sigue en `power.json` solo como referencia: la ficha no la muestra.
 - Si hace falta lluvia de largo plazo (desde 1981/1983), es una decisión aparte (propuesta del Drive: GPCP v3.2).

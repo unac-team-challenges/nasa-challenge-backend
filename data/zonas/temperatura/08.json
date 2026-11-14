@@ -1,0 +1,121 @@
+{
+ "id": "08",
+ "nombre": "Cusco",
+ "lat": -13.53,
+ "lon": -71.97,
+ "celdas": 20,
+ "variable": "temperatura",
+ "unidad": "°C",
+ "fuente": "MERRA-2 vía NASA POWER (T2M)",
+ "serie": [
+  {
+   "anio": 2001,
+   "valor": 13.6458
+  },
+  {
+   "anio": 2002,
+   "valor": 14.1562
+  },
+  {
+   "anio": 2003,
+   "valor": 14.3117
+  },
+  {
+   "anio": 2004,
+   "valor": 14.2615
+  },
+  {
+   "anio": 2005,
+   "valor": 14.8669
+  },
+  {
+   "anio": 2006,
+   "valor": 14.0323
+  },
+  {
+   "anio": 2007,
+   "valor": 14.313
+  },
+  {
+   "anio": 2008,
+   "valor": 14.073
+  },
+  {
+   "anio": 2009,
+   "valor": 14.479
+  },
+  {
+   "anio": 2010,
+   "valor": 14.6526
+  },
+  {
+   "anio": 2011,
+   "valor": 13.7837
+  },
+  {
+   "anio": 2012,
+   "valor": 14.0303
+  },
+  {
+   "anio": 2013,
+   "valor": 14.1169
+  },
+  {
+   "anio": 2014,
+   "valor": 14.3071
+  },
+  {
+   "anio": 2015,
+   "valor": 14.4243
+  },
+  {
+   "anio": 2016,
+   "valor": 14.7658
+  },
+  {
+   "anio": 2017,
+   "valor": 14.4181
+  },
+  {
+   "anio": 2018,
+   "valor": 14.069
+  },
+  {
+   "anio": 2019,
+   "valor": 14.5382
+  },
+  {
+   "anio": 2020,
+   "valor": 14.6724
+  },
+  {
+   "anio": 2021,
+   "valor": 14.284
+  },
+  {
+   "anio": 2022,
+   "valor": 14.4378
+  },
+  {
+   "anio": 2023,
+   "valor": 15.364
+  },
+  {
+   "anio": 2024,
+   "valor": 15.6041
+  }
+ ],
+ "stats": {
+  "year_start": 2001,
+  "year_end": 2024,
+  "n_years": 24,
+  "slope_per_decade": 0.3313,
+  "intercept": -52.361775,
+  "ci_low": 0.0673,
+  "ci_high": 0.6005,
+  "p_value": 0.023129,
+  "lag1": 0.2133,
+  "q_value": 0.044479,
+  "status": "real"
+ }
+}

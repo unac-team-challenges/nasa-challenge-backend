@@ -1,0 +1,121 @@
+{
+ "id": "23",
+ "nombre": "Tacna",
+ "lat": -18.01,
+ "lon": -70.25,
+ "celdas": 4,
+ "variable": "temperatura",
+ "unidad": "°C",
+ "fuente": "MERRA-2 vía NASA POWER (T2M)",
+ "serie": [
+  {
+   "anio": 2001,
+   "valor": 15.0342
+  },
+  {
+   "anio": 2002,
+   "valor": 15.2435
+  },
+  {
+   "anio": 2003,
+   "valor": 15.2954
+  },
+  {
+   "anio": 2004,
+   "valor": 15.0973
+  },
+  {
+   "anio": 2005,
+   "valor": 14.9927
+  },
+  {
+   "anio": 2006,
+   "valor": 15.2148
+  },
+  {
+   "anio": 2007,
+   "valor": 14.9179
+  },
+  {
+   "anio": 2008,
+   "valor": 14.6785
+  },
+  {
+   "anio": 2009,
+   "valor": 15.2223
+  },
+  {
+   "anio": 2010,
+   "valor": 15.1583
+  },
+  {
+   "anio": 2011,
+   "valor": 14.8879
+  },
+  {
+   "anio": 2012,
+   "valor": 15.3079
+  },
+  {
+   "anio": 2013,
+   "valor": 15.2963
+  },
+  {
+   "anio": 2014,
+   "valor": 15.4637
+  },
+  {
+   "anio": 2015,
+   "valor": 15.8975
+  },
+  {
+   "anio": 2016,
+   "valor": 15.999
+  },
+  {
+   "anio": 2017,
+   "valor": 15.5035
+  },
+  {
+   "anio": 2018,
+   "valor": 15.5229
+  },
+  {
+   "anio": 2019,
+   "valor": 15.8748
+  },
+  {
+   "anio": 2020,
+   "valor": 15.6448
+  },
+  {
+   "anio": 2021,
+   "valor": 15.3646
+  },
+  {
+   "anio": 2022,
+   "valor": 14.8404
+  },
+  {
+   "anio": 2023,
+   "valor": 16.3467
+  },
+  {
+   "anio": 2024,
+   "valor": 16.4204
+  }
+ ],
+ "stats": {
+  "year_start": 2001,
+  "year_end": 2024,
+  "n_years": 24,
+  "slope_per_decade": 0.414486,
+  "intercept": -68.119372,
+  "ci_low": 0.1746,
+  "ci_high": 0.6166,
+  "p_value": 0.001273,
+  "lag1": 0.2257,
+  "q_value": 0.010605,
+  "status": "real"
+ }
+}

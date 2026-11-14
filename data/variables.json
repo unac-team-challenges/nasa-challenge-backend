@@ -1,0 +1,18 @@
+[
+ {
+  "id": "lluvia",
+  "unidad": "mm/día",
+  "fuente": "GPM IMERG v07 (NASA)",
+  "descripcion": "Lluvia: promedio diario de cada año",
+  "anio_inicio": 2001,
+  "anio_fin": 2024
+ },
+ {
+  "id": "temperatura",
+  "unidad": "°C",
+  "fuente": "MERRA-2 vía NASA POWER (T2M)",
+  "descripcion": "Temperatura del aire a 2 m: promedio de cada año",
+  "anio_inicio": 2001,
+  "anio_fin": 2024
+ }
+]
