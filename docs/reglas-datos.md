@@ -20,7 +20,7 @@ Valen para todo `pipeline/*.py` y todo `data/*.json`, hoy y en los que se añada
 ## 3b. Fuentes elegidas (decididas el 2026-11-14)
 | Variable | Fuente del producto | Archivo | Notas |
 |---|---|---|---|
-| **Lluvia** | **GPM IMERG** (NASA, `GPM_3IMERGM` v07, ~10 km) | `data/gpm.json` | Es la única lluvia que muestra la ficha. Periodo: 2001–2024 (primer y último año completos que eligió el equipo; el pipeline descarta años incompletos, así que 2025 no entra). |
+| **Lluvia** | **GPM IMERG** (NASA, `GPM_3IMERGM` v07, ~10 km) | `data/gpm.json` | Es la única lluvia que muestra la ficha. Periodo: 2001–2024 (elegido por el equipo). IMERG v07 mensual existe de **ene 1998 a sep 2025** (catálogo CMR de NASA, verificado el 2026-11-14): se puede ampliar hacia atrás y **2025 nunca será año completo**. |
 | **Temperatura** | **MERRA-2 vía POWER** (`T2M`, `T2M_MAX`, `T2M_MIN`) | `data/power.json` | POWER ya usa MERRA-2: no se baja MERRA-2 aparte. |
 
 - **Unidad geográfica: promedio del departamento** (todas las regiones, no solo la costa), no el píxel de la capital. `pipeline/power.py` y `pipeline/gpm.py` ya lo calculan (máscara en `pipeline/departamentos.py`); `lat`/`lon` siguen siendo la capital, solo como punto del mapa.
@@ -28,6 +28,12 @@ Valen para todo `pipeline/*.py` y todo `data/*.json`, hoy y en los que se añada
 - **CHIRPS descartado**: no es de NASA y daría una segunda lluvia que contradice a IMERG en la costa (regla 3). La rama `feat/pipeline-chirps` queda en GitHub por si se retoma; no entra a `developer`.
 - **`PRECTOTCORR` de POWER** sigue en `power.json` solo como referencia: la ficha no la muestra.
 - Si hace falta lluvia de largo plazo (desde 1981/1983), es una decisión aparte (propuesta del Drive: GPCP v3.2).
+
+### IMERG v07 está congelado
+- La colección `GPM_3IMERGM` v07 terminó en **2025-09-30** y no hay otra versión publicada. La lluvia del producto termina en 2024 mientras siga v07.
+- Cuando aparezca una versión nueva (v08), **no se mezcla con v07**: cambia el algoritmo y rompe la tendencia. Se reprocesa toda la serie con la versión nueva.
+- **No se rellena 2025 con IMERG Early/Late**: es otro producto (regla 3, una fuente por número).
+- Antes de 2014 IMERG se apoya en la constelación TRMM (otros sensores): revisar las *release notes* de v07 por saltos de homogeneidad antes de usar 1998–2013 en tendencias; si hay duda, calcular con y sin esos años.
 
 ## 4. Puntos poco fiables (la costa y casos parecidos)
 Un solo píxel de la capital no representa la región cuando las fuentes discrepan. Caso real (comparación hecha antes de descartar CHIRPS): Piura 2017 = 2,60 (GPM) vs 0,33 (CHIRPS); en el desierto costero GPM sobreestima (~100 mm/año de más).

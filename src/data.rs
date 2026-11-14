@@ -1,5 +1,9 @@
 use crate::models::{gpm, power, variable::Variable};
-use std::{collections::HashMap, sync::Arc};
+use serde::de::Error as _;
+use std::{
+    collections::{BTreeSet, HashMap},
+    sync::Arc,
+};
 
 // JSON ya procesados por pipeline/. La API nunca calcula en vivo.
 const POWER: &str = include_str!("../data/power.json");
@@ -43,7 +47,11 @@ impl Datos {
     pub fn desde_json(power: &str, gpm: &str) -> Result<Self, serde_json::Error> {
         let regiones: Vec<power::Region> = serde_json::from_str(power)?;
         let gpm: Vec<gpm::Region> = serde_json::from_str(gpm)?;
-        Ok(Self { indice: indexar(&regiones), indice_gpm: indexar(&gpm), regiones, gpm })
+        let (indice, indice_gpm) = (indexar(&regiones), indexar(&gpm));
+        if indice.keys().collect::<BTreeSet<_>>() != indice_gpm.keys().collect::<BTreeSet<_>>() {
+            return Err(serde_json::Error::custom("power.json y gpm.json no tienen las mismas regiones"));
+        }
+        Ok(Self { indice, indice_gpm, regiones, gpm })
     }
 
     pub fn buscar(&self, nombre: &str) -> Option<&power::Region> {
