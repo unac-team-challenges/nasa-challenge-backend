@@ -278,6 +278,13 @@
           "nombre": {
             "type": "string"
           },
+          "nota": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Aviso si el promedio es poco fiable (menos de 4 celdas): mostrarlo en la ficha."
+          },
           "serie": {
             "type": "array",
             "items": {

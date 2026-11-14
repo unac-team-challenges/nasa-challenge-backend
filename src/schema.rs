@@ -53,6 +53,9 @@ pub struct ZonaDetalle {
     pub variable: &'static str,
     pub unidad: &'static str,
     pub fuente: &'static str,
+    /// Aviso si el promedio es poco fiable (menos de 4 celdas): mostrarlo en la ficha.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub nota: Option<String>,
     pub serie: Vec<Punto>,
 }
 

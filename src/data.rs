@@ -62,6 +62,14 @@ impl Datos {
         self.indice_gpm.get(&clave(nombre)).map(|&i| &self.gpm[i])
     }
 
+    /// Aviso de la fuente de la variable (menos de 4 celdas); `None` si no hay.
+    pub fn nota(&self, v: Variable, region: &str) -> Option<&str> {
+        match v {
+            Variable::Lluvia => self.buscar_gpm(region)?.nota.as_deref(),
+            Variable::Temperatura => self.buscar(region)?.nota.as_deref(),
+        }
+    }
+
     /// Serie anual (año, valor) de una variable en una región; `None` si la región no existe.
     pub fn serie(&self, v: Variable, region: &str) -> Option<Vec<(u16, f64)>> {
         fn anios<M>(r: &crate::models::Region<M>, f: impl Fn(&M) -> f64) -> Vec<(u16, f64)> {

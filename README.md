@@ -18,7 +18,7 @@ Pipeline de datos (Python) y API de solo lectura (Rust/Axum) que sirve los JSON 
 ## Uso
 ```bash
 pip install -r pipeline/requirements.txt
-python pipeline/power.py 1981 2024   # regenera data/power.json
+python pipeline/power.py 2001 2024   # regenera data/power.json
 cargo run                            # http://0.0.0.0:3000 (PORT para cambiarlo)
 bash tests/e2e.sh                    # verifica que todo corre
 ```

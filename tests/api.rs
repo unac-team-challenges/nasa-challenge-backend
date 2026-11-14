@@ -189,6 +189,20 @@ async fn callao_lleva_celdas_y_nota_y_lima_no_lleva_nota() {
     assert!(lima.get("nota").is_none());
 }
 
+#[tokio::test]
+async fn zona_devuelve_la_nota_de_su_variable() {
+    for var in ["temperatura", "lluvia"] {
+        let (_, _, callao) = get(&format!("/api/zonas/07?variable={var}"), None).await;
+        assert!(callao["nota"].is_string(), "Callao/{var}");
+        let (_, _, lima) = get(&format!("/api/zonas/15?variable={var}"), None).await;
+        assert!(lima.get("nota").is_none(), "Lima/{var}");
+    }
+    // Lambayeque tiene 3 celdas en POWER pero muchas en IMERG: la nota depende de la variable
+    let (_, _, t) = get("/api/zonas/14?variable=temperatura", None).await;
+    let (_, _, l) = get("/api/zonas/14?variable=lluvia", None).await;
+    assert!(t["nota"].is_string() && l.get("nota").is_none());
+}
+
 #[test]
 fn json_con_forma_incorrecta_se_rechaza() {
     assert!(Datos::desde_json(r#"[{"region":"X","lat":1,"lon":2,"celdas":4,"anios":{"2020":{"T2M":null}}}]"#, "[]").is_err());

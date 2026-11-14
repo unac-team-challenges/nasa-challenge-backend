@@ -38,6 +38,7 @@ chk "GET /gpm/noexiste -> 404"            bash -c "[ \"\$(curl -s -o /dev/null -
 chk "GET /api/variables"                  bash -c "curl -sf $URL/api/variables | jq -e 'map(.id) == [\"lluvia\",\"temperatura\"]'"
 chk "GET /api/zonas?variable=lluvia (25)" bash -c "curl -sf '$URL/api/zonas?variable=lluvia' | jq -e 'length == 25 and .[0].id == \"01\"'"
 chk "GET /api/zonas/15 (serie)"           bash -c "curl -sf '$URL/api/zonas/15?variable=temperatura' | jq -e '.nombre == \"Lima\" and (.serie | length > 0)'"
+chk "GET /api/zonas/07 lleva nota"           bash -c "curl -sf '$URL/api/zonas/07?variable=temperatura' | jq -e '.nota | type == \"string\"'"
 chk "GET /api/zonas sin variable -> 400"  bash -c "[ \"\$(curl -s -o /dev/null -w '%{http_code}' $URL/api/zonas)\" = 400 ]"
 chk "GET /power/%C3%81ncash (acentos)"    bash -c "curl -sf $URL/power/%C3%81ncash | jq -e '.region == \"Áncash\"'"
 chk "GET /health"                         bash -c "curl -sf $URL/health | jq -e '.status == \"ok\"'"
