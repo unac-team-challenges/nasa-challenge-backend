@@ -9,8 +9,8 @@ Pipeline de datos (Python) y API de solo lectura (Rust/Axum) que sirve los JSON 
 |---|---|
 | `pipeline/` | Scripts Python que descargan datos de NASA y escriben `data/*.json` |
 | `data/` | JSON ya procesados (promedio anual por región) |
-| `src/main.rs` | API Axum; embebe `data/power.json` al compilar |
-| `tests/e2e.sh` | Prueba e2e: compila, levanta la API y verifica endpoints |
+| `src/` | API Axum: `main.rs` (arranque), `lib.rs` (router + CORS), `config.rs`, `data.rs` (carga e índice), `models/` (forma de los JSON), `schema.rs` (respuestas), `routes/`, `error.rs`. Embebe `data/power.json` al compilar |
+| `tests/` | `api.rs` (integración, `cargo test`) y `e2e.sh` (todo junto) |
 | `docs/` | [`datos.md`](docs/datos.md) (qué datos hay y sus límites) · [`guia-pipeline.md`](docs/guia-pipeline.md) (cómo añadir una fuente) |
 | `changelog/` | Un archivo por rama con sus cambios |
 | `CONDITIONS.md` | **Reglas obligatorias antes de abrir un PR** |
@@ -25,10 +25,11 @@ bash tests/e2e.sh                    # verifica que todo corre
 
 | Endpoint | Respuesta |
 |---|---|
+| `GET /health` | `{"status":"ok"}` |
 | `GET /regiones` | Lista de regiones con lat/lon |
-| `GET /power/{region}` | Promedios anuales de la región (404 si no existe) |
+| `GET /power/{region}` | Promedios anuales de la región (404 JSON si no existe; ignora mayúsculas y tildes: `/power/ancash`) |
 
-CORS: solo `localhost`/`127.0.0.1`. Añadir la URL de Vercel en `origen_permitido` (`src/main.rs`).
+CORS: siempre `localhost`/`127.0.0.1`. Para añadir la URL de Vercel: variable de entorno `CORS_ORIGINS=https://tu-app.vercel.app` (varias separadas por coma, sin `/` final).
 
 ## Ramas
 - `developer`: aquí se integra todo (vista previa en Vercel).
