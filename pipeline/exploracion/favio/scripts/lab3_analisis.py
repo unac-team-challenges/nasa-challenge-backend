@@ -1,7 +1,8 @@
 """Laboratorio 3: análisis del NDVI (MODIS MOD13A3) de 6 zonas, 2001–2024.
 
-Entrada: labs/data/ndvi/*.nc (descargados con lab3_appeears.py).
-Salida:  labs/salida/lab3_resumen.json, lab3_ndvi_anual.png, lab3_antes_despues.png
+Entrada: scripts/data/ndvi/*.nc (descargados con lab3_appeears.py).
+Salida:  scripts/salida/lab3_resumen.json, lab3_ndvi_anual.png, lab3_antes_despues.png
+(se copian a mano a ../resultados para subirlos al repo)
 
 Responde las preguntas del Laboratorio 3 de la guía 12:
   - ¿Se ve el valle verde contra el desierto? (área verde con NDVI > 0,3)

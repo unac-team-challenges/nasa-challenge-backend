@@ -35,13 +35,13 @@ Laboratorios: 0 (Earthdata), 1 (NASA POWER) y 3 (MODIS MOD13A3, NDVI)
    | 2017 | 670 | 1036 | 496 |
    | Promedio 1981–2024 | 202 | 419 | 421 |
 
-   Gráfico: `salida/power_caso1.png` · tabla: `salida/power_caso1_anual.csv`.
+   Gráfico: `resultados/power_caso1.png` · tabla: `resultados/power_caso1_anual.csv`.
 5. **Humedad:** POWER acepta `RH2M`, `QV2M` y `T2MDEW`.
 6. **Tiempo:** entre 0,7 y 1,5 s por consulta. Pedí los 25 departamentos seguidos (4 en paralelo) sin errores ni bloqueos.
 
 **Extra (vista rápida de tendencias, 25 departamentos):**
 - **Temperatura:** sube con significancia (Mann-Kendall + BH) en 21 de 25 departamentos desde 1981, y en 18 desde 2000.
-- **Lluvia:** el signo de la tendencia **cambia según el periodo** en Apurímac, Loreto y Piura. Detalle en `vista-rapida-datos-14nov.md`.
+- **Lluvia:** el signo de la tendencia **cambia según el periodo** en Apurímac, Loreto y Piura. Detalle en `conclusiones.md` y en `14-vista-rapida-datos-14nov.md` (Drive).
 
 ## Respuestas a las preguntas del Laboratorio 3
 Zonas (recuadros de ~25 × 25 km): Chavimochic (Virú-Chao), Olmos y Ica-Villacurí (valles irrigados), Lima (ciudad), selva cerca de Iquitos y valle del Mantaro (sierra). "Área verde" = píxeles de 1 km con NDVI anual > 0,3. Tendencia con `lab5_tendencias.py` de Josue (TFPW + Sen con IC95).
@@ -51,12 +51,12 @@ Zonas (recuadros de ~25 × 25 km): Chavimochic (Virú-Chao), Olmos y Ica-Villacu
 | **Chavimochic** | 0,19 → 0,31 | **189 → 355 km² (+88 %)** | **+0,054**, p < 0,0001, IC sin 0 | 0 de 288 |
 | **Ica (Villacurí)** | 0,14 → 0,20 | **118 → 222 km² (+88 %)** | **+0,027**, p < 0,0001, IC sin 0 | 0 de 288 |
 | Olmos | 0,44 → 0,35 | 737 → 589 km² | +0,012, p = 0,43 (sin tendencia) | 1 de 288 |
-| Lima | 0,13 → 0,14 | 17 → 10 km² | +0,005 (casi nula) | **13 de 288** (garúa invernal) |
+| Lima | 0,13 → 0,14 | 17 → 10 km² | +0,005, p = 0,005 (significativa pero minúscula) | **13 de 288** (garúa invernal) |
 | Selva (Iquitos) | 0,84 → 0,85 | 495 → 495 km² (todo) | +0,008 (saturada) | 8 de 288 |
-| Valle del Mantaro | 0,43 → 0,45 | 477 → 468 km² | +0,011, IC incluye 0 | 0 de 288 |
+| Valle del Mantaro | 0,43 → 0,45 | 477 → 468 km² | +0,011, IC incluye 0 (p = 0,03: no concuerdan, se toma el IC) | 0 de 288 |
 
 1. **¿Cuánto tardó y cuánto pesó?** La solicitud entró al instante, pero AppEEARS tardó **unas 3 horas** en procesarla (hoy había mucha carga). El resultado pesa 4 MB.
-2. **¿Se ve el valle verde contra el desierto?** **Sí, muy claro.** En Chavimochic e Ica el valle aparece verde y el desierto en amarillo, y **en 2024 hay manchas verdes nuevas** donde en 2001 había desierto (tierras irrigadas nuevas; en Ica, la pampa de Villacurí). Imagen: `salida/lab3_antes_despues.png`.
+2. **¿Se ve el valle verde contra el desierto?** **Sí, muy claro.** En Chavimochic e Ica el valle aparece verde y el desierto en amarillo, y **en 2024 hay manchas verdes nuevas** donde en 2001 había desierto (tierras irrigadas nuevas; en Ica, la pampa de Villacurí). Imagen: `resultados/lab3_antes_despues.png`.
 3. **Selva y sierra: ¿meses vacíos por nubes? ¿Saturación?** Menos de lo temido. Por mes, MODIS ya combina varias pasadas: la selva perdió **8 de 288 meses** y la sierra **ninguno**. **Lima perdió 13** por la garúa de invierno. **La selva sí se satura**: el NDVI está en ~0,85 todo el tiempo y casi no cambia, así que el NDVI no sirve para ver deforestación ahí (haría falta otra variable).
 4. **¿Se puede dibujar el polígono de un valle?** Sí, con recuadros simples basta para la demo. Pero **el recuadro de Olmos quedó sobre bosque seco natural** y no sobre las tierras nuevas del proyecto Olmos (que empezó en 2014), por eso no muestra tendencia. Hay que moverlo al sur y al oeste.
 5. **Antes y después (2001 frente a 2024):** hay datos completos de los dos años en todas las zonas. Las imágenes de Chavimochic e Ica sirven directamente para el `react-compare-slider` del Caso 2.
