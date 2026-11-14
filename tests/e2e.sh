@@ -14,6 +14,9 @@ echo "== datos"
 chk "power.json es JSON válido con 25 regiones" jq -e 'length == 25' data/power.json
 chk "todos los valores son números (sin null/NaN)" jq -e '[.[].anios[][]] | length > 0 and all(type == "number")' data/power.json
 chk "pipeline/power.py compila" python3 -m py_compile pipeline/power.py
+chk "gpm.json es JSON válido con 25 regiones" jq -e 'length == 25' data/gpm.json
+chk "gpm.json: todos los valores son números (sin null/NaN)" jq -e '[.[].anios[][]] | length > 0 and all(type == "number")' data/gpm.json
+chk "pipeline/gpm.py compila" python3 -m py_compile pipeline/gpm.py
 
 echo "== tests de integración (cargo test)"
 chk "cargo test" cargo test --quiet
