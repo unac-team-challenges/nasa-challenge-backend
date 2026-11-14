@@ -1,0 +1,15 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [developer, main]
+  push:
+    branches: [developer, main]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
+      - run: bash tests/e2e.sh
