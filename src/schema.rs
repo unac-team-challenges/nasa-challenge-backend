@@ -14,3 +14,43 @@ impl From<&Region> for RegionResumen {
         Self { region: r.region.clone(), lat: r.lat, lon: r.lon }
     }
 }
+
+/// `GET /api/variables`
+#[derive(Serialize)]
+pub struct VariableInfo {
+    pub id: &'static str,
+    pub unidad: &'static str,
+    pub fuente: &'static str,
+    pub descripcion: &'static str,
+    pub anio_inicio: Option<u16>,
+    pub anio_fin: Option<u16>,
+}
+
+/// `GET /api/zonas`: una zona del mapa (sin serie).
+#[derive(Serialize)]
+pub struct Zona {
+    /// Ubigeo como texto: "01"–"25".
+    pub id: &'static str,
+    pub nombre: String,
+    pub lat: f64,
+    pub lon: f64,
+}
+
+#[derive(Serialize)]
+pub struct Punto {
+    pub anio: u16,
+    pub valor: f64,
+}
+
+/// `GET /api/zonas/{id}`: serie anual de la zona. `stats` (tendencia) llega con el cálculo de Josue.
+#[derive(Serialize)]
+pub struct ZonaDetalle {
+    pub id: &'static str,
+    pub nombre: String,
+    pub lat: f64,
+    pub lon: f64,
+    pub variable: &'static str,
+    pub unidad: &'static str,
+    pub fuente: &'static str,
+    pub serie: Vec<Punto>,
+}

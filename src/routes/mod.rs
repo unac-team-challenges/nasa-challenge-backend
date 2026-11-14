@@ -2,6 +2,7 @@ use crate::data::Estado;
 use axum::{routing::get, Json, Router};
 use serde_json::{json, Value};
 
+mod api;
 mod gpm;
 mod power;
 mod regiones;
@@ -16,4 +17,7 @@ pub fn router() -> Router<Estado> {
         .route("/regiones", get(regiones::listar))
         .route("/power/{region}", get(power::obtener))
         .route("/gpm/{region}", get(gpm::obtener))
+        .route("/api/variables", get(api::variables))
+        .route("/api/zonas", get(api::zonas))
+        .route("/api/zonas/{id}", get(api::zona))
 }
