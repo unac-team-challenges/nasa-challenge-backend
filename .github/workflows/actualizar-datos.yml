@@ -21,14 +21,16 @@ jobs:
           cache: pip
           cache-dependency-path: pipeline/requirements.txt
       - run: pip install -r pipeline/requirements.txt
-      # Si el pipeline pasa a earthaccess, añadir aquí env con
-      # EARTHDATA_USERNAME / EARTHDATA_PASSWORD desde secrets.
       - run: python pipeline/power.py 2015 "$(date +%Y)"
+      - run: python -W ignore pipeline/gpm.py 2015 "$(date +%Y)"
+        env:
+          EARTHDATA_USERNAME: ${{ secrets.EARTHDATA_USERNAME }}
+          EARTHDATA_PASSWORD: ${{ secrets.EARTHDATA_PASSWORD }}
       - name: Commit si cambió
         run: |
-          git diff --quiet data/power.json && exit 0
+          git diff --quiet data/ && exit 0
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/power.json
-          git commit -m "chore: actualizar data/power.json"
+          git add data/power.json data/gpm.json
+          git commit -m "chore: actualizar datos (POWER y GPM)"
           git push

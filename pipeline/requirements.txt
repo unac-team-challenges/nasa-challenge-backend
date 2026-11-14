@@ -1,2 +1,8 @@
 pandas
 requests
+numpy
+earthaccess
+python-dotenv
+xarray
+h5netcdf
+h5py
