@@ -20,7 +20,7 @@ Valen para todo `pipeline/*.py` y todo `data/*.json`, hoy y en los que se añada
 ## 3b. Fuentes elegidas (decididas el 2026-11-14)
 | Variable | Fuente del producto | Archivo | Notas |
 |---|---|---|---|
-| **Lluvia** | **GPM IMERG** (NASA, `GPM_3IMERGM` v07, ~10 km) | `data/gpm.json` | Es la única lluvia que muestra la ficha. Periodo reciente 2001–2024 (IMERG empieza en jun 2000). |
+| **Lluvia** | **GPM IMERG** (NASA, `GPM_3IMERGM` v07, ~10 km) | `data/gpm.json` | Es la única lluvia que muestra la ficha. Periodo: 2000–2024 (IMERG v07 mensual empieza en ene 2000; el pipeline descarta años incompletos, así que 2025 no entra). |
 | **Temperatura** | **MERRA-2 vía POWER** (`T2M`, `T2M_MAX`, `T2M_MIN`) | `data/power.json` | POWER ya usa MERRA-2: no se baja MERRA-2 aparte. |
 
 - **CHIRPS descartado**: no es de NASA y daría una segunda lluvia que contradice a IMERG en la costa (regla 3). La rama `feat/pipeline-chirps` queda en GitHub por si se retoma; no entra a `developer`.

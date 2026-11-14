@@ -1,6 +1,6 @@
 """Descarga NASA POWER (mensual) de las 25 regiones y escribe data/power.json.
 
-Uso: python pipeline/power.py [inicio] [fin]   (por defecto 2015 2020)
+Uso: python pipeline/power.py [inicio] [fin]   (por defecto 2000 2025)
 """
 import json
 import sys
@@ -45,7 +45,7 @@ def anual(lat, lon, inicio, fin):
 
 
 if __name__ == "__main__":
-    inicio, fin = (sys.argv[1:3] + ["2015", "2020"][len(sys.argv[1:3]):])[:2]
+    inicio, fin = (sys.argv[1:3] + ["2000", "2025"][len(sys.argv[1:3]):])[:2]
     out = [
         {"region": reg, "lat": lat, "lon": lon,
          "anios": anual(lat, lon, inicio, fin).round(4).to_dict("index")}
