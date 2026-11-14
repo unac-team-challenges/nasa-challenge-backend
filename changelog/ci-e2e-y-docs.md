@@ -12,5 +12,5 @@ PR: base `ci/actualizar-datos` (#6); pasa a `developer` cuando #6 se mezcle.
 ## Cambiado
 - `README.md` reescrito con estructura, uso y enlaces a `docs/` y `CONDITIONS.md`.
 
-## Pendiente
-- Activar en GitHub *branch protection* en `developer` y `main` exigiendo el check `e2e`.
+## Notas
+- Sin protección de ramas: el repo es privado en plan free y GitHub no la ofrece. Se cumple como regla de equipo (ver `CONDITIONS.md`).

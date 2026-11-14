@@ -24,5 +24,5 @@ Léelo cada vez que abras un PR. La plantilla del PR te lo recuerda.
 
 ## Revisión
 - Al menos 1 aprobación de otra persona del equipo.
-- CI en verde.
+- CI en verde. GitHub no bloquea el merge (repo privado, plan free): **nadie mezcla con el check `e2e` en rojo**; es regla del equipo.
 - Quien abre el PR responde los comentarios; quien revisa no mezcla su propio PR.
