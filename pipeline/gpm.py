@@ -53,7 +53,11 @@ def descargar(sesion, url, destino, intentos=3):
 
 
 def anio_promedio(anio, sesion, carpeta):
-    """{region: promedio del año (mm/día)} con los meses disponibles, un mes a la vez."""
+    """{region: promedio del año (mm/día)}, un mes a la vez.
+
+    Como power.py, solo años completos: una región sin sus 12 meses
+    válidos no tiene ese año (nunca NaN ni promedios sesgados).
+    """
     granulos = earthaccess.search_data(
         short_name="GPM_3IMERGM", version="07",
         temporal=(f"{anio}-01-01", f"{anio}-12-31"),
@@ -66,7 +70,12 @@ def anio_promedio(anio, sesion, carpeta):
         descargar(sesion, granulo.data_links()[0], archivo)
         meses.append(lluvia_mensual(archivo))
         archivo.unlink()
-    return {reg: round(float(np.nanmean([m[reg] for m in meses])), 4) for reg in REGIONES}
+    promedios = {}
+    for reg in REGIONES:
+        valores = [m[reg] for m in meses if np.isfinite(m[reg])]
+        if len(valores) == 12:
+            promedios[reg] = round(float(np.mean(valores)), 4)
+    return promedios
 
 
 if __name__ == "__main__":
@@ -87,6 +96,6 @@ if __name__ == "__main__":
         for reg, (lat, lon) in REGIONES.items()
     ]
     Path(__file__).parent.parent.joinpath("data", "gpm.json").write_text(
-        json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8"
+        json.dumps(out, ensure_ascii=False, indent=1, allow_nan=False), encoding="utf-8"
     )
     print(f"{len(out)} regiones -> data/gpm.json")
