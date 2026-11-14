@@ -13,6 +13,8 @@ Pipeline de datos (Python) y API de solo lectura que sirve los JSON ya procesado
 - `data/power.json`: datos ya procesados (promedio anual por región).
 - `src/main.rs`: API Axum de solo lectura; embebe `data/power.json` al compilar.
 
+- `changelog/`: un archivo por rama, `changelog/<rama>.md` (el `/` del nombre se cambia por `-`), con los cambios que trae esa rama.
+
 ## Uso
 ```bash
 pip install -r pipeline/requirements.txt
