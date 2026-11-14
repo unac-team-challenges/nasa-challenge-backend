@@ -30,11 +30,12 @@ def _regiones():
     if faltan:
         raise ValueError(f"Sin polígono en el GeoJSON: {faltan}")
     # números de la máscara = posición de la región en REGIONES
-    orden = [por_clave[_clave(r)] for r in REGIONES]
-    return regionmask.from_geopandas(gdf.iloc[orden].reset_index(drop=True))
+    gdf = gdf.iloc[[por_clave[_clave(r)] for r in REGIONES]].reset_index(drop=True)
+    ubigeos = dict(zip(REGIONES, gdf["FIRST_IDDP"]))
+    return regionmask.from_geopandas(gdf), ubigeos
 
 
-_REGIONES = _regiones()
+_REGIONES, UBIGEO = _regiones()  # UBIGEO: {"Amazonas": "01", ...} (texto de 2 dígitos)
 
 
 def mascara(lat, lon):
@@ -55,12 +56,15 @@ def promedios(valores, masc):
 MIN_CELDAS = 4  # mismo umbral que Josue (pocos_datos)
 
 
-def a_json(datos, celdas):
+def a_json(datos, celdas, notas=None):
     """Lista para data/*.json: forma de power.json + `celdas` y, si hace falta, `nota`."""
+    notas = notas or {}
     out = []
     for reg, (lat, lon) in REGIONES.items():
         fila = {"region": reg, "lat": lat, "lon": lon, "celdas": celdas.get(reg, 0)}
-        if fila["celdas"] < MIN_CELDAS:
+        if reg in notas:
+            fila["nota"] = notas[reg]
+        elif fila["celdas"] < MIN_CELDAS:
             fila["nota"] = f"Promedio de solo {fila['celdas']} celda(s): dato poco confiable"
         fila["anios"] = datos[reg]
         out.append(fila)
