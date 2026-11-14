@@ -18,7 +18,7 @@ Dos JSON en `data/`, generados por `pipeline/` (la API nunca calcula en vivo). M
 | Lluvia POWER | `data/power.json` | `PRECTOTCORR` | mm/día | POWER | solo referencia, **no** va a la ficha |
 
 - Ya vienen **promediados por año** y solo con **años completos (12 meses)**. Nunca `NaN`.
-- 25 regiones = 25 capitales (un píxel por región). Lima y Callao comparten celda POWER (idénticos): decisión aceptada.
+- **Hoy** 25 regiones = 25 capitales (un píxel por región). **Decidido (2026-11-14): la unidad final es el promedio del departamento**, para todas las regiones; falta implementarlo en el pipeline y las tendencias deben calcularse sobre ese promedio (ver sección 6). Lima y Callao comparten celda POWER (idénticos): decisión aceptada.
 - `developer` hoy tiene 2015–2020; la ampliación a 2000+ va en la rama `feat/datos-desde-2000`. **Calcular con los años que haya y reportar `n_years`.**
 - API actual: `/power/{region}`, `/gpm/{region}`. Hasta que el contrato nuevo exista, sirve los promedios anuales.
 
@@ -66,14 +66,17 @@ Guardar también `metadata.method` (método usado), unidad y fuente.
 ## 5. Trampas conocidas
 
 - **Unidades:** Sen sobre serie anual da «por año»; ×10 para década. Sobre serie mensual cruda da «por mes» (olvidarlo cambió +10 mm/década en +7,5 en las pruebas).
-- **Costa:** el píxel de la capital no es fiable (Piura 2017 = 2,60 con IMERG frente a 0,33 con CHIRPS; IMERG sobreestima en el desierto costero). Pendiente de decidir: promedio del departamento (hay un cálculo en `pipeline/exploracion/`).
+- **Costa:** el píxel de la capital no es fiable (Piura 2017 = 2,60 con IMERG frente a 0,33 con CHIRPS; IMERG sobreestima en el desierto costero). Decidido: promedio del departamento (hay un cálculo de partida en `pipeline/exploracion/`).
 - **El Niño:** con 25 años y persistencia fuerte ningún método baja del todo al 5 % de falsos positivos; por eso el semáforo dice «posible casualidad» y no «no hay cambio».
 - **El periodo cambia el signo** de la lluvia en Apurímac, Loreto y Piura (hallazgo de Favio): la ficha debe mostrar siempre desde qué año se calcula.
 
-## 6. Decisiones pendientes
+## 6. Decisiones
 
-1. ¿Tendencia de `T2M` solo, o también `T2M_MAX`/`T2M_MIN`?
-2. Periodos: ¿temperatura 1981–2024 (largo) y 2001–2024 (reciente)? ¿Lluvia solo 2001–2024 o también largo plazo (GPCP)?
-3. Capital o promedio del departamento (sobre todo en la costa).
-4. Umbrales exactos del semáforo y `pct_change_per_decade`.
-5. Forma final de los archivos (por variable/por zona) y de las rutas `/api/...`.
+**Decididas (2026-11-14):**
+- Unidad geográfica = **promedio del departamento** (todas las regiones). Parte de Josue: adaptar el cálculo de `pipeline/exploracion/` (GeoJSON de departamentos + `regionmask`) para que `power.json` y `gpm.json` salgan por departamento, con la misma forma. Después se calculan las tendencias.
+- Temperatura de la primera versión = `T2M`.
+
+**Pendientes:**
+1. Periodos: ¿temperatura 1981–2024 (largo) y 2001–2024 (reciente)? ¿Lluvia solo 2001–2024 o también largo plazo (GPCP)?
+2. Umbrales exactos del semáforo y `pct_change_per_decade`.
+3. Forma final de los archivos (por variable/por zona) y de las rutas `/api/...`.
