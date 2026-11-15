@@ -3,7 +3,10 @@
 use crate::{
     data::Estado,
     error::ApiError,
-    models::{variable::{Variable, VariableInfo}, zona::Zona},
+    models::{
+        variable::{Variable, VariableInfo},
+        zona::Zona,
+    },
     schema::{ErrorRespuesta, ZonaDetalle},
 };
 use axum::{
@@ -57,5 +60,12 @@ pub async fn zona(
     let v = variable(p)?;
     let f = d.ficha(v, &id).ok_or(ApiError::ZonaNoEncontrada(id))?;
     let info = d.variable(v);
-    Ok(Json(ZonaDetalle::new(&f.zona, v.id(), &info.unidad, &info.fuente, &f.serie)).into_response())
+    Ok(Json(ZonaDetalle::new(
+        &f.zona,
+        v.id(),
+        &info.unidad,
+        &info.fuente,
+        &f.serie,
+    ))
+    .into_response())
 }
