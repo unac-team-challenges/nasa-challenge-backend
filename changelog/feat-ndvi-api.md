@@ -10,11 +10,11 @@ PR: base `feat/pipeline-ndvi` (#42, de Josue), a pedido del equipo: el JSON y el
   - Tests en `tests/api.rs`: el endpoint devuelve las 2 zonas, `real`, con los valores 2001 y 2024 del Lab 3; 12 roturas de `ndvi.json` impiden arrancar.
   - Contrato: `openapi.json` regenerado (`UPDATE_OPENAPI=1 cargo test openapi`). Después, en el frontend: `pnpm gen`.
 
-## Cambios tras la revisión (14 nov)
+## Cambios tras la revisión (15 nov)
 - **`serie` en vez de `anios`:** lista ordenada `[{anio, ndvi_anual, area_verde_km2}]`, consistente con `/api/zonas/{id}`. Cambian `pipeline/ndvi.py`, `data/ndvi.json`, el modelo, la validación, `checks_ndvi.sh`, las pruebas y `openapi.json`.
 - **p y q nunca valen 0:** `clasificar()` publica como mínimo `0.000001` (`P_MIN` en `tendencias.py`); la ficha muestra «< 0,000001». `data/zonas` no cambia (ningún valor redondeaba a 0); sí `ndvi.json`.
 - Merge de `feat/pipeline-ndvi` (#42): este PR no traía los 3 últimos commits (`.dt` en `_leer_zona`, `.venv` en el e2e, changelog).
-- Fecha de `docs/vegetacion.md` corregida a 2026-11-14.
+- Fecha de `docs/vegetacion.md` puesta al día de la revisión (2026-11-15).
 
 ## Comprobado contra el Lab 3
 | Zona | NDVI 2001 → 2024 | Área verde 2001 → 2024 | Tendencia |
