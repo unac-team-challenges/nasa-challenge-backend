@@ -34,6 +34,19 @@ for v in lluvia temperatura; do
   chk "zonas/$v.json: status válido" jq -e 'all(.[].stats.status; IN("real","posible_casualidad","pocos_datos"))' data/zonas/$v.json
   chk "zonas/$v/: 25 fichas con serie numérica" bash -c "ls data/zonas/$v/*.json | wc -l | grep -qx 25 && jq -s -e 'all(.[].serie[]; (.anio|type==\"number\") and (.valor|type==\"number\"))' data/zonas/$v/*.json"
 done
+chk "pipeline/ndvi.py compila" python3 -m py_compile pipeline/ndvi.py
+chk "ndvi: autoprueba (años completos, BH, criterio único, sin NaN)" python3 pipeline/ndvi.py autoprueba
+chk "lab5: autoprueba del criterio de tendencia" python3 -c "import sys; sys.path.insert(0, 'pipeline/exploracion/josue/scripts'); import lab5_tendencias as l; l.autoprueba()"
+if [ -f data/ndvi.json ]; then
+  chk "ndvi.json: series numéricas (sin null/NaN)" jq -e '[.[].anios[][]] | length > 0 and all(type == "number")' data/ndvi.json
+  chk "ndvi.json: NDVI entre -1 y 1" jq -e '[.[].anios[].ndvi_anual] | all(. >= -1 and . <= 1)' data/ndvi.json
+  chk "ndvi.json: solo años 2001–2024" jq -e '[.[].anios | keys[] | tonumber] | all(. >= 2001 and . <= 2024)' data/ndvi.json
+  chk "ndvi.json: stats numéricos (sin null/NaN) y status válido" jq -e 'all(.[].stats; ([to_entries[] | select(.key != "status" and .key != "aviso") | .value] | all(type == "number")) and (.status | IN("real","posible_casualidad","pocos_datos")))' data/ndvi.json
+  chk "ndvi.json: todo 'real' cumple el criterio único" jq -e 'all(.[].stats | select(.status == "real"); .q_value < 0.05 and (.ci_low > 0 or .ci_high < 0) and (.lag1 | fabs) <= 0.5)' data/ndvi.json
+  chk "ndvi.json: unidad geográfica explícita en cada zona" jq -e 'all(.[]; .unidad_geografica | test("no es el promedio del departamento"))' data/ndvi.json
+else
+  echo "aviso data/ndvi.json no existe todavía: falta generarlo (python pipeline/ndvi.py enviar|bajar|calcular)"
+fi
 
 echo "== tests de integración (cargo test)"
 chk "cargo test" cargo test --quiet
