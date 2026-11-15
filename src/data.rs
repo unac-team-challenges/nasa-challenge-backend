@@ -233,18 +233,20 @@ fn vegetacion(json: &str) -> Result<Vec<ZonaVegetacion>, serde_json::Error> {
         if z.tendencia_de != "ndvi_anual" {
             return mal("tendencia_de debe ser 'ndvi_anual'");
         }
-        let mut anios = Vec::with_capacity(z.anios.len());
-        for (a, m) in &z.anios {
-            let Ok(a) = a.parse::<u16>() else {
-                return mal("un año no es un número");
-            };
-            if !(-1.0..=1.0).contains(&m.ndvi_anual) || m.area_verde_km2 < 0.0 {
-                return Err(error(format_args!(
-                    "{}: año {a} con NDVI fuera de −1 a 1 o área verde negativa",
-                    donde()
-                )));
-            }
-            anios.push(a);
+        let anios: Vec<u16> = z.serie.iter().map(|p| p.anio).collect();
+        if !anios.windows(2).all(|w| w[0] < w[1]) {
+            return mal("serie con años repetidos o desordenados");
+        }
+        if let Some(p) = z
+            .serie
+            .iter()
+            .find(|p| !(-1.0..=1.0).contains(&p.ndvi_anual) || p.area_verde_km2 < 0.0)
+        {
+            return Err(error(format_args!(
+                "{}: año {} con NDVI fuera de −1 a 1 o área verde negativa",
+                donde(),
+                p.anio
+            )));
         }
         let st = &z.stats;
         let en_periodo = anios
@@ -256,7 +258,7 @@ fn vegetacion(json: &str) -> Result<Vec<ZonaVegetacion>, serde_json::Error> {
             || en_periodo != usize::from(st.n_years)
         {
             return Err(error(format_args!(
-                "{}: stats dice {}–{} ({} años) pero anios va de {:?} a {:?} ({} años)",
+                "{}: stats dice {}–{} ({} años) pero serie va de {:?} a {:?} ({} años)",
                 donde(),
                 st.year_start,
                 st.year_end,

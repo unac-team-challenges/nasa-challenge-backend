@@ -32,9 +32,10 @@ Resultado del Lab 3 de Favio (MODIS MOD13A3, 2001–2024, 6 zonas). Detalle y c�
 ### Selva: propuesta de variable (por decidir)
 **MODIS MOD44B v061** (Vegetation Continuous Fields, NASA LP DAAC): porcentaje de cobertura de árboles, anual, 250 m, desde 2000 (colección verificada en el CMR de la NASA el 2026-11-14). No se satura como el NDVI y mide justo lo que importa en la selva: pérdida de bosque. Se pediría por AppEEARS igual que el MOD13A3. Es otra variable y otro JSON (regla 3).
 
-### En la API (2026-11-15)
+### En la API (2026-11-14)
 - `data/ndvi.json` se generó con los NetCDF de la solicitud del Lab 3 (`44445de3…`, mismas cajas que `ZONAS` en `pipeline/ndvi.py`), copiados a `pipeline/cache/ndvi/` y procesados con `python pipeline/ndvi.py calcular`. No hizo falta pedir de nuevo a AppEEARS.
 - **Coincide con el Lab 3:** Chavimochic, NDVI de 0,1906 a 0,3104 y de 188,9 a 355,5 km²; Ica-Villacurí, NDVI de 0,1403 a 0,198 y de 117,6 a 221,5 km². Las dos salen `real`.
 - `GET /api/vegetacion` sirve el archivo tal cual (`src/models/vegetacion.rs`). `src/data.rs` lo valida al arrancar: NDVI entre −1 y 1, ubigeo y departamento, `unidad_geografica`, recuadro y años de `stats`. Si algo no cuadra, el error dice qué zona falla.
+- La serie va como en `/api/zonas/{id}`: `serie: [{anio, ndvi_anual, area_verde_km2}]`, de menor a mayor año. `p_value` y `q_value` valen como mínimo `0.000001` (la ficha muestra «< 0,000001»).
 - Las fechas de los NetCDF de AppEEARS usan calendario juliano: hace falta `cftime` (ya está en `pipeline/requirements.txt` y en el lock).
 - Credencial: `ndvi.py` acepta `~/_netrc`, que es como lo guarda earthaccess en Windows. Ese pudo ser el `401`/«faltan credenciales» del 14-nov.

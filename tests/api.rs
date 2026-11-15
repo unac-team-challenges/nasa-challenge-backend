@@ -538,13 +538,23 @@ async fn api_vegetacion_trae_las_2_zonas_del_caso_2() {
             .contains("recuadro"));
         assert!(status_valido(&z["stats"]["status"]));
         assert_eq!(z["stats"]["status"], "real", "{}", z["id"]);
-        let anios = z["anios"].as_object().unwrap();
-        assert_eq!(anios.len(), 24);
+        let serie = z["serie"].as_array().unwrap();
+        assert_eq!(serie.len(), 24);
         assert_eq!(z["stats"]["n_years"], 24);
-        assert_eq!(anios["2001"]["ndvi_anual"], n01);
-        assert_eq!(anios["2001"]["area_verde_km2"], a01);
-        assert_eq!(anios["2024"]["ndvi_anual"], n24);
-        assert_eq!(anios["2024"]["area_verde_km2"], a24);
+        let (p01, p24) = (&serie[0], &serie[23]);
+        assert_eq!(
+            (p01["anio"].as_u64(), p24["anio"].as_u64()),
+            (Some(2001), Some(2024))
+        );
+        assert_eq!(p01["ndvi_anual"], n01);
+        assert_eq!(p01["area_verde_km2"], a01);
+        assert_eq!(p24["ndvi_anual"], n24);
+        assert_eq!(p24["area_verde_km2"], a24);
+        // p y q nunca se publican como 0: el piso es 0,000001
+        assert!(
+            z["stats"]["p_value"].as_f64().unwrap() > 0.0
+                && z["stats"]["q_value"].as_f64().unwrap() > 0.0
+        );
     }
 }
 
@@ -556,17 +566,17 @@ fn vegetacion_mal_formada_se_rechaza() {
         Datos::desde(Fuentes { ndvi: &n, ..e })
     };
     assert!(con_ndvi(|_| {}).is_ok(), "ndvi.json sin cambios carga");
-    let malos: [(&str, Cambio); 12] = [
+    let malos: [(&str, Cambio); 13] = [
         ("sin zonas", |z| z.as_array_mut().unwrap().clear()),
         ("campo desconocido en la zona", |z| z[0]["nuevo"] = 1.into()),
         ("campo desconocido en un año", |z| {
-            z[0]["anios"]["2001"]["nuevo"] = 1.into()
+            z[0]["serie"][0]["nuevo"] = 1.into()
         }),
         ("NDVI fuera de −1 a 1", |z| {
-            z[0]["anios"]["2001"]["ndvi_anual"] = 1.5.into()
+            z[0]["serie"][0]["ndvi_anual"] = 1.5.into()
         }),
         ("área verde negativa", |z| {
-            z[0]["anios"]["2001"]["area_verde_km2"] = (-1.0).into()
+            z[0]["serie"][0]["area_verde_km2"] = (-1.0).into()
         }),
         ("ubigeo inexistente", |z| z[0]["ubigeo"] = "99".into()),
         ("departamento que no es el del ubigeo", |z| {
@@ -576,7 +586,10 @@ fn vegetacion_mal_formada_se_rechaza() {
             z[0]["unidad_geografica"] = " ".into()
         }),
         ("lat fuera del recuadro", |z| z[0]["lat"] = 0.into()),
-        ("n_years no cuadra con anios", |z| {
+        ("años desordenados en la serie", |z| {
+            z[0]["serie"].as_array_mut().unwrap().swap(0, 1)
+        }),
+        ("n_years no cuadra con serie", |z| {
             z[0]["stats"]["n_years"] = 23.into()
         }),
         ("id repetido", |z| {

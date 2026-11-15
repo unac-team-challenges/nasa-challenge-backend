@@ -3,13 +3,13 @@
 //! la API no recalcula ni redondea ningún valor.
 use crate::models::zona::Stats;
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
 use utoipa::ToSchema;
 
 /// Medidas de un año completo (12 meses válidos).
 #[derive(Clone, Debug, Deserialize, Serialize, ToSchema)]
 #[serde(deny_unknown_fields)]
 pub struct AnioVegetacion {
+    pub anio: u16,
     /// NDVI medio del año en el recuadro (−1 a 1).
     pub ndvi_anual: f64,
     /// Área con NDVI medio del año mayor que `umbral_verde_ndvi`, en km².
@@ -40,10 +40,9 @@ pub struct ZonaVegetacion {
     pub fuente: String,
     /// NDVI desde el que un píxel cuenta como área verde.
     pub umbral_verde_ndvi: f64,
-    /// Sobre qué campo de `anios` se calcula `stats` (hoy, "ndvi_anual").
+    /// Sobre qué campo de `serie` se calcula `stats` (hoy, "ndvi_anual").
     pub tendencia_de: String,
-    /// Por año ("2001", ...): solo años completos.
-    #[schema(value_type = BTreeMap<String, AnioVegetacion>)]
-    pub anios: BTreeMap<String, AnioVegetacion>,
+    /// Un punto por año, de menor a mayor (como `serie` de `/api/zonas/{id}`): solo años completos.
+    pub serie: Vec<AnioVegetacion>,
     pub stats: Stats,
 }

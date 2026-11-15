@@ -87,7 +87,7 @@ def zona_json(zona, pixeles, serie):
         "lat": round((s + n) / 2, 3), "lon": round((o + e) / 2, 3),
         "pixeles": pixeles, "fuente": FUENTE, "umbral_verde_ndvi": VERDE,
         "tendencia_de": "ndvi_anual",
-        "anios": {str(a): v for a, v in serie.items()},
+        "serie": [{"anio": int(a), **v} for a, v in sorted(serie.items())],
         "stats": st,
     }
 
@@ -224,8 +224,8 @@ def calcular():
         filas.append(zona_json(zona, pixeles, serie))
     escribir(con_estado(filas))
     for f in filas:
-        st, a = f["stats"], f["anios"]
-        extremos = " · ".join(f"{k}: NDVI {a[k]['ndvi_anual']}, {a[k]['area_verde_km2']} km²" for k in ("2001", "2024") if k in a)
+        st, a = f["stats"], {p["anio"]: p for p in f["serie"]}
+        extremos = " · ".join(f"{k}: NDVI {a[k]['ndvi_anual']}, {a[k]['area_verde_km2']} km²" for k in (2001, 2024) if k in a)
         print(f"{f['nombre']}: {st['n_years']} años, Sen {st.get('slope_per_decade', 0):+.4f}/déc "
               f"IC [{st.get('ci_low')}, {st.get('ci_high')}], {st['status']} · {extremos}")
 
