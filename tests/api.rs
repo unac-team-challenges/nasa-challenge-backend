@@ -341,7 +341,7 @@ fn openapi_json_esta_al_dia() {
 }
 
 #[tokio::test]
-async fn openapi_se_sirve_con_las_4_rutas() {
+async fn openapi_se_sirve_con_las_5_rutas() {
     let (s, _, b) = get("/api/openapi.json", None).await;
     assert_eq!(s, StatusCode::OK);
     let rutas = b["paths"].as_object().unwrap();
@@ -350,6 +350,7 @@ async fn openapi_se_sirve_con_las_4_rutas() {
             && rutas.contains_key("/api/zonas")
             && rutas.contains_key("/api/zonas/{id}")
             && rutas.contains_key("/api/vegetacion")
+            && rutas.contains_key("/api/cobertura-arboles")
     );
 }
 
@@ -669,4 +670,91 @@ fn vegetacion_mal_formada_se_rechaza() {
         .unwrap()
         .to_string();
     assert!(msg.contains("ica-villacuri"), "{msg}");
+}
+
+#[tokio::test]
+async fn api_cobertura_arboles_trae_la_pampa_e_iquitos() {
+    let (s, _, b) = get("/api/cobertura-arboles", None).await;
+    assert_eq!(s, StatusCode::OK);
+    let zonas = b.as_array().unwrap();
+    let ids: Vec<_> = zonas.iter().map(|z| z["id"].as_str().unwrap()).collect();
+    assert_eq!(ids, ["la-pampa", "iquitos"]);
+    // Valores de MOD44B servidos tal cual: La Pampa pierde bosque; en Iquitos el IC incluye 0
+    let pct = |z: &Value, a: u64| {
+        z["serie"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|p| p["anio"] == a)
+            .unwrap()["arboles_pct"]
+            .as_f64()
+            .unwrap()
+    };
+    assert_eq!((pct(&zonas[0], 2001), pct(&zonas[0], 2024)), (74.1, 45.86));
+    assert!(zonas[0]["stats"]["slope_per_decade"].as_f64().unwrap() < -10.0);
+    assert!(zonas[0]["stats"]["ci_high"].as_f64().unwrap() < 0.0);
+    assert!(zonas[1]["stats"]["ci_low"].as_f64().unwrap() <= 0.0);
+    for (z, ubigeo) in zonas.iter().zip(["17", "16"]) {
+        assert_eq!(z["ubigeo"], ubigeo);
+        assert!(z["unidad_geografica"]
+            .as_str()
+            .unwrap()
+            .contains("no es el promedio del departamento"));
+        assert!(status_valido(&z["stats"]["status"]));
+        let serie = z["serie"].as_array().unwrap();
+        assert_eq!(
+            z["stats"]["n_years"].as_u64().unwrap() as usize,
+            serie.len()
+        );
+        assert!(serie.iter().all(|a| {
+            let pct = a["arboles_pct"].as_f64().unwrap();
+            (0.0..=100.0).contains(&pct) && a["area_bosque_km2"].as_f64().unwrap() >= 0.0
+        }));
+    }
+}
+
+#[test]
+fn cobertura_mal_formada_se_rechaza() {
+    let e = Fuentes::EMBEBIDAS;
+    let con_cobertura = |f: Cambio| {
+        let c = editar(e.cobertura, f);
+        Datos::desde(Fuentes { cobertura: &c, ..e })
+    };
+    assert!(
+        con_cobertura(|_| {}).is_ok(),
+        "cobertura_arboles.json sin cambios carga"
+    );
+    let malos: [(&str, Cambio); 8] = [
+        ("sin zonas", |z| z.as_array_mut().unwrap().clear()),
+        ("campo desconocido en un año", |z| {
+            z[0]["serie"][0]["nuevo"] = 1.into()
+        }),
+        ("cobertura mayor que 100 %", |z| {
+            z[0]["serie"][0]["arboles_pct"] = 101.into()
+        }),
+        ("umbral de bosque fuera de 0 a 100", |z| {
+            z[0]["umbral_bosque_pct"] = 150.into()
+        }),
+        ("tendencia sobre otro campo", |z| {
+            z[0]["tendencia_de"] = "ndvi_anual".into()
+        }),
+        ("departamento que no es el del ubigeo", |z| {
+            z[0]["departamento"] = "Loreto".into()
+        }),
+        ("lon fuera del recuadro", |z| z[0]["lon"] = 0.into()),
+        ("n_years no cuadra con la serie", |z| {
+            z[0]["stats"]["n_years"] = 3.into()
+        }),
+    ];
+    for (caso, f) in malos {
+        assert!(con_cobertura(f).is_err(), "{caso}");
+    }
+    let msg = con_cobertura(|z| z[1]["ubigeo"] = "99".into())
+        .err()
+        .unwrap()
+        .to_string();
+    assert!(
+        msg.contains("cobertura_arboles.json, zona 'iquitos'"),
+        "{msg}"
+    );
 }
