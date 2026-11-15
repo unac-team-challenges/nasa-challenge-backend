@@ -2,6 +2,7 @@
 use crate::{
     models::{
         variable::{Variable, VariableInfo},
+        vegetacion::{AnioVegetacion, ZonaVegetacion},
         zona::{Stats, Status, Zona},
     },
     routes::api,
@@ -15,13 +16,15 @@ use utoipa::OpenApi;
         title = "Detective del Perú",
         description = "API de solo lectura: sirve resultados ya calculados."
     ),
-    paths(api::variables, api::zonas, api::zona),
+    paths(api::variables, api::zonas, api::zona, api::vegetacion),
     components(schemas(
         Variable,
         VariableInfo,
         Zona,
         Stats,
         Status,
+        ZonaVegetacion,
+        AnioVegetacion,
         schema::ZonaDetalle,
         schema::Punto,
         schema::ErrorRespuesta

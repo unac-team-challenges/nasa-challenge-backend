@@ -2,6 +2,7 @@ use crate::{
     models::{
         gpm, power,
         variable::{Variable, VariableInfo},
+        vegetacion::ZonaVegetacion,
         zona::Zona,
         Region,
     },
@@ -20,6 +21,7 @@ const GPM: &str = include_str!("../data/gpm.json");
 const VARIABLES: &str = include_str!("../data/variables.json");
 const ZONAS_LLUVIA: &str = include_str!("../data/zonas/lluvia.json");
 const ZONAS_TEMPERATURA: &str = include_str!("../data/zonas/temperatura.json");
+const NDVI: &str = include_str!("../data/ndvi.json");
 
 pub type Estado = Arc<Datos>;
 
@@ -31,6 +33,8 @@ pub struct Fuentes<'a> {
     pub variables: &'a str,
     /// `data/zonas/{variable}.json`, en el orden de `Variable::TODAS`.
     pub zonas: [&'a str; 2],
+    /// `data/ndvi.json`: vegetación de los valles irrigados (Caso 2).
+    pub ndvi: &'a str,
 }
 
 impl Fuentes<'static> {
@@ -39,6 +43,7 @@ impl Fuentes<'static> {
         gpm: GPM,
         variables: VARIABLES,
         zonas: [ZONAS_LLUVIA, ZONAS_TEMPERATURA],
+        ndvi: NDVI,
     };
 }
 
@@ -57,6 +62,8 @@ pub struct Datos {
     pub variables: Vec<VariableInfo>,
     /// Por variable; ids "01"–"25" en orden.
     fichas: [Vec<Ficha>; 2],
+    /// `data/ndvi.json` tal cual, ya validado.
+    pub vegetacion: Vec<ZonaVegetacion>,
 }
 
 fn error(msg: impl std::fmt::Display) -> serde_json::Error {
@@ -118,6 +125,7 @@ impl Datos {
             gpm,
             variables,
             fichas: Default::default(),
+            vegetacion: vegetacion(f.ndvi)?,
         };
         d.fichas = [
             d.fichas_de(Variable::Lluvia, f.zonas[0])?,
@@ -192,6 +200,74 @@ impl Datos {
     pub fn buscar_gpm(&self, nombre: &str) -> Option<&gpm::Region> {
         self.indice_gpm.get(&clave(nombre)).map(|&i| &self.gpm[i])
     }
+}
+
+/// Lee y valida `data/ndvi.json`. Si algo no cuadra, la API no arranca y el error dice qué zona falla.
+fn vegetacion(json: &str) -> Result<Vec<ZonaVegetacion>, serde_json::Error> {
+    let zonas: Vec<ZonaVegetacion> = serde_json::from_str(json)?;
+    if zonas.is_empty() {
+        return Err(error("ndvi.json: no tiene zonas"));
+    }
+    let mut ids = BTreeSet::new();
+    for z in &zonas {
+        let donde = || format!("ndvi.json, zona '{}'", z.id);
+        let mal = |msg: &str| Err(error(format_args!("{}: {msg}", donde())));
+        if !ids.insert(z.id.as_str()) {
+            return mal("id repetido");
+        }
+        match UBIGEOS.iter().find(|(id, _)| *id == z.ubigeo) {
+            Some((_, nombre)) if clave(nombre) == clave(&z.departamento) => {}
+            Some(_) => return mal("el departamento no es el de su ubigeo"),
+            None => return mal("ubigeo inexistente"),
+        }
+        if z.unidad_geografica.trim().is_empty() {
+            return mal("falta unidad_geografica");
+        }
+        let [o, s, e, n] = z.bbox;
+        if !(o < e && s < n && (o..=e).contains(&z.lon) && (s..=n).contains(&z.lat)) {
+            return mal("bbox inválido o lat/lon fuera del recuadro");
+        }
+        if !(-1.0..=1.0).contains(&z.umbral_verde_ndvi) {
+            return mal("umbral_verde_ndvi fuera de −1 a 1");
+        }
+        if z.tendencia_de != "ndvi_anual" {
+            return mal("tendencia_de debe ser 'ndvi_anual'");
+        }
+        let mut anios = Vec::with_capacity(z.anios.len());
+        for (a, m) in &z.anios {
+            let Ok(a) = a.parse::<u16>() else {
+                return mal("un año no es un número");
+            };
+            if !(-1.0..=1.0).contains(&m.ndvi_anual) || m.area_verde_km2 < 0.0 {
+                return Err(error(format_args!(
+                    "{}: año {a} con NDVI fuera de −1 a 1 o área verde negativa",
+                    donde()
+                )));
+            }
+            anios.push(a);
+        }
+        let st = &z.stats;
+        let en_periodo = anios
+            .iter()
+            .filter(|a| (st.year_start..=st.year_end).contains(a))
+            .count();
+        if anios.first() != Some(&st.year_start)
+            || anios.last() != Some(&st.year_end)
+            || en_periodo != usize::from(st.n_years)
+        {
+            return Err(error(format_args!(
+                "{}: stats dice {}–{} ({} años) pero anios va de {:?} a {:?} ({} años)",
+                donde(),
+                st.year_start,
+                st.year_end,
+                st.n_years,
+                anios.first(),
+                anios.last(),
+                anios.len()
+            )));
+        }
+    }
+    Ok(zonas)
 }
 
 /// Serie de la fuente recortada al periodo de `stats`; `None` si la zona no describe la misma región

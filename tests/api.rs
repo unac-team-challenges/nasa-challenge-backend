@@ -320,7 +320,7 @@ fn openapi_json_esta_al_dia() {
 }
 
 #[tokio::test]
-async fn openapi_se_sirve_con_las_3_rutas() {
+async fn openapi_se_sirve_con_las_4_rutas() {
     let (s, _, b) = get("/api/openapi.json", None).await;
     assert_eq!(s, StatusCode::OK);
     let rutas = b["paths"].as_object().unwrap();
@@ -328,6 +328,7 @@ async fn openapi_se_sirve_con_las_3_rutas() {
         rutas.contains_key("/api/variables")
             && rutas.contains_key("/api/zonas")
             && rutas.contains_key("/api/zonas/{id}")
+            && rutas.contains_key("/api/vegetacion")
     );
 }
 
@@ -513,4 +514,86 @@ fn zonas_y_variables_mal_formadas_se_rechazan() {
         con_variables(|v| v[0]["nuevo"] = 1.into()).is_err(),
         "campo desconocido en variables.json"
     );
+}
+
+/// Valores de `data/ndvi.json` en 2001 y 2024: los mismos del Lab 3 de Favio
+/// (`pipeline/exploracion/favio/resultados/lab3_resumen.json`), servidos tal cual.
+#[tokio::test]
+async fn api_vegetacion_trae_las_2_zonas_del_caso_2() {
+    let (s, _, b) = get("/api/vegetacion", None).await;
+    assert_eq!(s, StatusCode::OK);
+    let zonas = b.as_array().unwrap();
+    let ids: Vec<_> = zonas.iter().map(|z| z["id"].as_str().unwrap()).collect();
+    assert_eq!(ids, ["chavimochic", "ica-villacuri"]);
+    // (ubigeo, NDVI 2001, km² 2001, NDVI 2024, km² 2024)
+    let esperado = [
+        ("13", 0.1906, 188.9, 0.3104, 355.5),
+        ("11", 0.1403, 117.6, 0.198, 221.5),
+    ];
+    for (z, (ubigeo, n01, a01, n24, a24)) in zonas.iter().zip(esperado) {
+        assert_eq!(z["ubigeo"], ubigeo);
+        assert!(z["unidad_geografica"]
+            .as_str()
+            .unwrap()
+            .contains("recuadro"));
+        assert!(status_valido(&z["stats"]["status"]));
+        assert_eq!(z["stats"]["status"], "real", "{}", z["id"]);
+        let anios = z["anios"].as_object().unwrap();
+        assert_eq!(anios.len(), 24);
+        assert_eq!(z["stats"]["n_years"], 24);
+        assert_eq!(anios["2001"]["ndvi_anual"], n01);
+        assert_eq!(anios["2001"]["area_verde_km2"], a01);
+        assert_eq!(anios["2024"]["ndvi_anual"], n24);
+        assert_eq!(anios["2024"]["area_verde_km2"], a24);
+    }
+}
+
+#[test]
+fn vegetacion_mal_formada_se_rechaza() {
+    let e = Fuentes::EMBEBIDAS;
+    let con_ndvi = |f: Cambio| {
+        let n = editar(e.ndvi, f);
+        Datos::desde(Fuentes { ndvi: &n, ..e })
+    };
+    assert!(con_ndvi(|_| {}).is_ok(), "ndvi.json sin cambios carga");
+    let malos: [(&str, Cambio); 12] = [
+        ("sin zonas", |z| z.as_array_mut().unwrap().clear()),
+        ("campo desconocido en la zona", |z| z[0]["nuevo"] = 1.into()),
+        ("campo desconocido en un año", |z| {
+            z[0]["anios"]["2001"]["nuevo"] = 1.into()
+        }),
+        ("NDVI fuera de −1 a 1", |z| {
+            z[0]["anios"]["2001"]["ndvi_anual"] = 1.5.into()
+        }),
+        ("área verde negativa", |z| {
+            z[0]["anios"]["2001"]["area_verde_km2"] = (-1.0).into()
+        }),
+        ("ubigeo inexistente", |z| z[0]["ubigeo"] = "99".into()),
+        ("departamento que no es el del ubigeo", |z| {
+            z[0]["departamento"] = "Ica".into()
+        }),
+        ("sin unidad geográfica", |z| {
+            z[0]["unidad_geografica"] = " ".into()
+        }),
+        ("lat fuera del recuadro", |z| z[0]["lat"] = 0.into()),
+        ("n_years no cuadra con anios", |z| {
+            z[0]["stats"]["n_years"] = 23.into()
+        }),
+        ("id repetido", |z| {
+            let copia = z[0].clone();
+            z.as_array_mut().unwrap().push(copia);
+        }),
+        ("status inválido", |z| {
+            z[0]["stats"]["status"] = "quizas".into()
+        }),
+    ];
+    for (caso, f) in malos {
+        assert!(con_ndvi(f).is_err(), "{caso}");
+    }
+    // El error dice qué zona falla
+    let msg = con_ndvi(|z| z[1]["ubigeo"] = "99".into())
+        .err()
+        .unwrap()
+        .to_string();
+    assert!(msg.contains("ica-villacuri"), "{msg}");
 }

@@ -14,7 +14,7 @@ Uso (desde la raíz del repo):
 
 Refresco: a mano, una vez al año (enero), no en el cron: AppEEARS tarda ~3 h por solicitud.
 Credenciales: EARTHDATA_USERNAME y EARTHDATA_PASSWORD del entorno (.env local o secrets
-de GitHub); si no están, ~/.netrc (el que crea earthaccess). Nunca se imprimen.
+de GitHub); si no están, ~/.netrc o ~/_netrc en Windows (el que crea earthaccess). Nunca se imprimen.
 
 Zonas: solo los valles irrigados confirmados (docs/vegetacion.md). Fuera: Olmos (recuadro
 sobre bosque seco), selva (NDVI saturado), Lima (garúa: años incompletos) y Mantaro
@@ -119,9 +119,10 @@ def _credenciales():
     usuario, clave = os.environ.get("EARTHDATA_USERNAME"), os.environ.get("EARTHDATA_PASSWORD")
     if usuario and clave:
         return usuario, clave
-    ruta = Path.home() / ".netrc"
-    if ruta.exists() and (a := netrc.netrc(ruta).authenticators("urs.earthdata.nasa.gov")):
-        return a[0], a[2]
+    for nombre in (".netrc", "_netrc"):  # en Windows, earthaccess lo guarda como _netrc
+        ruta = Path.home() / nombre
+        if ruta.exists() and (a := netrc.netrc(ruta).authenticators("urs.earthdata.nasa.gov")):
+            return a[0], a[2]
     sys.exit("Faltan EARTHDATA_USERNAME y EARTHDATA_PASSWORD (ver .env.example) o ~/.netrc.")
 
 
