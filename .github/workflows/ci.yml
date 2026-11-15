@@ -25,6 +25,6 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-          cache-dependency-path: pipeline/requirements.txt
-      - run: pip install -r pipeline/requirements.txt  # para tests/test_tendencias.py
+          cache-dependency-path: pipeline/requirements.lock
+      - run: pip install --require-hashes -r pipeline/requirements.lock  # para tests/test_tendencias.py
       - run: bash tests/e2e.sh
