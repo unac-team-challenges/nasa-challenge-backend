@@ -197,7 +197,7 @@
    "p_value": 0.002187,
    "lag1": 0.5404,
    "q_value": 0.013028,
-   "status": "real",
+   "status": "posible_casualidad",
    "aviso": "Años muy parecidos entre sí (lag1 alto): la tendencia puede parecer más segura de lo que es"
   }
  },
@@ -319,7 +319,8 @@
    "p_value": 0.020119,
    "lag1": 0.329,
    "q_value": 0.044479,
-   "status": "real"
+   "status": "posible_casualidad",
+   "aviso": "El intervalo de la tendencia incluye 0: aunque la prueba sale significativa, no se puede asegurar si sube o baja."
   }
  },
  {

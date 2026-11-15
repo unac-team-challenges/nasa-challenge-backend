@@ -208,6 +208,27 @@ certifi==2026.10.23 \
     #   pyproj
     #   rasterio
     #   requests
+cftime==1.6.6.1 \
+    --hash=sha256:03273be53472a16b55bf1e600cb3984ccc607f465afc3d1a9cf02a7300c828be \
+    --hash=sha256:235130e4186cad92b2f68f454bae730f8ebdc5880bcf4800d2678878891f02cb \
+    --hash=sha256:2d1e68e14537e16db8d3a48c95aa617556247d3f8e6e3a864eca302427dc1e4c \
+    --hash=sha256:3eff428a229169c2632c093b554e36dd5277dacc0f7aae8ad73ce6a93304d58d \
+    --hash=sha256:56b8d18ad8a447f81becdccdda4ff81f345284631901fbac00915dbcbbe89ad3 \
+    --hash=sha256:6084bc378ade5bea34e138506091af70bb484ce529d9c9df19ea1fe9067a3877 \
+    --hash=sha256:6afab9967fe9635eb16569cd670619a7beed09bbea7982f9c6f61001d06c62a1 \
+    --hash=sha256:6b58a66c3bbb8a6cd19f62bf8590c847b68fd6c24f3d3e86f5380562c8477334 \
+    --hash=sha256:75429951bf4ead72e93e82b9d91a5ffec9733b1d9f1d3c51c278613dbe7e7422 \
+    --hash=sha256:92566dd8c3213b824f8b2e86904efa7f0d8db6a51017cc5ad365b1d20b579617 \
+    --hash=sha256:9451036dcd59a54f1d055eba2bbbbe3ecdb8a6a7f98f800b33d80ea1084a56cb \
+    --hash=sha256:a97fb973634e160b087ac06f1f3db6cbf193a3afdad32f05cdf8a7c2d612c3cd \
+    --hash=sha256:ac0c0b6e8bdd8526e9ed92f1f97da608aa4c0af8599dfe4c121c286b7dbe141f \
+    --hash=sha256:b1687424178d22958699be91353529d55aadfba5032e3fb53ce68d5512ea3a6c \
+    --hash=sha256:bf4d9d496388b9ef9f07d7bd00f7a760e10afbb32ba458ed1f066a0ddbba8b76 \
+    --hash=sha256:c6ae3b2777165b9de172c79378712078a39e1cb4701731ddaba985c86cc36bc8 \
+    --hash=sha256:dd42f26a5ec493ac6ffe83eabc173625d2954cc6993de150ef60bab7599dc10e \
+    --hash=sha256:e4ed505118cbffec8ca6b59636f283d55df1675a3f092bc2d276f917a04af68a \
+    --hash=sha256:f0cf93b58005e8dd012d2c7c10428d405b1afb19384d12de66782fad46df2b39
+    # via -r pipeline/requirements.txt
 charset-normalizer==3.5.2 \
     --hash=sha256:01077390b03f7988f11d700a2194e69b119741a86b1a638b1db88891e3eced8e \
     --hash=sha256:01b0c0d2262a9e28e8484a278c7e1b5d650e3ac8cf2683d2967e25899f208bdf \
@@ -847,6 +868,7 @@ numpy==2.5.4 \
     --hash=sha256:ffa6ce09a1c6a08e9667dd9c97aa0b14184e8d18f2a14b78b2a2328c9147f076
     # via
     #   -r pipeline/requirements.txt
+    #   cftime
     #   formulaic
     #   geopandas
     #   h5netcdf

@@ -11,8 +11,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "pipeline"))
 import tendencias as t  # noqa: E402
 
 
-def stats(n_years=24, lag1=0.0):
-    return {"n_years": n_years, "lag1": lag1, "p_value": 0.01}
+def stats(n_years=24, lag1=0.0, ci=(0.1, 0.3)):
+    return {"n_years": n_years, "lag1": lag1, "p_value": 0.01, "ci_low": ci[0], "ci_high": ci[1]}
 
 
 class Clasificar(unittest.TestCase):
@@ -21,6 +21,14 @@ class Clasificar(unittest.TestCase):
         self.assertEqual(t.clasificar(stats(), 0.05, 4)["status"], "posible_casualidad")
         self.assertEqual(t.clasificar(stats(n_years=19), 0.001, 4)["status"], "pocos_datos")
         self.assertEqual(t.clasificar(stats(), 0.001, 3)["status"], "pocos_datos")
+
+    def test_criterio_unico(self):
+        # q < 0.05 no basta: el IC no puede cruzar 0 (caso Loreto) ni |lag1| pasar de 0.5 (caso Huánuco)
+        self.assertEqual(t.clasificar(stats(ci=(-0.0046, 0.5535)), 0.044, 9)["status"], "posible_casualidad")
+        self.assertEqual(t.clasificar(stats(ci=(-0.3, -0.1)), 0.01, 9)["status"], "real")
+        self.assertEqual(t.clasificar(stats(lag1=0.54), 0.013, 9)["status"], "posible_casualidad")
+        self.assertEqual(t.clasificar(stats(lag1=-0.6), 0.013, 9)["status"], "posible_casualidad")
+        self.assertEqual(t.clasificar(stats(lag1=0.5), 0.013, 9)["status"], "real")
 
     def test_lluvia_nunca_sale_real(self):
         self.assertTrue(t.VARIABLES["lluvia"]["sin_real"])
@@ -39,6 +47,15 @@ class Clasificar(unittest.TestCase):
         self.assertIn("2014", t.clasificar(stats(), 0.5, 10, imerg)["aviso"])
         ambos = t.clasificar(stats(lag1=0.6), 0.5, 10, imerg)["aviso"]
         self.assertTrue(ambos.startswith(imerg) and ambos.endswith(t.AVISO_LAG1))
+
+    def test_aviso_explica_por_que_no_es_real(self):
+        # lag1 negativo: baja el status y también avisa (antes solo avisaba con lag1 > 0.5)
+        self.assertIn(t.AVISO_LAG1, t.clasificar(stats(lag1=-0.6), 0.013, 9)["aviso"])
+        # significativa pero con IC que cruza 0 (Loreto): el aviso lo dice
+        loreto = t.clasificar(stats(ci=(-0.0046, 0.5535)), 0.044, 9)
+        self.assertIn("incluye 0", loreto["aviso"])
+        # no significativa: que el IC cruce 0 es lo esperable, sin aviso
+        self.assertNotIn("aviso", t.clasificar(stats(ci=(-0.1, 0.2)), 0.4, 9))
 
 
 class Estadisticas(unittest.TestCase):

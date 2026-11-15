@@ -1,0 +1,6 @@
+# Fija la versión de Rust del CI y local: una estable nueva con lints nuevos no rompe clippy sin tocar código.
+# Subirla a mano (y arreglar lo que salga) en un PR propio.
+[toolchain]
+channel = "1.99.0"
+components = ["rustfmt", "clippy"]
+profile = "minimal"
