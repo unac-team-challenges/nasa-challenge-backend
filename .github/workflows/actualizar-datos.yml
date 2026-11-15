@@ -45,8 +45,13 @@ jobs:
           git checkout -b "$rama"
           git add data/
           git commit -m "chore: actualizar datos (POWER, GPM y tendencias)"
-          git push --force origin "$rama"
+          # Sin --force: si ya corrió hoy, la rama (y lo que alguien le haya subido) no se pisa.
+          if git ls-remote --exit-code --heads origin "$rama" >/dev/null; then
+            echo "::error::La rama $rama ya existe (¿otra ejecución hoy?). Mezcla o cierra su PR, borra la rama y relanza."
+            exit 1
+          fi
+          git push origin "$rama"
+          # Sin `|| echo`: si gh falla (permisos, red...), el job queda en rojo con el error real.
           gh pr create --base developer --head "$rama" \
             --title "chore: actualizar datos ($(date +%F))" \
-            --body "Datos regenerados por el cron (POWER, GPM y tendencias). El \`e2e\` pasó en el job antes de abrir este PR, pero un PR del bot no dispara el CI: revisa el diff de \`data/\` antes de mezclar." \
-            || echo "::warning::No se pudo abrir el PR (¿falta Settings > Actions > Allow GitHub Actions to create pull requests?). La rama $rama ya está subida."
+            --body "Datos regenerados por el cron (POWER, GPM y tendencias). El \`e2e\` pasó en el job antes de abrir este PR, pero un PR del bot no dispara el CI: revisa el diff de \`data/\` antes de mezclar."

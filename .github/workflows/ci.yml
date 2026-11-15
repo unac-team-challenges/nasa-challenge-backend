@@ -27,4 +27,12 @@ jobs:
           cache: pip
           cache-dependency-path: pipeline/requirements.lock
       - run: pip install --require-hashes -r pipeline/requirements.lock  # para tests/test_tendencias.py
+      - uses: astral-sh/setup-uv@v7
+      # dependabot solo toca requirements.txt: si el lock no lo sigue, el CI estaría probando versiones viejas.
+      - name: Lock de Python al día con requirements.txt
+        run: |
+          uv pip compile pipeline/requirements.txt --python-version 3.12 --python-platform linux \
+            --generate-hashes --quiet -o "$RUNNER_TEMP/requirements.lock"
+          diff -u -I '^#' pipeline/requirements.lock "$RUNNER_TEMP/requirements.lock" \
+            || { echo "::error file=pipeline/requirements.lock::Desactualizado. Regenera con el comando de su cabecera."; exit 1; }
       - run: bash tests/e2e.sh
