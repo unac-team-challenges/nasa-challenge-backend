@@ -1,0 +1,123 @@
+{
+ "id": "08",
+ "nombre": "Cusco",
+ "lat": -13.53,
+ "lon": -71.97,
+ "celdas": 603,
+ "variable": "lluvia_imerg",
+ "unidad": "mm/día",
+ "fuente": "GPM IMERG v07 (NASA)",
+ "serie": [
+  {
+   "anio": 2001,
+   "valor": 5.7343
+  },
+  {
+   "anio": 2002,
+   "valor": 5.5543
+  },
+  {
+   "anio": 2003,
+   "valor": 5.1492
+  },
+  {
+   "anio": 2004,
+   "valor": 4.893
+  },
+  {
+   "anio": 2005,
+   "valor": 4.278
+  },
+  {
+   "anio": 2006,
+   "valor": 4.7179
+  },
+  {
+   "anio": 2007,
+   "valor": 4.5834
+  },
+  {
+   "anio": 2008,
+   "valor": 4.6745
+  },
+  {
+   "anio": 2009,
+   "valor": 4.7006
+  },
+  {
+   "anio": 2010,
+   "valor": 4.408
+  },
+  {
+   "anio": 2011,
+   "valor": 5.1928
+  },
+  {
+   "anio": 2012,
+   "valor": 4.8066
+  },
+  {
+   "anio": 2013,
+   "valor": 5.0371
+  },
+  {
+   "anio": 2014,
+   "valor": 4.9337
+  },
+  {
+   "anio": 2015,
+   "valor": 4.9753
+  },
+  {
+   "anio": 2016,
+   "valor": 4.3505
+  },
+  {
+   "anio": 2017,
+   "valor": 4.9145
+  },
+  {
+   "anio": 2018,
+   "valor": 4.8812
+  },
+  {
+   "anio": 2019,
+   "valor": 4.7987
+  },
+  {
+   "anio": 2020,
+   "valor": 3.6715
+  },
+  {
+   "anio": 2021,
+   "valor": 4.3291
+  },
+  {
+   "anio": 2022,
+   "valor": 3.8913
+  },
+  {
+   "anio": 2023,
+   "valor": 4.2543
+  },
+  {
+   "anio": 2024,
+   "valor": 3.9642
+  }
+ ],
+ "stats": {
+  "year_start": 2001,
+  "year_end": 2024,
+  "n_years": 24,
+  "slope_per_decade": -0.446417,
+  "intercept": 94.599783,
+  "ci_low": -0.7474,
+  "ci_high": -0.1816,
+  "p_value": 0.00602,
+  "lag1": 0.2595,
+  "pct_change_per_decade": -9.51,
+  "q_value": 0.013682,
+  "status": "posible_casualidad",
+  "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja, por eso no se marca como real."
+ }
+}
