@@ -38,3 +38,19 @@ Se agregó a este PR para dejar en uno solo todo lo avanzado en local:
 - **Avisos de años descartados** por `stderr`, en `power.py` y `gpm.py`: qué año no entra y en qué regiones. Un año que falta cambia la pendiente y `n_years`, y debe verse en el log.
 - **`gpm.py` incremental:** no vuelve a pedir los años que ya están completos en las 25 regiones de `data/gpm.json`. IMERG v07 está congelado desde sep 2025: sin esto, el cron mensual pedía todo para obtener el mismo resultado. `--todo` fuerza la descarga completa.
 - **`tests/test_pipeline.py`:** 4 pruebas sin red, incluido en el e2e. Detecta la mutación de cambiar la intersección de años por la unión.
+
+## Además: más pruebas y pendientes cerrados
+
+- **Los checks «sin null/NaN» no detectaban `NaN`.** `jq` lee `NaN` como número, así que `all(type == "number")` lo dejaba pasar en `power.json`, `gpm.json`, `zonas` y `ndvi.json`. Ahora exigen además `(isnan | not)`. Probado con un `power.json` con `NaN`: ya no pasa.
+- **Checks de `ndvi.json` probados aunque el archivo no exista todavía:**
+  - salen a `tests/checks_ndvi.sh`, y el e2e los llama cuando el archivo existe;
+  - `tests/test_ndvi_checks.py` arma un ejemplo con las funciones de `pipeline/ndvi.py`;
+  - confirma que el ejemplo pasa y que cada una de 7 roturas se detecta: null, NaN, NDVI fuera de rango, año fuera de 2001–2024, status inválido, «real» sin criterio y sin unidad geográfica;
+  - así quedó en el repo la prueba que antes se hizo a mano.
+- **`lab5_tendencias.csv` del lab regenerado con el criterio único.** Su entrada se volvió a bajar de NASA POWER.
+  - Las 40 series dan las mismas pendientes.
+  - Iquitos (lluvia 1981–2024) pasa de `real` a `posible_casualidad` por `lag1` = 0,74.
+  - Se agrega la columna `motivo`.
+- **Pendientes cerrados:**
+  - el choque con #34 ya no existe (se cerró);
+  - `cargo fmt` lo hizo #46.
