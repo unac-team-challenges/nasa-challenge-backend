@@ -27,6 +27,7 @@ chk "variables.json: periodo 2001–2024 y lluvia de IMERG" jq -e 'all(.anio_ini
 chk "zonas/lluvia.json: aviso del cambio de satélites de 2014 en las 25" jq -e 'all(.[].stats.aviso; type == "string" and test("2014"))' data/zonas/lluvia.json
 chk "zonas/lluvia.json: ninguna zona 'real' (solo IMERG, salto de 2014)" jq -e 'all(.[].stats.status; . != "real")' data/zonas/lluvia.json
 for v in lluvia temperatura; do
+  chk "zonas/$v.json: todo 'real' cumple el criterio único (q<0.05, IC sin 0, |lag1|<=0.5)" jq -e 'all(.[].stats | select(.status == "real"); .q_value < 0.05 and (.ci_low > 0 or .ci_high < 0) and (.lag1 | fabs) <= 0.5)' data/zonas/$v.json
   chk "zonas/$v.json: 25 zonas con id 01–25" jq -e '[.[].id] == ([range(1;26)] | map(tostring | if length == 1 then "0" + . else . end))' data/zonas/$v.json
   chk "zonas/$v.json: stats numéricos (sin null/NaN)" jq -e '[.[].stats | to_entries[] | select(.key != "status" and .key != "aviso") | .value] | all(type == "number")' data/zonas/$v.json
   chk "zonas/$v.json: periodo 2001–2024" jq -e 'all(.[].stats; .year_start == 2001 and .year_end == 2024)' data/zonas/$v.json

@@ -14,10 +14,12 @@ años a los JSON de entrada. Método (docs/tendencias.md), sobre la serie anual:
 - Pendiente de Sen e intervalo 95 % (scipy.stats.theilslopes) x 10 -> por década
 - Benjamini-Hochberg entre las 25 zonas de la misma variable -> q_value
 - lag1: autocorrelación de la serie sin tendencia (como lab5 de Josue)
-- status: pocos_datos si n_years < 20 o celdas < 4; real si q < 0.05;
-  si no, posible_casualidad. La lluvia (solo IMERG) nunca sale real: con q < 0.05
-  queda posible_casualidad, porque el salto de 2014 puede fingir la tendencia.
-- aviso (texto): siempre en lluvia (salto de IMERG en 2014) y si lag1 > 0.5.
+- status: pocos_datos si n_years < 20 o celdas < 4; real solo con el criterio
+  único de tendencia_comun.py (q < 0.05, IC95 sin 0, |lag1| <= 0.5); si no,
+  posible_casualidad. La lluvia (solo IMERG) nunca sale real: el salto de 2014
+  puede fingir la tendencia.
+- aviso (texto): siempre en lluvia (salto de IMERG en 2014), si |lag1| > 0.5 y si
+  la prueba es significativa pero el IC incluye 0 (explica por qué no es real).
 """
 import json
 from pathlib import Path
@@ -28,12 +30,11 @@ from scipy.stats import theilslopes
 from statsmodels.stats.multitest import multipletests
 
 from departamentos import MIN_CELDAS, UBIGEO
+from tendencia_comun import AVISO_LAG1, evaluar  # noqa: F401  AVISO_LAG1 lo usan las pruebas
 
 DATA = Path(__file__).parent.parent / "data"
 PERIODO = (2001, 2024)  # decidido el 2026-11-14, el mismo para las dos variables
-MIN_ANIOS, MAX_LAG1, ALFA = 20, 0.5, 0.05
-
-AVISO_LAG1 = "Años muy parecidos entre sí (lag1 alto): la tendencia puede parecer más segura de lo que es"
+MIN_ANIOS = 20  # ALFA y MAX_LAG1 viven en tendencia_comun.py (criterio único)
 
 # unidad, fuente y descripcion: mismos textos que src/models/variable.rs
 VARIABLES = {
@@ -84,16 +85,17 @@ def estadisticas(anios, y, porcentaje):
 
 def clasificar(st, q, celdas, aviso=None, sin_real=False):
     """Añade p_value/q_value redondeados, status y aviso. El status se decide
-    con el q_value publicado, para que el JSON nunca se contradiga."""
+    con los valores publicados, para que el JSON nunca se contradiga."""
     st["p_value"] = round(st["p_value"], 6)
     st["q_value"] = round(float(q), 6)
+    es_real, avisos = evaluar(st["q_value"], st["ci_low"], st["ci_high"], st["lag1"])
     if st["n_years"] < MIN_ANIOS or celdas < MIN_CELDAS:
         st["status"] = "pocos_datos"
-    elif st["q_value"] < ALFA and not sin_real:
+    elif es_real and not sin_real:
         st["status"] = "real"
     else:
         st["status"] = "posible_casualidad"
-    avisos = [aviso, AVISO_LAG1 if st["lag1"] > MAX_LAG1 else None]
+    avisos = [aviso, *avisos]
     if any(avisos):
         st["aviso"] = " ".join(filter(None, avisos))
     return st
