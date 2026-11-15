@@ -15,7 +15,12 @@ Punto 1 de lo que dejó Leandro al mezclar el #57 (revisión del #55). Es un ref
 ## Único cambio de comportamiento
 `ndvi.py bajar` ahora usa la descarga segura. Antes borraba los `.nc` de la caché **antes** de bajar, así que un corte dejaba la caché vacía. Solo cambia cuando la descarga falla.
 
+También: si el bundle no trae ningún `.nc`, `ndvi.py bajar` ahora termina con error y conserva la caché (antes la dejaba vacía sin avisar).
+
 ## Comprobado
 - `python pipeline/ndvi.py calcular`, `python pipeline/cobertura.py calcular` y `python pipeline/tendencias.py`: `git status data/` vacío. `ndvi.json`, `cobertura_arboles.json`, `variables.json` y `zonas/` salen **idénticos byte a byte**.
 - Autopruebas de ndvi y cobertura, y `tests/test_pipeline.py` (`_leer_zona` con un NetCDF sintético): OK.
 - `bajar` con AppEEARS simulado (sin red): la descarga normal reemplaza el `.nc` viejo y limpia el `.part` huérfano; sin ningún `.nc` conserva la copia; un corte a media descarga conserva la copia y no deja `.part`.
+
+## Pendiente del #57
+Este PR cierra solo el punto 1. Siguen pendientes el punto 2 (simplificar los recuadros de `src/data.rs` con un `ZonaRecuadro<A>` genérico) y el punto 4 (frontend: `pnpm gen` y la ficha de la selva).

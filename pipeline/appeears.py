@@ -42,7 +42,8 @@ def token():
 
 def enviar(zonas, producto, capas, anios, task, nombre):
     """Crea una solicitud de área (un polígono por zona, NetCDF en proyección geográfica) y guarda
-    la respuesta (con el task_id) en `task`. `zonas`: tuplas cuyo índice 0 es el id y el 5 la caja."""
+    la respuesta (con el task_id) en `task`. `zonas`: las tuplas de ZONAS de ndvi.py y
+    cobertura.py: el índice 0 es el id y el 5 la caja (oeste, sur, este, norte)."""
     import requests
     feats = [{"type": "Feature", "properties": {"id": z[0]},
               "geometry": {"type": "Polygon", "coordinates": [[[o, s], [e, s], [e, n], [o, n], [o, s]]]}}
