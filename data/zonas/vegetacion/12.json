@@ -1,0 +1,74 @@
+{
+ "id": "12",
+ "nombre": "Junín",
+ "lat": -12.07,
+ "lon": -75.21,
+ "celdas": 60,
+ "nota": "Serie de solo 12 años (2001–2012): hacen falta 20 para medir una tendencia",
+ "variable": "vegetacion",
+ "unidad": "NDVI",
+ "fuente": "MODIS MOD13A3 v061 (NDVI) vía AppEEARS",
+ "serie": [
+  {
+   "anio": 2001,
+   "valor": 0.6556
+  },
+  {
+   "anio": 2002,
+   "valor": 0.6592
+  },
+  {
+   "anio": 2003,
+   "valor": 0.6464
+  },
+  {
+   "anio": 2004,
+   "valor": 0.6543
+  },
+  {
+   "anio": 2005,
+   "valor": 0.6392
+  },
+  {
+   "anio": 2006,
+   "valor": 0.6489
+  },
+  {
+   "anio": 2007,
+   "valor": 0.65
+  },
+  {
+   "anio": 2008,
+   "valor": 0.6422
+  },
+  {
+   "anio": 2009,
+   "valor": 0.6501
+  },
+  {
+   "anio": 2010,
+   "valor": 0.6501
+  },
+  {
+   "anio": 2011,
+   "valor": 0.6598
+  },
+  {
+   "anio": 2012,
+   "valor": 0.6578
+  }
+ ],
+ "stats": {
+  "year_start": 2001,
+  "year_end": 2012,
+  "n_years": 12,
+  "slope_per_decade": 0.0025,
+  "intercept": 0.148475,
+  "ci_low": -0.013,
+  "ci_high": 0.0168,
+  "p_value": 0.350201,
+  "lag1": 0.0916,
+  "q_value": 0.673464,
+  "status": "pocos_datos"
+ }
+}

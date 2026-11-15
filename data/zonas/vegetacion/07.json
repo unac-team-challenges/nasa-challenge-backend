@@ -1,0 +1,74 @@
+{
+ "id": "07",
+ "nombre": "Callao",
+ "lat": -12.06,
+ "lon": -77.13,
+ "celdas": 1,
+ "nota": "Serie de solo 12 años (2001–2012): hacen falta 20 para medir una tendencia",
+ "variable": "vegetacion",
+ "unidad": "NDVI",
+ "fuente": "MODIS MOD13A3 v061 (NDVI) vía AppEEARS",
+ "serie": [
+  {
+   "anio": 2001,
+   "valor": 0.132
+  },
+  {
+   "anio": 2002,
+   "valor": 0.135
+  },
+  {
+   "anio": 2003,
+   "valor": 0.128
+  },
+  {
+   "anio": 2004,
+   "valor": 0.122
+  },
+  {
+   "anio": 2005,
+   "valor": 0.118
+  },
+  {
+   "anio": 2006,
+   "valor": 0.129
+  },
+  {
+   "anio": 2007,
+   "valor": 0.123
+  },
+  {
+   "anio": 2008,
+   "valor": 0.123
+  },
+  {
+   "anio": 2009,
+   "valor": 0.119
+  },
+  {
+   "anio": 2010,
+   "valor": 0.125
+  },
+  {
+   "anio": 2011,
+   "valor": 0.126
+  },
+  {
+   "anio": 2012,
+   "valor": 0.129
+  }
+ ],
+ "stats": {
+  "year_start": 2001,
+  "year_end": 2012,
+  "n_years": 12,
+  "slope_per_decade": -0.005143,
+  "intercept": 1.157414,
+  "ci_low": -0.015,
+  "ci_high": 0.0088,
+  "p_value": 1.0,
+  "lag1": 0.2497,
+  "q_value": 1.0,
+  "status": "pocos_datos"
+ }
+}

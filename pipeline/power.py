@@ -8,8 +8,11 @@ en 4 recuadros (máximo 10° por lado), como en
 pipeline/exploracion/josue/scripts/power_departamentos.py.
 Callao no tiene celdas propias: usa la celda de su capital, con `nota`.
 
-También escribe data/celdas/temperatura.json: la T2M anual de cada celda dentro de Perú
-(mapa de calor del frontend), sin promediar por departamento.
+También escribe las mallas del mapa (cada celda dentro de Perú, sin promediar por departamento):
+data/celdas/temperatura.json (T2M anual, °C, campo `t2m`) y data/celdas/lluvia.json (PRECTOTCORR,
+media diaria del año × 365 = mm/año, campo `valor`).
+
+Solo las mallas (4 + 4 llamadas, sin tocar power.json): python pipeline/power.py celdas [inicio] [fin]
 """
 import json
 import sys
@@ -106,41 +109,67 @@ def avisar_incompletos(incompletos, salida=sys.stderr):
         print(f"AVISO {anio}: sin 12 meses en {quien}; ese año no entra", file=salida)
 
 
-def celdas_json(df, inicio, fin):
+# Malla de cada variable: (archivo, campo, fuente, unidad, factor, decimales).
+# `t2m` se queda en temperatura para no romper el contrato; las mallas nuevas usan `valor`.
+MALLAS = {
+    "T2M": ("temperatura.json", "t2m", "MERRA-2 vía NASA POWER (T2M)", "°C", 1, 2),
+    "PRECTOTCORR": ("lluvia.json", "valor", "MERRA-2 vía NASA POWER (PRECTOTCORR)", "mm/año", 365, 0),
+}
+
+
+def celdas_json(df, inicio, fin, var="T2M"):
     """Malla anual dentro de Perú: celdas con centro en algún departamento, años con 12 meses
-    (null si falta). `t2m` va alineado con anio_inicio..anio_fin."""
+    (null si falta). El campo (`t2m` o `valor`) va alineado con anio_inicio..anio_fin."""
     from departamentos import mascara
 
+    _, campo, fuente, unidad, factor, dec = MALLAS[var]
     lats, lons = np.unique(df["lat"]), np.unique(df["lon"])
     i, j = np.nonzero(np.isfinite(mascara(lats, lons)))
     dentro = pd.DataFrame({"lat": lats[i], "lon": lons[j]})
     g = df.merge(dentro).groupby(["lat", "lon", "anio"])["valor"]
     anual = g.mean()[g.size() == 12].unstack("anio").reindex(columns=range(int(inicio), int(fin) + 1))
+
+    def redondo(v):
+        if np.isnan(v):
+            return None
+        r = round(float(v) * factor, dec)
+        return int(r) if dec == 0 else r
+
     return {
-        "fuente": "MERRA-2 vía NASA POWER (T2M)", "unidad": "°C",
+        "fuente": fuente, "unidad": unidad,
         "dlat": 0.5, "dlon": 0.625, "anio_inicio": int(inicio), "anio_fin": int(fin),
-        "celdas": [{"lat": float(a), "lon": float(o),
-                    "t2m": [None if np.isnan(v) else round(float(v), 2) for v in fila]}
+        "celdas": [{"lat": float(a), "lon": float(o), campo: [redondo(v) for v in fila]}
                    for (a, o), fila in anual.iterrows()],
     }
+
+
+def escribir_malla(df, inicio, fin, var, salida):
+    (salida / "celdas").mkdir(exist_ok=True)
+    (salida / "celdas" / MALLAS[var][0]).write_text(
+        json.dumps(celdas_json(df, inicio, fin, var), ensure_ascii=False, allow_nan=False,
+                   separators=(",", ":")),
+        encoding="utf-8",
+    )
 
 
 if __name__ == "__main__":
     from departamentos import a_json
 
-    inicio, fin = (sys.argv[1:3] + ["2001", "2024"][len(sys.argv[1:3]):])[:2]
+    solo_mallas = sys.argv[1:2] == ["celdas"]
+    args = sys.argv[2:4] if solo_mallas else sys.argv[1:3]
+    inicio, fin = (args + ["2001", "2024"][len(args):])[:2]
     por_var, celdas = {}, {}
     salida = Path(__file__).parent.parent / "data"
+    if solo_mallas:
+        for var in MALLAS:
+            escribir_malla(malla(var, inicio, fin), inicio, fin, var, salida)
+            print(f"celdas/{MALLAS[var][0]} listo", flush=True)
+        sys.exit(0)
     for var in VARIABLES:
         df = malla(var, inicio, fin)
         por_var[var], celdas = por_departamento(df)
-        if var == "T2M":
-            (salida / "celdas").mkdir(exist_ok=True)
-            (salida / "celdas" / "temperatura.json").write_text(
-                json.dumps(celdas_json(df, inicio, fin), ensure_ascii=False, allow_nan=False,
-                           separators=(",", ":")),
-                encoding="utf-8",
-            )
+        if var in MALLAS:
+            escribir_malla(df, inicio, fin, var, salida)
         print(f"{var} listo", flush=True)
 
     datos = {}

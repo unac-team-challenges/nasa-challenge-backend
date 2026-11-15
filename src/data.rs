@@ -2,7 +2,7 @@ use crate::{
     models::{
         celdas::Malla,
         cobertura::ZonaCobertura,
-        gpm, power,
+        gpm, ndvi, power,
         recuadro::Comunes,
         variable::{Variable, VariableInfo},
         vegetacion::ZonaVegetacion,
@@ -28,7 +28,11 @@ const ZONAS_TEMPERATURA: &str = include_str!("../data/zonas/temperatura.json");
 const ZONAS_LLUVIA_IMERG: &str = include_str!("../data/zonas/lluvia_imerg.json");
 const NDVI: &str = include_str!("../data/ndvi.json");
 const COBERTURA: &str = include_str!("../data/cobertura_arboles.json");
+const ZONAS_VEGETACION: &str = include_str!("../data/zonas/vegetacion.json");
+const NDVI_DEPARTAMENTOS: &str = include_str!("../data/ndvi_departamentos.json");
+const CELDAS_LLUVIA: &str = include_str!("../data/celdas/lluvia.json");
 const CELDAS_TEMPERATURA: &str = include_str!("../data/celdas/temperatura.json");
+const CELDAS_VEGETACION: &str = include_str!("../data/celdas/vegetacion.json");
 
 pub type Estado = Arc<Datos>;
 
@@ -39,13 +43,15 @@ pub struct Fuentes<'a> {
     pub gpm: &'a str,
     pub variables: &'a str,
     /// `data/zonas/{variable}.json`, en el orden de `Variable::TODAS`.
-    pub zonas: [&'a str; 3],
+    pub zonas: [&'a str; 4],
+    /// `data/ndvi_departamentos.json`: NDVI anual por departamento (fuente de `zonas/vegetacion.json`).
+    pub ndvi_departamentos: &'a str,
     /// `data/ndvi.json`: vegetación de los valles irrigados (Caso 2).
     pub ndvi: &'a str,
     /// `data/cobertura_arboles.json`: cobertura de árboles de la selva.
     pub cobertura: &'a str,
-    /// `data/celdas/temperatura.json`.
-    pub celdas: &'a str,
+    /// `data/celdas/{variable}.json` en el orden de `Variable::TODAS`; `None` = sin malla (IMERG).
+    pub celdas: [Option<&'a str>; 4],
 }
 
 impl Fuentes<'static> {
@@ -53,10 +59,21 @@ impl Fuentes<'static> {
         power: POWER,
         gpm: GPM,
         variables: VARIABLES,
-        zonas: [ZONAS_LLUVIA, ZONAS_TEMPERATURA, ZONAS_LLUVIA_IMERG],
+        zonas: [
+            ZONAS_LLUVIA,
+            ZONAS_TEMPERATURA,
+            ZONAS_LLUVIA_IMERG,
+            ZONAS_VEGETACION,
+        ],
+        ndvi_departamentos: NDVI_DEPARTAMENTOS,
         ndvi: NDVI,
         cobertura: COBERTURA,
-        celdas: CELDAS_TEMPERATURA,
+        celdas: [
+            Some(CELDAS_LLUVIA),
+            Some(CELDAS_TEMPERATURA),
+            None,
+            Some(CELDAS_VEGETACION),
+        ],
     };
 }
 
@@ -71,16 +88,19 @@ pub struct Datos {
     pub gpm: Vec<gpm::Region>,
     indice: HashMap<String, usize>,
     indice_gpm: HashMap<String, usize>,
+    pub ndvi: Vec<ndvi::Region>,
+    indice_ndvi: HashMap<String, usize>,
     /// En el orden de `Variable::TODAS`.
     pub variables: Vec<VariableInfo>,
     /// Por variable; ids "01"–"25" en orden.
-    fichas: [Vec<Ficha>; 3],
+    fichas: [Vec<Ficha>; 4],
     /// `data/ndvi.json` tal cual, ya validado.
     pub vegetacion: Vec<ZonaVegetacion>,
     /// `data/cobertura_arboles.json` tal cual, ya validado.
     pub cobertura: Vec<ZonaCobertura>,
-    /// Malla de temperatura ya validada; se sirve tal cual (clonar `Bytes` no copia).
-    pub celdas: Bytes,
+    /// Mallas ya validadas, en el orden de `Variable::TODAS` (vacía = sin malla); se sirven tal
+    /// cual (clonar `Bytes` no copia).
+    celdas: [Bytes; 4],
 }
 
 fn error(msg: impl std::fmt::Display) -> serde_json::Error {
@@ -121,9 +141,15 @@ impl Datos {
     pub fn desde(f: Fuentes) -> Result<Self, serde_json::Error> {
         let regiones: Vec<power::Region> = serde_json::from_str(f.power)?;
         let gpm: Vec<gpm::Region> = serde_json::from_str(f.gpm)?;
-        let (indice, indice_gpm) = (indexar(&regiones), indexar(&gpm));
-        if indice.keys().collect::<BTreeSet<_>>() != indice_gpm.keys().collect::<BTreeSet<_>>() {
-            return Err(error("power.json y gpm.json no tienen las mismas regiones"));
+        let ndvi: Vec<ndvi::Region> = serde_json::from_str(f.ndvi_departamentos)?;
+        let (indice, indice_gpm, indice_ndvi) = (indexar(&regiones), indexar(&gpm), indexar(&ndvi));
+        let nombres = indice.keys().collect::<BTreeSet<_>>();
+        if nombres != indice_gpm.keys().collect::<BTreeSet<_>>()
+            || nombres != indice_ndvi.keys().collect::<BTreeSet<_>>()
+        {
+            return Err(error(
+                "power.json, gpm.json y ndvi_departamentos.json no tienen las mismas regiones",
+            ));
         }
         let variables: Vec<VariableInfo> = serde_json::from_str(f.variables)?;
         if !variables
@@ -132,36 +158,56 @@ impl Datos {
             .eq(Variable::TODAS.map(Variable::id))
         {
             return Err(error(
-                "variables.json debe tener exactamente: lluvia, temperatura, lluvia_imerg",
+                "variables.json debe tener exactamente: lluvia, temperatura, lluvia_imerg, vegetacion",
             ));
         }
         let mut d = Self {
             indice,
             indice_gpm,
+            indice_ndvi,
             regiones,
             gpm,
+            ndvi,
             variables,
             fichas: Default::default(),
             vegetacion: recuadros(f.ndvi)?,
             cobertura: recuadros(f.cobertura)?,
-            celdas: Bytes::new(),
+            celdas: Default::default(),
         };
         d.fichas = [
             d.fichas_de(Variable::Lluvia, f.zonas[0])?,
             d.fichas_de(Variable::Temperatura, f.zonas[1])?,
             d.fichas_de(Variable::LluviaImerg, f.zonas[2])?,
+            d.fichas_de(Variable::Vegetacion, f.zonas[3])?,
         ];
-        d.validar_celdas(f.celdas)?;
-        d.celdas = Bytes::copy_from_slice(f.celdas.as_bytes());
+        for (v, json) in Variable::TODAS.into_iter().zip(f.celdas) {
+            if let Some(json) = json {
+                d.validar_celdas(v, json)?;
+                d.celdas[v as usize] = Bytes::copy_from_slice(json.as_bytes());
+            }
+        }
         Ok(d)
     }
 
-    /// La malla debe caber en Perú, en el periodo de la temperatura y con valores físicos.
-    fn validar_celdas(&self, json: &str) -> Result<(), serde_json::Error> {
+    /// La malla de una variable, tal cual (`None` si no tiene).
+    pub fn celdas(&self, v: Variable) -> Option<Bytes> {
+        let b = &self.celdas[v as usize];
+        (!b.is_empty()).then(|| b.clone())
+    }
+
+    /// La malla debe caber en Perú, en el periodo de su variable y con valores físicos de esa variable.
+    fn validar_celdas(&self, v: Variable, json: &str) -> Result<(), serde_json::Error> {
+        // (unidad, campo, rango físico): la temperatura conserva `t2m`; las demás usan `valor`.
+        let (unidad, con_t2m, rango) = match v {
+            Variable::Temperatura => ("°C", true, -40.0..=50.0),
+            Variable::Lluvia => ("mm/año", false, 0.0..=12_000.0),
+            Variable::Vegetacion => ("NDVI", false, -0.2..=1.0),
+            Variable::LluviaImerg => return Err(error("lluvia_imerg no tiene malla por celdas")),
+        };
         let m: Malla = serde_json::from_str(json)?;
-        let info = &self.variables[Variable::Temperatura as usize];
+        let info = &self.variables[v as usize];
         let anios = usize::from(m.anio_fin.saturating_sub(m.anio_inicio)) + 1;
-        let falla = |msg: String| Err(error(format_args!("celdas/temperatura.json: {msg}")));
+        let falla = |msg: String| Err(error(format_args!("celdas/{}.json: {msg}", v.id())));
         if m.celdas.is_empty() {
             return falla("sin celdas".into());
         }
@@ -174,29 +220,42 @@ impl Datos {
                 m.anio_inicio, m.anio_fin
             ));
         }
-        if m.unidad != "°C" || m.fuente.trim().is_empty() {
-            return falla("falta la fuente o la unidad no es °C".into());
+        if m.unidad != unidad || m.fuente.trim().is_empty() {
+            return falla(format!("falta la fuente o la unidad no es {unidad}"));
         }
         if !(m.dlat > 0.0 && m.dlon > 0.0) {
             return falla("dlat y dlon deben ser > 0".into());
         }
+        let campo = if con_t2m { "t2m" } else { "valor" };
         for c in &m.celdas {
             let donde = format!("celda ({}, {})", c.lat, c.lon);
             // Caja de Perú con margen de media celda
             if !(-18.6..=0.1).contains(&c.lat) || !(-81.7..=-68.4).contains(&c.lon) {
                 return falla(format!("{donde} fuera de Perú"));
             }
-            if c.t2m.len() != anios {
+            let (propio, ajeno) = if con_t2m {
+                (&c.t2m, &c.valor)
+            } else {
+                (&c.valor, &c.t2m)
+            };
+            let Some(valores) = propio.as_ref().filter(|_| ajeno.is_none()) else {
+                return falla(format!("{donde}: debe traer solo `{campo}`"));
+            };
+            if valores.len() != anios {
                 return falla(format!(
                     "{donde}: {} valores, se esperaban {anios}",
-                    c.t2m.len()
+                    valores.len()
                 ));
             }
-            if c.t2m.iter().all(Option::is_none) {
+            if valores.iter().all(Option::is_none) {
                 return falla(format!("{donde}: sin ningún año con valor"));
             }
-            if c.t2m.iter().flatten().any(|t| !(-40.0..=50.0).contains(t)) {
-                return falla(format!("{donde}: temperatura fuera de -40..50 °C"));
+            if valores.iter().flatten().any(|x| !rango.contains(x)) {
+                return falla(format!(
+                    "{donde}: valor fuera de {}..{} {unidad}",
+                    rango.start(),
+                    rango.end()
+                ));
             }
         }
         Ok(())
@@ -231,9 +290,10 @@ impl Datos {
                     Variable::Lluvia => self.buscar(nombre).map(|r| serie_de(&zona, r, |m| m.prectotcorr)),
                     Variable::LluviaImerg => self.buscar_gpm(nombre).map(|r| serie_de(&zona, r, |m| m.lluvia_mm_dia)),
                     Variable::Temperatura => self.buscar(nombre).map(|r| serie_de(&zona, r, |m| m.t2m)),
+                    Variable::Vegetacion => self.buscar_ndvi(nombre).map(|r| serie_de(&zona, r, |m| m.ndvi)),
                 };
                 let serie = serie
-                    .ok_or_else(|| error(format_args!("{}: no está en power.json/gpm.json", donde())))?
+                    .ok_or_else(|| error(format_args!("{}: no está en su fuente (power.json, gpm.json o ndvi_departamentos.json)", donde())))?
                     .ok_or_else(|| error(format_args!("{}: lat, lon, celdas o nota no coinciden con su fuente", donde())))?;
                 let anios = (serie.first().map(|p| p.anio), serie.last().map(|p| p.anio));
                 if serie.len() != usize::from(st.n_years) || anios != (Some(st.year_start), Some(st.year_end)) {
@@ -268,6 +328,10 @@ impl Datos {
 
     pub fn buscar_gpm(&self, nombre: &str) -> Option<&gpm::Region> {
         self.indice_gpm.get(&clave(nombre)).map(|&i| &self.gpm[i])
+    }
+
+    pub fn buscar_ndvi(&self, nombre: &str) -> Option<&ndvi::Region> {
+        self.indice_ndvi.get(&clave(nombre)).map(|&i| &self.ndvi[i])
     }
 }
 

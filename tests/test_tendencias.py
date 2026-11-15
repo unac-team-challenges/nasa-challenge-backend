@@ -107,3 +107,17 @@ class Periodo(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Vegetacion(unittest.TestCase):
+    def test_aviso_de_saturacion_solo_en_ndvi_alto(self):
+        anios = np.arange(2001, 2025)
+        selva = np.full(24, 0.82)
+        costa = np.full(24, 0.15)
+        self.assertIn("saturado", t.aviso_saturado(anios, selva, {}))
+        self.assertIsNone(t.aviso_saturado(anios, costa, {}))
+
+    def test_vegetacion_va_al_final_y_sin_porcentaje(self):
+        self.assertEqual(list(t.VARIABLES), ["lluvia", "temperatura", "lluvia_imerg", "vegetacion"])
+        self.assertFalse(t.VARIABLES["vegetacion"]["porcentaje"])
+        self.assertEqual(t.VARIABLES["vegetacion"]["unidad"], "NDVI")

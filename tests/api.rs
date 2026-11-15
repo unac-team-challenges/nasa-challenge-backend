@@ -117,7 +117,7 @@ async fn cors_permite_localhost_y_extra_pero_no_otros() {
 }
 
 #[tokio::test]
-async fn api_variables_lista_lluvia_temperatura_e_imerg() {
+async fn api_variables_lista_lluvia_temperatura_imerg_y_vegetacion() {
     let (s, _, b) = get("/api/variables", None).await;
     assert_eq!(s, StatusCode::OK);
     let ids: Vec<_> = b
@@ -126,7 +126,8 @@ async fn api_variables_lista_lluvia_temperatura_e_imerg() {
         .iter()
         .map(|v| v["id"].as_str().unwrap())
         .collect();
-    assert_eq!(ids, ["lluvia", "temperatura", "lluvia_imerg"]);
+    assert_eq!(ids, ["lluvia", "temperatura", "lluvia_imerg", "vegetacion"]);
+    assert_eq!(b[3]["unidad"], "NDVI");
     assert!(b[0]["anio_inicio"].is_number() && b[0]["unidad"] == "mm/día");
 }
 
@@ -156,6 +157,7 @@ async fn api_zona_devuelve_serie_por_variable() {
         ("lluvia", "mm/día"),
         ("temperatura", "°C"),
         ("lluvia_imerg", "mm/día"),
+        ("vegetacion", "NDVI"),
     ] {
         let (s, _, b) = get(&format!("/api/zonas/15?variable={var}"), None).await;
         assert_eq!(s, StatusCode::OK);
@@ -360,7 +362,7 @@ fn status_valido(v: &Value) -> bool {
 
 #[tokio::test]
 async fn api_zonas_traen_stats() {
-    for var in ["lluvia", "temperatura", "lluvia_imerg"] {
+    for var in ["lluvia", "temperatura", "lluvia_imerg", "vegetacion"] {
         let (s, _, b) = get(&format!("/api/zonas?variable={var}"), None).await;
         assert_eq!(s, StatusCode::OK);
         let zonas = b.as_array().unwrap();
@@ -433,7 +435,7 @@ async fn pocos_datos_lleva_nota() {
     let (_, _, callao) = get("/api/zonas/07?variable=temperatura", None).await;
     assert_eq!(callao["stats"]["status"], "pocos_datos");
     assert!(callao["nota"].is_string());
-    for var in ["lluvia", "temperatura", "lluvia_imerg"] {
+    for var in ["lluvia", "temperatura", "lluvia_imerg", "vegetacion"] {
         let (_, _, b) = get(&format!("/api/zonas?variable={var}"), None).await;
         for z in b
             .as_array()
@@ -448,7 +450,7 @@ async fn pocos_datos_lleva_nota() {
 
 #[tokio::test]
 async fn serie_y_stats_hablan_del_mismo_periodo() {
-    for var in ["lluvia", "temperatura", "lluvia_imerg"] {
+    for var in ["lluvia", "temperatura", "lluvia_imerg", "vegetacion"] {
         for n in 1..=25 {
             let (s, _, b) = get(&format!("/api/zonas/{n:02}?variable={var}"), None).await;
             assert_eq!(s, StatusCode::OK);
@@ -489,7 +491,7 @@ async fn ids_que_no_son_ubigeo_exacto_dan_404() {
 
 #[tokio::test]
 async fn detalle_trae_la_zona_entera() {
-    for var in ["lluvia", "temperatura", "lluvia_imerg"] {
+    for var in ["lluvia", "temperatura", "lluvia_imerg", "vegetacion"] {
         let (_, _, lista) = get(&format!("/api/zonas?variable={var}"), None).await;
         for z in lista.as_array().unwrap() {
             let (_, _, d) = get(
@@ -512,7 +514,7 @@ fn zonas_y_variables_mal_formadas_se_rechazan() {
     let con_zonas = |f: Cambio| {
         let z = editar(e.zonas[0], f);
         Datos::desde(Fuentes {
-            zonas: [&z, e.zonas[1], e.zonas[2]],
+            zonas: [&z, e.zonas[1], e.zonas[2], e.zonas[3]],
             ..e
         })
     };
@@ -792,13 +794,70 @@ async fn celdas_de_temperatura() {
     assert!(celdas.len() > 100, "Perú tiene cientos de celdas de 0,5°");
     assert!(celdas
         .iter()
-        .all(|c| c["t2m"].as_array().unwrap().len() == anios));
+        .all(|c| c["t2m"].as_array().unwrap().len() == anios && c.get("valor").is_none()));
+}
+
+/// Celda con centro más cercano a (lat, lon) y la media de sus años con dato.
+fn media_cerca(b: &Value, lat: f64, lon: f64) -> f64 {
+    let d = |c: &Value| {
+        (c["lat"].as_f64().unwrap() - lat).powi(2) + (c["lon"].as_f64().unwrap() - lon).powi(2)
+    };
+    let c = b["celdas"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .min_by(|x, y| d(x).total_cmp(&d(y)))
+        .unwrap();
+    let v: Vec<f64> = c["valor"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter_map(Value::as_f64)
+        .collect();
+    v.iter().sum::<f64>() / v.len() as f64
 }
 
 #[tokio::test]
-async fn celdas_solo_temperatura() {
+async fn celdas_de_lluvia() {
+    let (s, _, b) = get("/api/celdas?variable=lluvia", None).await;
+    assert_eq!(s, StatusCode::OK);
+    assert_eq!(
+        (b["unidad"].as_str(), b["dlat"].as_f64()),
+        (Some("mm/año"), Some(0.5))
+    );
+    assert!(b["celdas"].as_array().unwrap().len() > 100);
+    // Cifras reales de POWER: Iquitos llueve más de 2 000 mm/año; la costa de Ica, menos de 100
+    assert!(media_cerca(&b, -3.75, -73.25) > 2000.0);
+    assert!(media_cerca(&b, -14.07, -75.73) < 100.0);
+}
+
+#[tokio::test]
+async fn celdas_de_vegetacion() {
+    let (s, _, b) = get("/api/celdas?variable=vegetacion", None).await;
+    assert_eq!(s, StatusCode::OK);
+    assert_eq!(
+        (b["unidad"].as_str(), b["dlat"].as_f64()),
+        (Some("NDVI"), Some(0.25))
+    );
+    assert!(
+        b["nota"].is_string(),
+        "la nota avisa la saturación en la selva"
+    );
+    let anios = (b["anio_fin"].as_u64().unwrap() - b["anio_inicio"].as_u64().unwrap() + 1) as usize;
+    let celdas = b["celdas"].as_array().unwrap();
+    assert!(celdas.len() > 1500, "Perú tiene ~2 000 celdas de 0,25°");
+    assert!(celdas
+        .iter()
+        .all(|c| c["valor"].as_array().unwrap().len() == anios && c.get("t2m").is_none()));
+    // Cifras reales de MODIS: la selva de Iquitos es verde; el desierto de Ica, casi sin vegetación
+    assert!(media_cerca(&b, -3.75, -73.25) > 0.7);
+    assert!(media_cerca(&b, -14.5, -75.5) < 0.2);
+}
+
+#[tokio::test]
+async fn celdas_sin_malla_dan_400() {
     for ruta in [
-        "/api/celdas?variable=lluvia",
+        "/api/celdas?variable=lluvia_imerg",
         "/api/celdas",
         "/api/celdas?variable=nieve",
     ] {
@@ -808,17 +867,20 @@ async fn celdas_solo_temperatura() {
     }
 }
 
+/// Carga los datos con la malla de `v` (índice en `Variable::TODAS`) editada.
+fn con_malla(v: Variable, f: Cambio) -> Result<Datos, serde_json::Error> {
+    let e = Fuentes::EMBEBIDAS;
+    let c = editar(e.celdas[v as usize].unwrap(), f);
+    let mut celdas = e.celdas;
+    celdas[v as usize] = Some(&c);
+    Datos::desde(Fuentes { celdas, ..e })
+}
+
 #[test]
 fn celdas_mal_formadas_se_rechazan() {
-    let con = |f: Cambio| {
-        let c = editar(Fuentes::EMBEBIDAS.celdas, f);
-        Datos::desde(Fuentes {
-            celdas: &c,
-            ..Fuentes::EMBEBIDAS
-        })
-    };
+    let con = |f: Cambio| con_malla(Variable::Temperatura, f);
     assert!(con(|_| {}).is_ok());
-    let malos: [(&str, Cambio); 8] = [
+    let malos: [(&str, Cambio); 9] = [
         ("sin celdas", |m| m["celdas"] = Value::Array(vec![])),
         ("unidad que no es °C", |m| m["unidad"] = "K".into()),
         ("sin fuente", |m| m["fuente"] = " ".into()),
@@ -841,8 +903,54 @@ fn celdas_mal_formadas_se_rechazan() {
         ("periodo fuera de variables.json", |m| {
             m["anio_inicio"] = 1900.into()
         }),
+        ("valor en vez de t2m", |m| {
+            let t = m["celdas"][0]["t2m"].take();
+            m["celdas"][0]["valor"] = t;
+            m["celdas"][0].as_object_mut().unwrap().remove("t2m");
+        }),
     ];
     for (caso, f) in malos {
         assert!(con(f).is_err(), "{caso}");
     }
+}
+
+#[test]
+fn mallas_nuevas_mal_formadas_se_rechazan() {
+    for v in [Variable::Lluvia, Variable::Vegetacion] {
+        assert!(con_malla(v, |_| {}).is_ok(), "{} sin cambios carga", v.id());
+        let malos: [(&str, Cambio); 6] = [
+            ("sin celdas", |m| m["celdas"] = Value::Array(vec![])),
+            ("unidad vacía", |m| m["unidad"] = "".into()),
+            ("fuera de Perú", |m| m["celdas"][0]["lon"] = (-60.0).into()),
+            ("celda toda null", |m| {
+                m["celdas"][0]["valor"]
+                    .as_array_mut()
+                    .unwrap()
+                    .fill(Value::Null)
+            }),
+            ("valor fuera de rango", |m| {
+                m["celdas"][0]["valor"][0] = 20_000.0.into()
+            }),
+            ("t2m en vez de valor", |m| {
+                let t = m["celdas"][0]["valor"].take();
+                m["celdas"][0]["t2m"] = t;
+                m["celdas"][0].as_object_mut().unwrap().remove("valor");
+            }),
+        ];
+        for (caso, f) in malos {
+            assert!(con_malla(v, f).is_err(), "{}: {caso}", v.id());
+        }
+    }
+    // Rangos por variable: 1,5 es imposible como NDVI pero válido como lluvia (mm/año)
+    assert!(
+        con_malla(Variable::Vegetacion, |m| m["celdas"][0]["valor"][0] =
+            1.5.into())
+        .is_err()
+    );
+    assert!(con_malla(Variable::Lluvia, |m| m["celdas"][0]["valor"][0] =
+        1.5.into())
+    .is_ok());
+    assert!(con_malla(Variable::Lluvia, |m| m["celdas"][0]["valor"][0] =
+        (-1.0).into())
+    .is_err());
 }

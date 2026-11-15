@@ -1,0 +1,74 @@
+{
+ "id": "15",
+ "nombre": "Lima",
+ "lat": -12.05,
+ "lon": -77.04,
+ "celdas": 48,
+ "nota": "Serie de solo 12 años (2001–2012): hacen falta 20 para medir una tendencia",
+ "variable": "vegetacion",
+ "unidad": "NDVI",
+ "fuente": "MODIS MOD13A3 v061 (NDVI) vía AppEEARS",
+ "serie": [
+  {
+   "anio": 2001,
+   "valor": 0.249
+  },
+  {
+   "anio": 2002,
+   "valor": 0.2524
+  },
+  {
+   "anio": 2003,
+   "valor": 0.2313
+  },
+  {
+   "anio": 2004,
+   "valor": 0.2312
+  },
+  {
+   "anio": 2005,
+   "valor": 0.2201
+  },
+  {
+   "anio": 2006,
+   "valor": 0.2458
+  },
+  {
+   "anio": 2007,
+   "valor": 0.2374
+  },
+  {
+   "anio": 2008,
+   "valor": 0.256
+  },
+  {
+   "anio": 2009,
+   "valor": 0.2626
+  },
+  {
+   "anio": 2010,
+   "valor": 0.24
+  },
+  {
+   "anio": 2011,
+   "valor": 0.2565
+  },
+  {
+   "anio": 2012,
+   "valor": 0.2623
+  }
+ ],
+ "stats": {
+  "year_start": 2001,
+  "year_end": 2012,
+  "n_years": 12,
+  "slope_per_decade": 0.0155,
+  "intercept": -2.862675,
+  "ci_low": -0.0064,
+  "ci_high": 0.0498,
+  "p_value": 0.029273,
+  "lag1": 0.1396,
+  "q_value": 0.361534,
+  "status": "pocos_datos"
+ }
+}
