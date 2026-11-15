@@ -182,6 +182,15 @@ async fn api_variable_es_obligatoria_y_valida() {
 }
 
 #[tokio::test]
+async fn api_variable_ignora_mayusculas_y_espacios() {
+    for v in ["LLUVIA", "Lluvia", "%20lluvia%20"] {
+        let (s, _, b) = get(&format!("/api/zonas/15?variable={v}"), None).await;
+        assert_eq!(s, StatusCode::OK, "{v}");
+        assert_eq!(b["variable"], "lluvia", "{v}");
+    }
+}
+
+#[tokio::test]
 async fn api_zona_inexistente_da_404() {
     for id in ["00", "26", "99", "lima"] {
         assert_eq!(
