@@ -532,8 +532,9 @@ fn zonas_y_variables_mal_formadas_se_rechazan() {
     );
 }
 
-/// Valores de `data/ndvi.json` en 2001 y 2024: los mismos del Lab 3 de Favio
-/// (`pipeline/exploracion/favio/resultados/lab3_resumen.json`), servidos tal cual.
+/// Valores de `data/ndvi.json` en 2001 y 2024, servidos tal cual. Chavimochic e Ica: los mismos
+/// del Lab 3 de Favio (`pipeline/exploracion/favio/resultados/lab3_resumen.json`, tarea 44445de3).
+/// Olmos: caja nueva (tarea ee736bc9, `pipeline/exploracion/favio/scripts/lab3_olmos.py`).
 #[tokio::test]
 async fn api_vegetacion_trae_las_3_zonas_del_caso_2() {
     let (s, _, b) = get("/api/vegetacion", None).await;
@@ -545,7 +546,7 @@ async fn api_vegetacion_trae_las_3_zonas_del_caso_2() {
     let esperado = [
         ("13", 0.1906, 188.9, 0.3104, 355.5),
         ("11", 0.1403, 117.6, 0.198, 221.5),
-        // Olmos, recuadro sobre las tierras nuevas (el del Lab 3 cayó sobre bosque seco)
+        // Olmos, recuadro sobre las tierras nuevas (el del Lab 3 se descartó: bosque seco)
         ("14", 0.2236, 124.5, 0.3305, 419.0),
     ];
     for (z, (ubigeo, n01, a01, n24, a24)) in zonas.iter().zip(esperado) {
@@ -555,7 +556,13 @@ async fn api_vegetacion_trae_las_3_zonas_del_caso_2() {
             .unwrap()
             .contains("recuadro"));
         assert!(status_valido(&z["stats"]["status"]));
-        assert_eq!(z["stats"]["status"], "real", "{}", z["id"]);
+        // Chavimochic e Ica son reales con margen; Olmos no se fija (puede cambiar con un año más),
+        // pero siempre lleva su aviso
+        if z["id"] == "olmos" {
+            assert!(z["stats"]["aviso"].as_str().unwrap().contains("Lab 3"));
+        } else {
+            assert_eq!(z["stats"]["status"], "real", "{}", z["id"]);
+        }
         let serie = z["serie"].as_array().unwrap();
         assert_eq!(serie.len(), 24);
         assert_eq!(z["stats"]["n_years"], 24);

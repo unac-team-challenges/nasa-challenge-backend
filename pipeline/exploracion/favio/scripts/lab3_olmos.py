@@ -1,83 +1,41 @@
-"""Laboratorio 3b: NDVI de Olmos con el recuadro movido a las tierras irrigadas (MOD13A3 vía AppEEARS).
+"""Laboratorio 3b: NDVI de Olmos con el recuadro movido a las tierras nuevas (MOD13A3 vía AppEEARS).
 
-El recuadro del Lab 3 (-80.00, -6.10, -79.75, -5.85) cayó sobre bosque seco cerca del pueblo de Olmos.
-El nuevo recuadro de 0,25° se eligió con un dato independiente del NDVI: es la caja con más campos de
-cultivo en OpenStreetMap (landuse=farmland/orchard; ~4.400 polígonos, frente a ~150 en la caja vieja),
-consultados con la API Overpass el 2026-11-15. Así el resultado no se elige "mirando la tendencia".
+Historia (para que quede claro el orden): el recuadro del Lab 3 (-80.00, -6.10, -79.75, -5.85) dio
+p = 0,43 y se descartó DESPUÉS de ver ese resultado, porque caía sobre bosque seco cerca del pueblo
+de Olmos. El recuadro nuevo se eligió con un dato independiente del NDVI, antes de ver su propio
+NDVI: la caja de 0,25° con más campos de cultivo en OpenStreetMap (landuse=farmland/orchard;
+~4.400 polígonos, frente a ~150 en la caja vieja; Overpass, 2026-11-15). La prueba descartada se
+cuenta en Benjamini-Hochberg (PRUEBAS_DESCARTADAS en pipeline/ndvi.py) y Olmos lleva un aviso.
 
-Uso:
+Reutiliza pipeline/ndvi.py (misma solicitud, mismas capas) con solo la zona de Olmos, tomada de
+ndvi.ZONAS. Hoy `python pipeline/ndvi.py enviar` ya pide las 3 zonas juntas: este script solo
+reproduce la solicitud suelta que se hizo (tarea ee736bc9).
+
+Uso (desde esta carpeta):
   python lab3_olmos.py enviar   -> crea la solicitud y guarda el task_id en data/lab3_olmos_task.json
   python lab3_olmos.py estado   -> consulta el estado (~3 h)
   python lab3_olmos.py bajar    -> descarga el NetCDF a data/ndvi_olmos/
-Credenciales: el netrc del Laboratorio 0 (nunca se imprimen).
+Credenciales: las de pipeline/ndvi.py (nunca se imprimen). data/ está en .gitignore.
 """
-import json
-import os
 import sys
+from pathlib import Path
 
-import requests
+AQUI = Path(__file__).resolve().parent
+sys.path.insert(0, str(AQUI.parents[2]))  # pipeline/
 
-from lab3_appeears import BASE, caja, token
+import ndvi  # noqa: E402
 
-AQUI = os.path.dirname(os.path.abspath(__file__))
-TASK_FILE = os.path.join(AQUI, "data", "lab3_olmos_task.json")
-OUT = os.path.join(AQUI, "data", "ndvi_olmos")
-
-CAJA_OLMOS = (-80.15, -6.25, -79.90, -6.00)  # (oeste, sur, este, norte): tierras nuevas del Proyecto Olmos
-ZONAS = [caja("Olmos (tierras irrigadas)", *CAJA_OLMOS, "valle irrigado")]
-
-
-def enviar():
-    tarea = {
-        "task_type": "area",
-        "task_name": "detective-peru-lab3-olmos",
-        "params": {
-            "dates": [{"startDate": "01-01-2001", "endDate": "12-31-2024"}],
-            "layers": [
-                {"product": "MOD13A3.061", "layer": "_1_km_monthly_NDVI"},
-                {"product": "MOD13A3.061", "layer": "_1_km_monthly_pixel_reliability"},
-            ],
-            "geo": {"type": "FeatureCollection", "features": ZONAS},
-            "output": {"format": {"type": "netcdf4"}, "projection": "geographic"},
-        },
-    }
-    r = requests.post(f"{BASE}/task", json=tarea, headers=token(), timeout=120)
-    r.raise_for_status()
-    os.makedirs(os.path.dirname(TASK_FILE), exist_ok=True)
-    json.dump(r.json(), open(TASK_FILE, "w"))
-    print("solicitud creada:", r.json()["task_id"])
-
-
-def _estado(h):
-    tid = json.load(open(TASK_FILE))["task_id"]
-    r = requests.get(f"{BASE}/task/{tid}", headers=h, timeout=60)
-    r.raise_for_status()
-    return tid, r.json().get("status")
-
-
-def estado():
-    print(_estado(token())[1])
-
-
-def bajar():
-    h = token()
-    tid, st = _estado(h)
-    if st != "done":
-        sys.exit(f"Aún no termina (estado: {st}).")
-    r = requests.get(f"{BASE}/bundle/{tid}", headers=h, timeout=60)
-    r.raise_for_status()
-    os.makedirs(OUT, exist_ok=True)
-    for f in r.json()["files"]:
-        if not f["file_name"].endswith(".nc"):
-            continue
-        destino = os.path.join(OUT, os.path.basename(f["file_name"]))
-        with requests.get(f"{BASE}/bundle/{tid}/{f['file_id']}", headers=h, stream=True, timeout=600) as d:
-            d.raise_for_status()
-            with open(destino, "wb") as fh:
-                for trozo in d.iter_content(1 << 20):
-                    fh.write(trozo)
-        print(os.path.basename(destino), f"{os.path.getsize(destino) / 1e6:.1f} MB")
+TASK = AQUI / "data" / "lab3_olmos_task.json"
+SALIDA = AQUI / "data" / "ndvi_olmos"
+OLMOS = [z for z in ndvi.ZONAS if z[0] == "olmos"]
 
 
 if __name__ == "__main__":
-    {"enviar": enviar, "estado": estado, "bajar": bajar}[sys.argv[1] if len(sys.argv) > 1 else "estado"]()
+    acciones = {
+        "enviar": lambda: ndvi.enviar(OLMOS, TASK, "detective-peru-lab3-olmos"),
+        "estado": lambda: ndvi.consultar(TASK),
+        "bajar": lambda: ndvi.bajar(TASK, SALIDA),
+    }
+    if len(sys.argv) != 2 or sys.argv[1] not in acciones:
+        sys.exit(f"uso: python lab3_olmos.py {{{'|'.join(acciones)}}}")
+    acciones[sys.argv[1]]()

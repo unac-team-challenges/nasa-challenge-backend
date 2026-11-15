@@ -460,8 +460,9 @@
    "ci_high": 0.1285,
    "p_value": 7.4e-05,
    "lag1": 0.4027,
-   "q_value": 7.4e-05,
-   "status": "real"
+   "q_value": 9.9e-05,
+   "status": "real",
+   "aviso": "Recuadro movido después de descartar el del Lab 3 (caía sobre bosque seco y no tenía tendencia). Mezcla tierras de riego con bosque seco, y la subida pesa mucho en los años de El Niño (2015–2017 y 2023): sin ellos, el rango probable incluye 0."
   }
  }
 ]

@@ -40,7 +40,7 @@ for v in lluvia temperatura; do
 done
 chk "pipeline/ndvi.py compila" "$PY" -m py_compile pipeline/ndvi.py
 chk "ndvi: autoprueba (años completos, BH, criterio único, sin NaN)" "$PY" pipeline/ndvi.py autoprueba
-chk "tests/test_ndvi_checks.py (los checks de ndvi.json detectan 7 roturas)" "$PY" -m unittest -q tests/test_ndvi_checks.py
+chk "tests/test_ndvi_checks.py (los checks de ndvi.json detectan 10 roturas)" "$PY" -m unittest -q tests/test_ndvi_checks.py
 chk "lab5: autoprueba del criterio de tendencia" "$PY" -c "import sys; sys.path.insert(0, 'pipeline/exploracion/josue/scripts'); import lab5_tendencias as l; l.autoprueba()"
 if [ -f data/ndvi.json ]; then
   bash tests/checks_ndvi.sh data/ndvi.json || fallos=1
