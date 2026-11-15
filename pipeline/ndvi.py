@@ -13,8 +13,7 @@ Uso (desde la raíz del repo):
   python pipeline/ndvi.py autoprueba  prueba la lógica sin red ni NetCDF (la corre tests/e2e.sh)
 
 Refresco: a mano, una vez al año (enero), no en el cron: AppEEARS tarda ~3 h por solicitud.
-Credenciales: EARTHDATA_USERNAME y EARTHDATA_PASSWORD del entorno (.env local o secrets
-de GitHub); si no están, ~/.netrc o ~/_netrc en Windows (el que crea earthaccess). Nunca se imprimen.
+AppEEARS (credenciales, solicitud, descarga): pipeline/appeears.py, compartido con cobertura.py.
 
 Zonas: los valles irrigados confirmados (Chavimochic e Ica, docs/vegetacion.md) y Olmos, que entra
 con un recuadro nuevo (2026-11-15) sobre las tierras nuevas (mezcla riego y bosque seco) y con
@@ -30,21 +29,21 @@ como en el Lab 3) supera 0,3, por el área del píxel.
 """
 import copy
 import json
-import netrc
-import os
 import sys
 from pathlib import Path
 
 import numpy as np
 from statsmodels.stats.multitest import multipletests
 
+import appeears
+import tendencias
 from tendencias import clasificar, estadisticas
 
 RAIZ = Path(__file__).resolve().parent.parent
 CACHE = RAIZ / "pipeline" / "cache" / "ndvi"  # en .gitignore
 TASK = CACHE / "task.json"
 SALIDA = RAIZ / "data" / "ndvi.json"
-APPEEARS = "https://appeears.earthdatacloud.nasa.gov/api"
+PRODUCTO = "MOD13A3.061"
 
 FUENTE = "MODIS MOD13A3 v061 (NASA LP DAAC) vía AppEEARS"
 ANIOS = range(2001, 2025)  # MODIS empieza en feb 2000: 2000 nunca es año completo
@@ -133,88 +132,23 @@ def con_estado(filas, descartadas=PRUEBAS_DESCARTADAS):
 
 
 def escribir(filas, ruta=SALIDA):
-    ruta.write_text(json.dumps(filas, ensure_ascii=False, indent=1, allow_nan=False) + "\n", encoding="utf-8")
+    tendencias.escribir(ruta, filas, salto_final=True)
 
 
-# ---------- AppEEARS (red) ----------
-
-def _credenciales():
-    try:
-        from dotenv import load_dotenv
-        load_dotenv(RAIZ / ".env")
-    except ImportError:
-        pass
-    usuario, clave = os.environ.get("EARTHDATA_USERNAME"), os.environ.get("EARTHDATA_PASSWORD")
-    if usuario and clave:
-        return usuario, clave
-    for nombre in (".netrc", "_netrc"):  # en Windows, earthaccess lo guarda como _netrc
-        ruta = Path.home() / nombre
-        if ruta.exists() and (a := netrc.netrc(ruta).authenticators("urs.earthdata.nasa.gov")):
-            return a[0], a[2]
-    sys.exit("Faltan EARTHDATA_USERNAME y EARTHDATA_PASSWORD (ver .env.example) o ~/.netrc.")
-
-
-def _token():
-    import requests
-    r = requests.post(f"{APPEEARS}/login", auth=_credenciales(), timeout=60)
-    r.raise_for_status()
-    return {"Authorization": f"Bearer {r.json()['token']}"}
-
+# ---------- AppEEARS (red): pipeline/appeears.py ----------
 
 def enviar(zonas=None, task=None, nombre="detective-peru-ndvi"):
     """Crea la solicitud en AppEEARS (por defecto, todas las ZONAS) y guarda el task_id en `task`."""
-    import requests
-    zonas, task = zonas or ZONAS, task or TASK
-    feats = [{"type": "Feature", "properties": {"id": z[0]},
-              "geometry": {"type": "Polygon", "coordinates": [[[o, s], [e, s], [e, n], [o, n], [o, s]]]}}
-             for z in zonas for (o, s, e, n) in [z[5]]]
-    tarea = {"task_type": "area", "task_name": nombre,
-             "params": {"dates": [{"startDate": f"01-01-{ANIOS[0]}", "endDate": f"12-31-{ANIOS[-1]}"}],
-                        "layers": [{"product": "MOD13A3.061", "layer": c} for c in CAPAS],
-                        "geo": {"type": "FeatureCollection", "features": feats},
-                        "output": {"format": {"type": "netcdf4"}, "projection": "geographic"}}}
-    r = requests.post(f"{APPEEARS}/task", json=tarea, headers=_token(), timeout=120)
-    r.raise_for_status()
-    task.parent.mkdir(parents=True, exist_ok=True)
-    task.write_text(json.dumps(r.json()))
-    print("solicitud creada:", r.json()["task_id"])
-
-
-def _estado(h, task=None):
-    import requests
-    tid = json.loads((task or TASK).read_text())["task_id"]
-    r = requests.get(f"{APPEEARS}/task/{tid}", headers=h, timeout=60)
-    r.raise_for_status()
-    return tid, r.json().get("status")
+    appeears.enviar(zonas or ZONAS, PRODUCTO, CAPAS, ANIOS, task or TASK, nombre)
 
 
 def consultar(task=None):
-    print(_estado(_token(), task)[1])
+    appeears.consultar(task or TASK)
 
 
 def bajar(task=None, destino_dir=None):
     """Descarga los NetCDF de la solicitud a `destino_dir` (por defecto, la caché de ndvi)."""
-    import requests
-    destino_dir = destino_dir or CACHE
-    destino_dir.mkdir(parents=True, exist_ok=True)
-    h = _token()
-    tid, estado = _estado(h, task)
-    if estado != "done":
-        sys.exit(f"La solicitud aún no termina (estado: {estado}). Prueba más tarde con `estado`.")
-    r = requests.get(f"{APPEEARS}/bundle/{tid}", headers=h, timeout=60)
-    r.raise_for_status()
-    for viejo in destino_dir.glob("*.nc"):  # sin NetCDF de solicitudes anteriores
-        viejo.unlink()
-    for f in r.json()["files"]:
-        if not f["file_name"].endswith(".nc"):
-            continue
-        destino = destino_dir / Path(f["file_name"]).name
-        with requests.get(f"{APPEEARS}/bundle/{tid}/{f['file_id']}", headers=h, stream=True, timeout=600) as d:
-            d.raise_for_status()
-            with open(destino, "wb") as fh:
-                for trozo in d.iter_content(1 << 20):
-                    fh.write(trozo)
-        print(destino.name, f"{destino.stat().st_size / 1e6:.1f} MB")
+    appeears.bajar(task or TASK, destino_dir or CACHE)
 
 
 # ---------- NetCDF -> data/ndvi.json ----------
@@ -222,15 +156,7 @@ def bajar(task=None, destino_dir=None):
 def _leer_zona(zona):
     """NetCDF cuyo centro cae en la caja de la zona -> (pixeles, meses, areas)."""
     import xarray as xr
-    o, s, e, n = zona[5]
-    candidatos = []
-    for ruta in sorted(CACHE.glob("*.nc")):
-        with xr.open_dataset(ruta) as ds:
-            if o <= float(ds.lon.mean()) <= e and s <= float(ds.lat.mean()) <= n:
-                candidatos.append(ruta)
-    if len(candidatos) != 1:
-        sys.exit(f"{zona[1]}: {len(candidatos)} NetCDF en {CACHE} (se espera 1). Corre `bajar` de nuevo.")
-    with xr.open_dataset(candidatos[0]) as ds:
+    with xr.open_dataset(appeears.nc_de_zona(CACHE, zona)) as ds:
         ndvi, fiable = ds[CAPAS[0]].values, ds[CAPAS[1]].values  # (tiempo, lat, lon), NDVI ya escalado
         # .dt sirve con datetime64 y con cftime (calendario juliano de AppEEARS); t.year solo con cftime
         anios, mes = ds["time"].dt.year.values, ds["time"].dt.month.values
