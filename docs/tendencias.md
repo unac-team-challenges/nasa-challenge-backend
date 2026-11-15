@@ -35,7 +35,59 @@ Por **zona** (25) y por **variable** (lluvia, temperatura; decidir si también `
 3. **Intervalo de la pendiente** con `scipy.stats.theilslopes(y, x, alpha=0.95)` (`pymannkendall` no lo da). También ×10.
 4. **Benjamini-Hochberg** entre las 25 zonas de **la misma variable** (`statsmodels.stats.multitest.multipletests(method="fdr_bh")`) → `q_value`.
 5. **`lag1`**: autocorrelación de un año al siguiente.
-6. **`status`**: `real` si `q_value < 0.05`; `pocos_datos` si `n_years < 20` o `celdas < 4`; si no, `posible_casualidad` (ver sección 6).
+6. **`status`**: `pocos_datos` si `n_years < 20` o `celdas < 4`; si no, `real` solo con el criterio único de la sección 2b; si no, `posible_casualidad` (ver sección 6).
+
+## 2b. Criterio único para decir «tendencia real» (revisión del 2026-11-14)
+
+**Regla:** `status = "real"` solo si se cumplen las tres condiciones. Si falla alguna, `posible_casualidad`. Si la prueba es significativa pero no se marca `real`, el campo `aviso` explica por qué (no hay un campo nuevo).
+
+| Condición | Por qué |
+|---|---|
+| `q_value < 0.05` | Significativo después de corregir por las 25 zonas (Benjamini-Hochberg) |
+| El IC95 de Sen **no incluye 0** (`ci_low > 0` o `ci_high < 0`) | La ficha muestra el IC: nunca puede decir «real» con un intervalo que cruza 0 |
+| `\|lag1\| <= 0.5` | Con más autocorrelación ni el TFPW controla bien los falsos positivos |
+
+- **Producto:** un solo lugar, `pipeline/tendencia_comun.py` (`evaluar()`). Lo usan `clasificar()` de `pipeline/tendencias.py` (pruebas en `tests/test_tendencias.py`) y `pipeline/ndvi.py`. `tests/e2e.sh` comprueba que ningún `real` publicado lo contradiga.
+- **Laboratorio:** `pipeline/exploracion/josue/scripts/lab5_tendencias.py` (`estado()`), la misma regla en la versión sin librerías; es el «umbral exigente» que ya usaba `power_departamentos.py`.
+
+### Por qué el p-valor y el IC pueden discrepar
+- El **p-valor** sale de Mann-Kendall sobre la serie **pre-blanqueada** (TFPW: se le quita la autocorrelación de un año al siguiente).
+- El **IC** sale de la pendiente de Sen sobre la serie **original**, y su fórmula supone años independientes.
+- Son dos pruebas distintas sobre dos series distintas. Cerca del límite pueden no coincidir. Ejemplos con datos reales: **Loreto (temperatura)**, q = 0,044 e IC [−0,0046; +0,55]; **Pasco (lluvia)**, q = 0,011 e IC [−1,10; +0,005] (ambos con `scipy`, en `data/zonas/`). En el Lab 3, el **valle del Mantaro (NDVI)** dio p = 0,027 e IC [−0,0004; +0,0195], pero ese IC salió de `lab5` (sin `scipy`) y no hay serie guardada para recalcularlo.
+
+### Consecuencia medida sobre los resultados de POWER (200 series, 1981–2024 y 2001–2024)
+Con la regla «solo `q < 0.05`» serían `real` **95** series. Con el criterio único quedan **89**. Bajan 6:
+
+| Variable | Periodo | Departamento | Motivo |
+|---|---|---|---|
+| T2M | 2001–2024 | Huánuco | `lag1` = 0,54 |
+| T2M | 2001–2024 | Loreto | IC95 incluye 0 |
+| T2M_MAX | 2001–2024 | Huánuco | `lag1` = 0,68 |
+| PRECTOTCORR | 1981–2024 | Lima | IC95 incluye 0; `lag1` = 0,55 |
+| PRECTOTCORR | 1981–2024 | **Puno** | IC95 incluye 0 |
+| PRECTOTCORR | 2001–2024 | Lima | `lag1` = 0,70 |
+
+**Ojo con el Caso 1:** la lluvia de Puno 1981–2024 (`PRECTOTCORR`) saldría `real` con la regla de solo `q`, pero su IC cruza 0. Hoy no afecta al producto porque la lluvia sale de IMERG y nunca se marca `real` (`feat/lluvia-sin-real`). Si vuelve una lluvia de largo plazo, debe usar este criterio.
+
+### Consecuencia sobre los datos publicados (`data/zonas/temperatura.json`, 2001–2024)
+`pipeline/tendencias.py` marcaba 13 zonas `real` con la regla de solo `q`. Con el criterio único quedan 11 (regenerado con `python pipeline/tendencias.py`):
+
+| Zona | Pendiente (°C/década) | IC95 | q | lag1 | Motivo |
+|---|---|---|---|---|---|
+| 16 Loreto | +0,26 | [−0,0046; +0,55] | 0,044 | 0,33 | IC95 incluye 0 |
+| 10 Huánuco | +0,55 | [+0,22; +0,92] | 0,013 | 0,54 | `lag1` > 0,5 |
+
+### Diferencia del IC frente a `scipy`
+El IC propio de `lab5` difiere de `scipy.stats.theilslopes` porque `scipy` corrige además los empates en `y`:
+- 192 series de POWER del lab (`resultados/validacion_lab5.json`): hasta 0,008 por década.
+- Repetido el 2026-11-14 sobre las 50 series de `data/` (T2M y lluvia IMERG, 2001–2024): p idéntico (2e-16), Sen idéntica, IC hasta 0,0047 por década, y **ninguna serie cambia de lado del 0**.
+
+Cerca de 0 la diferencia podría cambiar el estado, por eso **todo `pipeline/` (`tendencias.py` y `ndvi.py`) usa `scipy.stats.theilslopes`**; `lab5` queda como referencia del laboratorio.
+
+### Qué muestra la ficha
+- Siempre la pendiente y su IC.
+- El semáforo según la regla.
+- Si es `posible_casualidad` siendo significativa, el `aviso` en lenguaje simple: «El intervalo de la tendencia incluye 0: aunque la prueba sale significativa, no se puede asegurar si sube o baja», o el aviso de `lag1`.
 
 Campos por zona (`stats`, contrato del `07`):
 
@@ -83,8 +135,8 @@ Guardar también `metadata.method` (método usado), unidad y fuente.
 - Temperatura de la primera versión = `T2M`.
 - **Periodo = 2001–2024 para las dos variables** (POWER y GPM). Si hace falta un periodo largo (1981) o lluvia de largo plazo (GPCP), es otra decisión y otra columna de salida.
 
-- **Semáforo (umbrales de Josue, Sebastian 14 nov):** `pocos_datos` si `n_years < 20` o `celdas < 4`; `real` si `q_value < 0.05`; si no, `posible_casualidad`. **Lluvia (solo IMERG): nunca `real`**; con `q < 0.05` sale `posible_casualidad`, por el salto de 2014. `pct_change_per_decade` solo en lluvia.
-- **`aviso`** (texto): en todas las zonas de lluvia, por el cambio de constelación de IMERG en 2014 (TRMM → GPM: la tendencia puede estar sesgada a la baja); y en cualquier zona si `lag1 > 0.5`. Si hay los dos, van en el mismo texto.
+- **Semáforo (umbrales de Josue, Sebastian 14 nov):** `pocos_datos` si `n_years < 20` o `celdas < 4`; `real` solo con el criterio único de la sección 2b (`q_value < 0.05`, IC95 sin 0 y `|lag1| <= 0.5`); si no, `posible_casualidad`. **Lluvia (solo IMERG): nunca `real`**; con `q < 0.05` sale `posible_casualidad`, por el salto de 2014. `pct_change_per_decade` solo en lluvia.
+- **`aviso`** (texto): en todas las zonas de lluvia, por el cambio de constelación de IMERG en 2014 (TRMM → GPM: la tendencia puede estar sesgada a la baja); en cualquier zona si `|lag1| > 0.5`; y si la prueba es significativa pero el IC incluye 0 (sección 2b). Si hay varios, van en el mismo texto.
 - **Archivos:** uno por ruta: `data/variables.json`, `data/zonas/{variable}.json` (sin serie) y `data/zonas/{variable}/{id}.json` (serie + `stats`), generados por `pipeline/tendencias.py`.
 
 **Pendientes:**
