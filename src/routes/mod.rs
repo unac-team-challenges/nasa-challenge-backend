@@ -5,16 +5,20 @@ use axum::{
     Json, Router,
 };
 use serde_json::{json, Value};
+use std::sync::LazyLock;
 
 pub mod api;
 mod gpm;
 mod power;
 mod regiones;
 
-async fn openapi() -> ([(&'static str, &'static str); 1], String) {
+/// El documento OpenAPI no cambia mientras vive el binario: se genera una vez, en la primera petición.
+static OPENAPI: LazyLock<String> = LazyLock::new(crate::openapi::json);
+
+async fn openapi() -> ([(header::HeaderName, &'static str); 1], &'static str) {
     (
-        [("content-type", "application/json")],
-        crate::openapi::json(),
+        [(header::CONTENT_TYPE, "application/json")],
+        OPENAPI.as_str(),
     )
 }
 
