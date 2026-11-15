@@ -27,7 +27,7 @@ pub struct ZonaVegetacion {
     pub departamento: String,
     /// Ubigeo del departamento, como texto ("01"–"25").
     pub ubigeo: String,
-    /// P. ej. "valle irrigado".
+    /// P. ej. "valle irrigado" o, en Olmos, "riego nuevo y bosque seco".
     pub tipo: String,
     /// Qué área se promedia: un recuadro, **no** el departamento. La ficha debe mostrarlo.
     pub unidad_geografica: String,

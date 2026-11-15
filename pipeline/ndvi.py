@@ -61,7 +61,7 @@ ZONAS = [  # (id, nombre, departamento, ubigeo, tipo, (oeste, sur, este, norte))
     # resultado (bosque seco, p = 0,43). La nueva es la caja de 0,25° con más campos de cultivo en
     # OpenStreetMap (landuse=farmland/orchard, ~4.400 polígonos; Overpass, 2026-11-15), elegida antes
     # de ver su propio NDVI. Mide ~765 km² y mezcla riego con bosque seco: ver AVISOS.
-    ("olmos", "Olmos (tierras nuevas)", "Lambayeque", "14", "valle irrigado", (-80.15, -6.25, -79.90, -6.00)),
+    ("olmos", "Olmos (tierras nuevas)", "Lambayeque", "14", "riego nuevo y bosque seco", (-80.15, -6.25, -79.90, -6.00)),
 ]
 # Pruebas hechas y descartadas que también cuentan en Benjamini-Hochberg (honestidad estadística):
 # la caja de Olmos del Lab 3 (pipeline/exploracion/favio/resultados/lab3_resumen.json).
@@ -74,6 +74,11 @@ AVISOS = {
 }
 UNIDAD_GEO = ("recuadro de 0,25° × 0,25° (~27 × 27 km) sobre el valle irrigado; "
               "no es el promedio del departamento")
+# Olmos no es un valle irrigado: la caja cae sobre las tierras nuevas y mezcla riego con bosque seco
+UNIDAD_GEO_ZONA = {
+    "olmos": ("recuadro de 0,25° × 0,25° (~27 × 27 km) sobre las tierras nuevas del proyecto, "
+              "que mezcla riego y bosque seco; no es el promedio del departamento"),
+}
 
 
 # ---------- lógica (sin red ni NetCDF: se prueba en autoprueba) ----------
@@ -104,7 +109,7 @@ def zona_json(zona, pixeles, serie):
     st = estadisticas(anios, y, porcentaje=False) if len(y) >= 3 else {"n_years": len(y)}
     return {
         "id": zid, "nombre": nombre, "departamento": depto, "ubigeo": ubigeo, "tipo": tipo,
-        "unidad_geografica": UNIDAD_GEO, "bbox": [o, s, e, n],
+        "unidad_geografica": UNIDAD_GEO_ZONA.get(zid, UNIDAD_GEO), "bbox": [o, s, e, n],
         "lat": round((s + n) / 2, 3), "lon": round((o + e) / 2, 3),
         "pixeles": pixeles, "fuente": FUENTE, "umbral_verde_ndvi": VERDE,
         "tendencia_de": "ndvi_anual",
@@ -294,6 +299,10 @@ def autoprueba():
     assert fila["bbox"][0] <= fila["lon"] <= fila["bbox"][2] and fila["bbox"][1] <= fila["lat"] <= fila["bbox"][3]
     olmos = con_estado([zona_json(ZONAS[0], 847, zona(0.005, 0.005)), fila])[1]
     assert "Lab 3" in olmos["stats"]["aviso"], "Olmos lleva su aviso"
+    # El texto de Olmos dice lo mismo que el aviso: no es un valle irrigado, mezcla riego y bosque seco
+    assert "bosque seco" in olmos["unidad_geografica"] and "valle irrigado" not in olmos["unidad_geografica"]
+    assert "no es el promedio del departamento" in olmos["unidad_geografica"]
+    assert olmos["tipo"] != "valle irrigado", olmos["tipo"]
     # La prueba descartada sube los q: con [p, descartada] el q de p no puede bajar
     base = zona_json(ZONAS[0], 847, zona(0.0, 0.01))
     sin = con_estado([copy.deepcopy(base)], descartadas=[])[0]["stats"]["q_value"]

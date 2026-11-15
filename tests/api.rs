@@ -596,6 +596,12 @@ async fn api_vegetacion_trae_las_3_zonas_del_caso_2() {
         // pero siempre lleva su aviso
         if z["id"] == "olmos" {
             assert!(z["stats"]["aviso"].as_str().unwrap().contains("Lab 3"));
+            // Mismo mensaje que el aviso: la caja mezcla riego y bosque seco, no es un valle irrigado
+            assert_ne!(z["tipo"], "valle irrigado");
+            assert!(z["unidad_geografica"]
+                .as_str()
+                .unwrap()
+                .contains("bosque seco"));
         } else {
             assert_eq!(z["stats"]["status"], "real", "{}", z["id"]);
         }

@@ -314,8 +314,8 @@
   "nombre": "Olmos (tierras nuevas)",
   "departamento": "Lambayeque",
   "ubigeo": "14",
-  "tipo": "valle irrigado",
-  "unidad_geografica": "recuadro de 0,25° × 0,25° (~27 × 27 km) sobre el valle irrigado; no es el promedio del departamento",
+  "tipo": "riego nuevo y bosque seco",
+  "unidad_geografica": "recuadro de 0,25° × 0,25° (~27 × 27 km) sobre las tierras nuevas del proyecto, que mezcla riego y bosque seco; no es el promedio del departamento",
   "bbox": [
    -80.15,
    -6.25,
