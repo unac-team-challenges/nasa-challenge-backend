@@ -39,7 +39,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           [ -z "$(git status --porcelain data/)" ] && exit 0  # también archivos nuevos
-          rama="datos/actualizacion-$(date +%F)"
+          hoy="$(date +%F)"  # una vez: rama y título coinciden aunque el job cruce medianoche
+          rama="datos/actualizacion-$hoy"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -b "$rama"
@@ -47,10 +48,10 @@ jobs:
           git commit -m "chore: actualizar datos (POWER, GPM y tendencias)"
           # Sin --force: si la rama ya existe (otra ejecución hoy), git rechaza el push y no pisa nada.
           git push origin "$rama" || {
-            echo "::error::No se pudo subir $rama (error de git arriba). Si ya existe por otra ejecución de hoy: mezcla o cierra su PR, borra la rama y relanza."
+            echo "::error::No se pudo subir $rama (error de git arriba). Si ya existe por otra ejecución de hoy: mezcla o cierra su PR si lo tiene, borra la rama y relanza."
             exit 1
           }
           # Sin `|| echo`: si gh falla (permisos, red...), el job queda en rojo con el error real.
           gh pr create --base developer --head "$rama" \
-            --title "chore: actualizar datos ($(date +%F))" \
+            --title "chore: actualizar datos ($hoy)" \
             --body "Datos regenerados por el cron (POWER, GPM y tendencias). El \`e2e\` pasó en el job antes de abrir este PR, pero un PR del bot no dispara el CI: revisa el diff de \`data/\` antes de mezclar."
