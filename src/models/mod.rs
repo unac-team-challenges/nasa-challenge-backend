@@ -1,6 +1,7 @@
 pub mod gpm;
 pub mod power;
 pub mod variable;
+pub mod zona;
 
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;

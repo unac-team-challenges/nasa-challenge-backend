@@ -7,11 +7,11 @@ Pipeline de datos (Python) y API de solo lectura (Rust/Axum) que sirve los JSON 
 ## Estructura
 | Ruta | Qué es |
 |---|---|
-| `pipeline/` | Scripts Python que descargan datos de NASA y escriben `data/*.json` |
-| `data/` | JSON ya procesados (promedio anual por región) |
+| `pipeline/` | Scripts Python: `power.py` (NASA POWER), `gpm.py` (GPM IMERG), `departamentos.py` (máscara de los 25 departamentos) y `tendencias.py` (Mann-Kendall, Sen, Benjamini-Hochberg). Escriben `data/`. `exploracion/` guarda los laboratorios del equipo |
+| `data/` | JSON ya procesados: `power.json` y `gpm.json` (promedio anual por departamento) y las tendencias (`variables.json`, `zonas/`) que escribe `pipeline/tendencias.py` |
 | `src/` | API Axum: `main.rs` (arranque), `lib.rs` (router + CORS), `config.rs`, `data.rs` (carga e índice), `models/` (forma de los JSON), `schema.rs` (respuestas), `routes/`, `error.rs`. Embebe `data/power.json` y `data/gpm.json` al compilar |
 | `tests/` | `api.rs` (integración, `cargo test`) y `e2e.sh` (todo junto) |
-| `docs/` | [`datos.md`](docs/datos.md) (qué datos hay y sus límites) · [`guia-pipeline.md`](docs/guia-pipeline.md) (cómo añadir una fuente) |
+| `docs/` | [`reglas-datos.md`](docs/reglas-datos.md) (reglas y fuentes elegidas) · [`datos.md`](docs/datos.md) (POWER y sus límites) · [`guia-pipeline.md`](docs/guia-pipeline.md) (cómo añadir una fuente) · [`tendencias.md`](docs/tendencias.md) (método de las tendencias) · [`vegetacion.md`](docs/vegetacion.md) (NDVI) |
 | `changelog/` | Un archivo por rama con sus cambios |
 | `CONDITIONS.md` | **Reglas obligatorias antes de abrir un PR** |
 
@@ -19,6 +19,8 @@ Pipeline de datos (Python) y API de solo lectura (Rust/Axum) que sirve los JSON 
 ```bash
 pip install -r pipeline/requirements.txt
 python pipeline/power.py 2001 2024   # regenera data/power.json
+python pipeline/gpm.py 2001 2024     # regenera data/gpm.json (necesita .env con Earthdata)
+python pipeline/tendencias.py        # regenera variables.json y zonas/ desde power.json y gpm.json
 cargo run                            # http://0.0.0.0:3000 (PORT para cambiarlo)
 bash tests/e2e.sh                    # verifica que todo corre
 ```
@@ -27,10 +29,10 @@ bash tests/e2e.sh                    # verifica que todo corre
 |---|---|
 | `GET /health` | `{"status":"ok"}` |
 | `GET /regiones` | Lista de regiones con lat/lon |
-| `GET /api/variables` | Variables del producto (`lluvia`, `temperatura`) con unidad, fuente y rango de años |
-| `GET /api/zonas?variable=` | Las 25 zonas con ubigeo como texto (`"01"`–`"25"`), sin series. `variable` obligatoria (400 si falta o no existe) |
+| `GET /api/variables` | Variables del producto (`lluvia`, `temperatura`) con unidad, fuente y rango de años (`data/variables.json`) |
+| `GET /api/zonas?variable=` | Las 25 zonas con ubigeo como texto (`"01"`–`"25"`), `celdas`, `nota?` y `stats` (tendencia y semáforo `status`), sin series. `variable` obligatoria (400 si falta o no existe) |
 | `GET /api/openapi.json` | Contrato OpenAPI (también en `openapi.json`; se regenera con `UPDATE_OPENAPI=1 cargo test openapi`) |
-| `GET /api/zonas/{id}?variable=` | Serie anual de la zona (`serie: [{anio, valor}]`); 404 si el ubigeo no existe. Los campos de tendencia (`stats`) llegan con el cálculo de Sebastian |
+| `GET /api/zonas/{id}?variable=` | Serie anual de la zona (`serie: [{anio, valor}]`) y su `stats` del mismo periodo (`aviso` siempre en lluvia); 404 si el ubigeo no existe |
 | `GET /gpm/{region}` | Lluvia anual GPM IMERG de la región (`lluvia_mm_dia` por año; mismas reglas de búsqueda y 404 que `/power`) |
 | `GET /power/{region}` | Promedios anuales de la región (404 JSON si no existe; ignora mayúsculas y tildes: `/power/ancash`) |
 

@@ -17,8 +17,8 @@
    "lag1": 0.3899,
    "pct_change_per_decade": -7.59,
    "q_value": 0.01085,
-   "status": "real",
-   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja."
+   "status": "posible_casualidad",
+   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja, por eso no se marca como real."
   }
  },
  {
@@ -39,8 +39,8 @@
    "lag1": 0.4136,
    "pct_change_per_decade": -30.01,
    "q_value": 0.01085,
-   "status": "real",
-   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja."
+   "status": "posible_casualidad",
+   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja, por eso no se marca como real."
   }
  },
  {
@@ -61,8 +61,8 @@
    "lag1": 0.1544,
    "pct_change_per_decade": -15.11,
    "q_value": 0.01085,
-   "status": "real",
-   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja."
+   "status": "posible_casualidad",
+   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja, por eso no se marca como real."
   }
  },
  {
@@ -84,7 +84,7 @@
    "pct_change_per_decade": -6.86,
    "q_value": 0.497545,
    "status": "posible_casualidad",
-   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja."
+   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja, por eso no se marca como real."
   }
  },
  {
@@ -105,8 +105,8 @@
    "lag1": -0.1115,
    "pct_change_per_decade": -12.56,
    "q_value": 0.01085,
-   "status": "real",
-   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja."
+   "status": "posible_casualidad",
+   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja, por eso no se marca como real."
   }
  },
  {
@@ -127,8 +127,8 @@
    "lag1": 0.0778,
    "pct_change_per_decade": -13.96,
    "q_value": 0.014714,
-   "status": "real",
-   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja."
+   "status": "posible_casualidad",
+   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja, por eso no se marca como real."
   }
  },
  {
@@ -151,7 +151,7 @@
    "pct_change_per_decade": -15.23,
    "q_value": 0.033532,
    "status": "pocos_datos",
-   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja."
+   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja, por eso no se marca como real."
   }
  },
  {
@@ -172,8 +172,8 @@
    "lag1": 0.2595,
    "pct_change_per_decade": -9.51,
    "q_value": 0.013682,
-   "status": "real",
-   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja."
+   "status": "posible_casualidad",
+   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja, por eso no se marca como real."
   }
  },
  {
@@ -194,8 +194,8 @@
    "lag1": -0.0693,
    "pct_change_per_decade": -13.94,
    "q_value": 0.01085,
-   "status": "real",
-   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja."
+   "status": "posible_casualidad",
+   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja, por eso no se marca como real."
   }
  },
  {
@@ -216,8 +216,8 @@
    "lag1": 0.5015,
    "pct_change_per_decade": -18.77,
    "q_value": 0.01085,
-   "status": "real",
-   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja. Años muy parecidos entre sí (lag1 alto): la tendencia puede parecer más segura de lo que es"
+   "status": "posible_casualidad",
+   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja, por eso no se marca como real. Años muy parecidos entre sí (lag1 alto): la tendencia puede parecer más segura de lo que es"
   }
  },
  {
@@ -238,8 +238,8 @@
    "lag1": -0.2888,
    "pct_change_per_decade": -11.22,
    "q_value": 0.01085,
-   "status": "real",
-   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja."
+   "status": "posible_casualidad",
+   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja, por eso no se marca como real."
   }
  },
  {
@@ -260,8 +260,8 @@
    "lag1": 0.2529,
    "pct_change_per_decade": -17.24,
    "q_value": 0.01085,
-   "status": "real",
-   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja."
+   "status": "posible_casualidad",
+   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja, por eso no se marca como real."
   }
  },
  {
@@ -282,8 +282,8 @@
    "lag1": 0.377,
    "pct_change_per_decade": -14.35,
    "q_value": 0.015894,
-   "status": "real",
-   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja."
+   "status": "posible_casualidad",
+   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja, por eso no se marca como real."
   }
  },
  {
@@ -305,7 +305,7 @@
    "pct_change_per_decade": -8.69,
    "q_value": 0.63775,
    "status": "posible_casualidad",
-   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja."
+   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja, por eso no se marca como real."
   }
  },
  {
@@ -326,8 +326,8 @@
    "lag1": 0.3499,
    "pct_change_per_decade": -15.94,
    "q_value": 0.017227,
-   "status": "real",
-   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja."
+   "status": "posible_casualidad",
+   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja, por eso no se marca como real."
   }
  },
  {
@@ -349,7 +349,7 @@
    "pct_change_per_decade": -4.41,
    "q_value": 0.126356,
    "status": "posible_casualidad",
-   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja."
+   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja, por eso no se marca como real."
   }
  },
  {
@@ -371,7 +371,7 @@
    "pct_change_per_decade": -5.32,
    "q_value": 0.415227,
    "status": "posible_casualidad",
-   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja."
+   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja, por eso no se marca como real."
   }
  },
  {
@@ -393,7 +393,7 @@
    "pct_change_per_decade": -7.24,
    "q_value": 0.63775,
    "status": "posible_casualidad",
-   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja."
+   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja, por eso no se marca como real."
   }
  },
  {
@@ -414,8 +414,8 @@
    "lag1": 0.4976,
    "pct_change_per_decade": -12.83,
    "q_value": 0.01085,
-   "status": "real",
-   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja."
+   "status": "posible_casualidad",
+   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja, por eso no se marca como real."
   }
  },
  {
@@ -437,7 +437,7 @@
    "pct_change_per_decade": -4.63,
    "q_value": 0.957875,
    "status": "posible_casualidad",
-   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja."
+   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja, por eso no se marca como real."
   }
  },
  {
@@ -458,8 +458,8 @@
    "lag1": 0.3622,
    "pct_change_per_decade": -7.34,
    "q_value": 0.047402,
-   "status": "real",
-   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja."
+   "status": "posible_casualidad",
+   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja, por eso no se marca como real."
   }
  },
  {
@@ -480,8 +480,8 @@
    "lag1": 0.3082,
    "pct_change_per_decade": -13.24,
    "q_value": 0.01085,
-   "status": "real",
-   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja."
+   "status": "posible_casualidad",
+   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja, por eso no se marca como real."
   }
  },
  {
@@ -503,7 +503,7 @@
    "pct_change_per_decade": -2.72,
    "q_value": 0.860543,
    "status": "posible_casualidad",
-   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja."
+   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja, por eso no se marca como real."
   }
  },
  {
@@ -525,7 +525,7 @@
    "pct_change_per_decade": -0.3,
    "q_value": 0.86736,
    "status": "posible_casualidad",
-   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja."
+   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja, por eso no se marca como real."
   }
  },
  {
@@ -547,7 +547,7 @@
    "pct_change_per_decade": -5.65,
    "q_value": 0.065778,
    "status": "posible_casualidad",
-   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja."
+   "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja, por eso no se marca como real."
   }
  }
 ]

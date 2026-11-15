@@ -1,11 +1,18 @@
 use axum::{body::{to_bytes, Body}, http::{Request, StatusCode}, Router};
-use nasa_challenge_backend::{app, data::Datos};
+use nasa_challenge_backend::{
+    app,
+    data::{Datos, Estado, Fuentes},
+    models::{power, zona::Status},
+};
 use serde_json::Value;
-use std::sync::Arc;
+use std::sync::{Arc, LazyLock};
 use tower::ServiceExt;
 
+/// Se cargan y validan una vez para todos los tests.
+static DATOS: LazyLock<Estado> = LazyLock::new(|| Arc::new(Datos::cargar().unwrap()));
+
 fn router() -> Router {
-    app(Arc::new(Datos::cargar().unwrap()), vec!["https://demo.vercel.app".into()])
+    app(DATOS.clone(), vec!["https://demo.vercel.app".into()])
 }
 
 async fn get(ruta: &str, origen: Option<&str>) -> (StatusCode, Option<String>, Value) {
@@ -158,25 +165,38 @@ async fn datos_se_cachean_pero_health_no() {
     assert_eq!(cabecera("/health").await.as_deref(), Some("no-store"));
 }
 
+/// `Datos` con `power.json` y `gpm.json` cambiados; el resto, los embebidos.
+fn con_power_gpm(power: &str, gpm: &str) -> Result<Datos, serde_json::Error> {
+    Datos::desde(Fuentes { power, gpm, ..Fuentes::EMBEBIDAS })
+}
+
+/// Aplica `f` a un JSON y lo devuelve como texto.
+fn editar(json: &str, f: impl FnOnce(&mut Value)) -> String {
+    let mut v: Value = serde_json::from_str(json).unwrap();
+    f(&mut v);
+    v.to_string()
+}
+
 #[test]
 fn campos_desconocidos_y_regiones_distintas_se_rechazan() {
+    let forma_ok = |json: &str| serde_json::from_str::<Vec<power::Region>>(json).is_ok();
     let medida_ok = r#"{"PRECTOTCORR":1,"T2M":2,"T2M_MAX":3,"T2M_MIN":0}"#;
     let region = |m: &str| format!(r#"[{{"region":"X","lat":1,"lon":2,"celdas":4,"anios":{{"2020":{m}}}}}]"#);
     let gpm_ok = region(r#"{"lluvia_mm_dia":1}"#);
-    assert!(Datos::desde_json(&region(medida_ok), &gpm_ok).is_ok());
+    assert!(forma_ok(&region(medida_ok)));
     // un campo de más en las medidas
     let power_extra = region(r#"{"PRECTOTCORR":1,"T2M":2,"T2M_MAX":3,"T2M_MIN":0,"nuevo":1}"#);
-    assert!(Datos::desde_json(&power_extra, &gpm_ok).is_err());
+    assert!(!forma_ok(&power_extra));
+    assert!(con_power_gpm(&power_extra, &gpm_ok).is_err());
     // un campo de más en la región
     let region_extra = r#"[{"region":"X","lat":1,"lon":2,"celdas":4,"nuevo":"x","anios":{}}]"#;
-    assert!(Datos::desde_json(region_extra, "[]").is_err());
+    assert!(con_power_gpm(region_extra, "[]").is_err());
     // power.json y gpm.json con regiones distintas
     let otra = gpm_ok.replace("\"X\"", "\"Y\"");
-    assert!(Datos::desde_json(&region(medida_ok), &otra).is_err());
+    assert!(con_power_gpm(&region(medida_ok), &otra).is_err());
     // `celdas` es obligatorio; `nota` es opcional
-    assert!(Datos::desde_json(r#"[{"region":"X","lat":1,"lon":2,"anios":{}}]"#, "[]").is_err());
-    let con_nota = r#"[{"region":"X","lat":1,"lon":2,"celdas":1,"nota":"x","anios":{}}]"#;
-    assert!(Datos::desde_json(con_nota, con_nota).is_ok());
+    assert!(!forma_ok(r#"[{"region":"X","lat":1,"lon":2,"anios":{}}]"#));
+    assert!(forma_ok(r#"[{"region":"X","lat":1,"lon":2,"celdas":1,"nota":"x","anios":{}}]"#));
 }
 
 #[tokio::test]
@@ -205,8 +225,8 @@ async fn zona_devuelve_la_nota_de_su_variable() {
 
 #[test]
 fn json_con_forma_incorrecta_se_rechaza() {
-    assert!(Datos::desde_json(r#"[{"region":"X","lat":1,"lon":2,"celdas":4,"anios":{"2020":{"T2M":null}}}]"#, "[]").is_err());
-    assert!(Datos::desde_json("[]", r#"[{"region":"X","lat":1,"lon":2,"celdas":4,"anios":{"2020":{"lluvia_mm_dia":null}}}]"#).is_err());
+    assert!(con_power_gpm(r#"[{"region":"X","lat":1,"lon":2,"celdas":4,"anios":{"2020":{"T2M":null}}}]"#, "[]").is_err());
+    assert!(con_power_gpm("[]", r#"[{"region":"X","lat":1,"lon":2,"celdas":4,"anios":{"2020":{"lluvia_mm_dia":null}}}]"#).is_err());
 }
 
 /// `openapi.json` (raíz del repo) es el contrato que copia el frontend: no puede quedar viejo.
@@ -227,4 +247,127 @@ async fn openapi_se_sirve_con_las_3_rutas() {
     assert_eq!(s, StatusCode::OK);
     let rutas = b["paths"].as_object().unwrap();
     assert!(rutas.contains_key("/api/variables") && rutas.contains_key("/api/zonas") && rutas.contains_key("/api/zonas/{id}"));
+}
+
+fn status_valido(v: &Value) -> bool {
+    serde_json::from_value::<Status>(v.clone()).is_ok()
+}
+
+#[tokio::test]
+async fn api_zonas_traen_stats() {
+    for var in ["lluvia", "temperatura"] {
+        let (s, _, b) = get(&format!("/api/zonas?variable={var}"), None).await;
+        assert_eq!(s, StatusCode::OK);
+        let zonas = b.as_array().unwrap();
+        assert_eq!(zonas.len(), 25, "{var}");
+        for z in zonas {
+            assert!(z["celdas"].is_u64(), "{var}/{}", z["id"]);
+            assert!(status_valido(&z["stats"]["status"]), "{var}/{}", z["id"]);
+            assert!(z.get("serie").is_none(), "la lista va sin serie");
+        }
+    }
+}
+
+#[tokio::test]
+async fn lluvia_trae_aviso_2014_y_temperatura_no() {
+    let (_, _, l) = get("/api/zonas/15?variable=lluvia", None).await;
+    let st = &l["stats"];
+    assert!(st["aviso"].as_str().unwrap().contains("2014"));
+    assert!(st["q_value"].is_number() && st["pct_change_per_decade"].is_number());
+    assert!(status_valido(&st["status"]));
+    let (_, _, t) = get("/api/zonas/15?variable=temperatura", None).await;
+    assert!(t["stats"].get("aviso").is_none() && t["stats"].get("pct_change_per_decade").is_none());
+    assert!(t["celdas"].is_u64());
+}
+
+#[tokio::test]
+async fn pocos_datos_lleva_nota() {
+    let (_, _, callao) = get("/api/zonas/07?variable=temperatura", None).await;
+    assert_eq!(callao["stats"]["status"], "pocos_datos");
+    assert!(callao["nota"].is_string());
+    for var in ["lluvia", "temperatura"] {
+        let (_, _, b) = get(&format!("/api/zonas?variable={var}"), None).await;
+        for z in b.as_array().unwrap().iter().filter(|z| z["stats"]["status"] == "pocos_datos") {
+            assert!(z["nota"].is_string(), "{var}/{}", z["id"]);
+        }
+    }
+}
+
+#[tokio::test]
+async fn serie_y_stats_hablan_del_mismo_periodo() {
+    for var in ["lluvia", "temperatura"] {
+        for n in 1..=25 {
+            let (s, _, b) = get(&format!("/api/zonas/{n:02}?variable={var}"), None).await;
+            assert_eq!(s, StatusCode::OK);
+            let (serie, st) = (b["serie"].as_array().unwrap(), &b["stats"]);
+            assert_eq!(serie.first().unwrap()["anio"], st["year_start"], "{var}/{n:02}");
+            assert_eq!(serie.last().unwrap()["anio"], st["year_end"], "{var}/{n:02}");
+            assert_eq!(serie.len() as u64, st["n_years"].as_u64().unwrap(), "{var}/{n:02}");
+        }
+    }
+}
+
+#[tokio::test]
+async fn variables_salen_del_archivo() {
+    let (_, _, b) = get("/api/variables", None).await;
+    let archivo: Value = serde_json::from_str(Fuentes::EMBEBIDAS.variables).unwrap();
+    assert_eq!(b, archivo);
+}
+
+#[tokio::test]
+async fn ids_que_no_son_ubigeo_exacto_dan_404() {
+    for id in ["7", "007", "15 ", "Lima"] {
+        let ruta = format!("/api/zonas/{}?variable=lluvia", id.replace(' ', "%20"));
+        assert_eq!(get(&ruta, None).await.0, StatusCode::NOT_FOUND, "{id}");
+    }
+}
+
+#[tokio::test]
+async fn detalle_trae_la_zona_entera() {
+    for var in ["lluvia", "temperatura"] {
+        let (_, _, lista) = get(&format!("/api/zonas?variable={var}"), None).await;
+        for z in lista.as_array().unwrap() {
+            let (_, _, d) = get(&format!("/api/zonas/{}?variable={var}", z["id"].as_str().unwrap()), None).await;
+            for (k, v) in z.as_object().unwrap() {
+                assert_eq!(&d[k], v, "{var}/{}: campo {k}", z["id"]);
+            }
+        }
+    }
+}
+
+type Cambio = fn(&mut Value);
+
+#[test]
+fn zonas_y_variables_mal_formadas_se_rechazan() {
+    let e = Fuentes::EMBEBIDAS;
+    let con_zonas = |f: Cambio| {
+        let z = editar(e.zonas[0], f);
+        Datos::desde(Fuentes { zonas: [&z, e.zonas[1]], ..e })
+    };
+    let con_variables = |f: Cambio| {
+        let v = editar(e.variables, f);
+        Datos::desde(Fuentes { variables: &v, ..e })
+    };
+    assert!(con_zonas(|_| {}).is_ok(), "los datos embebidos sin cambios cargan");
+    let malos: [(&str, Cambio); 12] = [
+        ("campo desconocido en la zona", |z| z[0]["nuevo"] = 1.into()),
+        ("campo desconocido en stats", |z| z[0]["stats"]["nuevo"] = 1.into()),
+        ("status inválido", |z| z[0]["stats"]["status"] = "quizas".into()),
+        ("falta un campo de stats", |z| { z[0]["stats"].as_object_mut().unwrap().remove("q_value"); }),
+        ("24 zonas", |z| { z.as_array_mut().unwrap().pop(); }),
+        ("ids desordenados", |z| z.as_array_mut().unwrap().swap(0, 1)),
+        ("nombre que no es el del ubigeo", |z| z[0]["nombre"] = "Lima".into()),
+        ("year_end fuera de la serie", |z| z[0]["stats"]["year_end"] = 2030.into()),
+        ("n_years no cuadra con la serie", |z| z[0]["stats"]["n_years"] = 23.into()),
+        ("periodo fuera del de variables.json", |z| { z[0]["stats"]["year_end"] = 2025.into(); z[0]["stats"]["n_years"] = 25.into(); }),
+        ("celdas distintas de su fuente", |z| z[0]["celdas"] = 1.into()),
+        ("nota que su fuente no tiene", |z| z[14]["nota"] = "x".into()),
+    ];
+    // Una zona con su propio periodo, dentro del de variables.json (p. ej. le falta 2001), es válida.
+    assert!(con_zonas(|z| { z[0]["stats"]["year_start"] = 2002.into(); z[0]["stats"]["n_years"] = 23.into(); }).is_ok());
+    for (caso, f) in malos {
+        assert!(con_zonas(f).is_err(), "{caso}");
+    }
+    assert!(con_variables(|v| { v.as_array_mut().unwrap().pop(); }).is_err(), "falta una variable");
+    assert!(con_variables(|v| v[0]["nuevo"] = 1.into()).is_err(), "campo desconocido en variables.json");
 }

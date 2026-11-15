@@ -119,6 +119,6 @@
   "pct_change_per_decade": -15.23,
   "q_value": 0.033532,
   "status": "pocos_datos",
-  "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja."
+  "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja, por eso no se marca como real."
  }
 }

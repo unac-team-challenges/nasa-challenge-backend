@@ -22,6 +22,12 @@ class Clasificar(unittest.TestCase):
         self.assertEqual(t.clasificar(stats(n_years=19), 0.001, 4)["status"], "pocos_datos")
         self.assertEqual(t.clasificar(stats(), 0.001, 3)["status"], "pocos_datos")
 
+    def test_lluvia_nunca_sale_real(self):
+        self.assertTrue(t.VARIABLES["lluvia"]["sin_real"])
+        self.assertNotIn("sin_real", t.VARIABLES["temperatura"])
+        self.assertEqual(t.clasificar(stats(), 0.001, 4, sin_real=True)["status"], "posible_casualidad")
+        self.assertEqual(t.clasificar(stats(n_years=19), 0.001, 4, sin_real=True)["status"], "pocos_datos")
+
     def test_status_coincide_con_q_publicado(self):
         st = t.clasificar(stats(), 0.0499996, 10)  # se publica 0.05
         self.assertEqual(st["q_value"], 0.05)

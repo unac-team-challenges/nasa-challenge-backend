@@ -1,5 +1,5 @@
 //! Lo que la API devuelve cuando no es un modelo completo.
-use crate::models::power::Region;
+use crate::models::{power::Region, zona::{Stats, Zona}};
 use serde::Serialize;
 use utoipa::ToSchema;
 
@@ -16,47 +16,48 @@ impl From<&Region> for RegionResumen {
     }
 }
 
-/// `GET /api/variables`
-#[derive(Serialize, ToSchema)]
-pub struct VariableInfo {
-    pub id: &'static str,
-    pub unidad: &'static str,
-    pub fuente: &'static str,
-    pub descripcion: &'static str,
-    pub anio_inicio: Option<u16>,
-    pub anio_fin: Option<u16>,
-}
-
-/// `GET /api/zonas`: una zona del mapa (sin serie).
-#[derive(Serialize, ToSchema)]
-pub struct Zona {
-    /// Ubigeo como texto: "01"–"25".
-    pub id: &'static str,
-    pub nombre: String,
-    pub lat: f64,
-    pub lon: f64,
-}
-
 #[derive(Serialize, ToSchema)]
 pub struct Punto {
     pub anio: u16,
     pub valor: f64,
 }
 
-/// `GET /api/zonas/{id}`: serie anual de la zona. `stats` (tendencia) llega con el cálculo de Sebastian.
+/// `GET /api/zonas/{id}`: los campos de `Zona` (con su `stats`) más la serie anual del mismo periodo.
+/// Campos explícitos y no `flatten`: `Zona` lleva `additionalProperties: false` (por `deny_unknown_fields`)
+/// y un `allOf` contradiría el contrato. Un test comprueba que no se desincronicen.
 #[derive(Serialize, ToSchema)]
-pub struct ZonaDetalle {
-    pub id: &'static str,
-    pub nombre: String,
+pub struct ZonaDetalle<'a> {
+    pub id: &'a str,
+    pub nombre: &'a str,
     pub lat: f64,
     pub lon: f64,
-    pub variable: &'static str,
-    pub unidad: &'static str,
-    pub fuente: &'static str,
+    pub celdas: u32,
     /// Aviso si el promedio es poco fiable (menos de 4 celdas): mostrarlo en la ficha.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub nota: Option<String>,
-    pub serie: Vec<Punto>,
+    pub nota: Option<&'a str>,
+    pub variable: &'static str,
+    pub unidad: &'a str,
+    pub fuente: &'a str,
+    pub serie: &'a [Punto],
+    pub stats: &'a Stats,
+}
+
+impl<'a> ZonaDetalle<'a> {
+    pub fn new(z: &'a Zona, variable: &'static str, unidad: &'a str, fuente: &'a str, serie: &'a [Punto]) -> Self {
+        Self {
+            id: &z.id,
+            nombre: &z.nombre,
+            lat: z.lat,
+            lon: z.lon,
+            celdas: z.celdas,
+            nota: z.nota.as_deref(),
+            variable,
+            unidad,
+            fuente,
+            serie,
+            stats: &z.stats,
+        }
+    }
 }
 
 /// Cuerpo de los errores 400 y 404.

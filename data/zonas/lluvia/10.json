@@ -117,7 +117,7 @@
   "lag1": 0.5015,
   "pct_change_per_decade": -18.77,
   "q_value": 0.01085,
-  "status": "real",
-  "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja. Años muy parecidos entre sí (lag1 alto): la tendencia puede parecer más segura de lo que es"
+  "status": "posible_casualidad",
+  "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja, por eso no se marca como real. Años muy parecidos entre sí (lag1 alto): la tendencia puede parecer más segura de lo que es"
  }
 }
