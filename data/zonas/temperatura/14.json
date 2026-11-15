@@ -117,6 +117,7 @@
   "p_value": 0.459608,
   "lag1": 0.1207,
   "q_value": 0.478758,
-  "status": "pocos_datos"
+  "status": "pocos_datos",
+  "aviso": "Promedio de solo 3 celda(s): dato poco confiable. No uses la pendiente."
  }
 }

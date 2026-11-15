@@ -137,7 +137,8 @@
    "p_value": 0.030337,
    "lag1": 0.1837,
    "q_value": 0.054174,
-   "status": "pocos_datos"
+   "status": "pocos_datos",
+   "aviso": "Sin celdas propias de POWER: se usa la celda de la capital (compartida con Lima). No uses la pendiente."
   }
  },
  {
@@ -198,7 +199,7 @@
    "lag1": 0.5404,
    "q_value": 0.013028,
    "status": "posible_casualidad",
-   "aviso": "Años muy parecidos entre sí (lag1 alto): la tendencia puede parecer más segura de lo que es"
+   "aviso": "Años muy parecidos entre sí (lag1 alto): la tendencia puede parecer más segura de lo que es."
   }
  },
  {
@@ -279,7 +280,8 @@
    "p_value": 0.459608,
    "lag1": 0.1207,
    "q_value": 0.478758,
-   "status": "pocos_datos"
+   "status": "pocos_datos",
+   "aviso": "Promedio de solo 3 celda(s): dato poco confiable. No uses la pendiente."
   }
  },
  {
@@ -481,7 +483,8 @@
    "p_value": 0.597354,
    "lag1": 0.0393,
    "q_value": 0.597354,
-   "status": "pocos_datos"
+   "status": "pocos_datos",
+   "aviso": "Promedio de solo 1 celda(s): dato poco confiable. No uses la pendiente."
   }
  },
  {

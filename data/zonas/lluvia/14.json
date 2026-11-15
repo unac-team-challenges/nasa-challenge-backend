@@ -118,6 +118,7 @@
   "lag1": -0.1061,
   "pct_change_per_decade": 9.44,
   "q_value": 0.064247,
-  "status": "pocos_datos"
+  "status": "pocos_datos",
+  "aviso": "Promedio de solo 3 celda(s): dato poco confiable. No uses la pendiente."
  }
 }

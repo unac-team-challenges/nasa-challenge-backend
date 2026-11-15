@@ -118,6 +118,7 @@
   "lag1": 0.3223,
   "pct_change_per_decade": 43.85,
   "q_value": 0.005303,
-  "status": "pocos_datos"
+  "status": "pocos_datos",
+  "aviso": "Sin celdas propias de POWER: se usa la celda de la capital (compartida con Lima). No uses la pendiente."
  }
 }
