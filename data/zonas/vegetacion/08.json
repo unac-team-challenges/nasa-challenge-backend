@@ -4,7 +4,6 @@
  "lat": -13.53,
  "lon": -71.97,
  "celdas": 97,
- "nota": "Serie de solo 12 años (2001–2012): hacen falta 20 para medir una tendencia",
  "variable": "vegetacion",
  "unidad": "NDVI",
  "fuente": "MODIS MOD13A3 v061 (NDVI) vía AppEEARS",
@@ -56,19 +55,67 @@
   {
    "anio": 2012,
    "valor": 0.6224
+  },
+  {
+   "anio": 2013,
+   "valor": 0.6283
+  },
+  {
+   "anio": 2014,
+   "valor": 0.6242
+  },
+  {
+   "anio": 2015,
+   "valor": 0.6287
+  },
+  {
+   "anio": 2016,
+   "valor": 0.6226
+  },
+  {
+   "anio": 2017,
+   "valor": 0.6305
+  },
+  {
+   "anio": 2018,
+   "valor": 0.6319
+  },
+  {
+   "anio": 2019,
+   "valor": 0.6291
+  },
+  {
+   "anio": 2020,
+   "valor": 0.6267
+  },
+  {
+   "anio": 2021,
+   "valor": 0.6333
+  },
+  {
+   "anio": 2022,
+   "valor": 0.6162
+  },
+  {
+   "anio": 2023,
+   "valor": 0.6226
+  },
+  {
+   "anio": 2024,
+   "valor": 0.6335
   }
  ],
  "stats": {
   "year_start": 2001,
-  "year_end": 2012,
-  "n_years": 12,
-  "slope_per_decade": 0.000187,
-  "intercept": 0.580778,
-  "ci_low": -0.016,
-  "ci_high": 0.012,
-  "p_value": 0.87627,
-  "lag1": -0.0189,
-  "q_value": 0.952467,
-  "status": "pocos_datos"
+  "year_end": 2024,
+  "n_years": 24,
+  "slope_per_decade": 0.006374,
+  "intercept": -0.660092,
+  "ci_low": 0.002,
+  "ci_high": 0.0107,
+  "p_value": 0.007063,
+  "lag1": 0.1123,
+  "q_value": 0.013582,
+  "status": "real"
  }
 }

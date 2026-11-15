@@ -32,10 +32,8 @@ chk "pipeline/tendencias.py compila" "$PY" -m py_compile pipeline/tendencias.py
 chk "tests/test_tendencias.py (semáforo, aviso, periodo)" "$PY" -m unittest -q tests/test_tendencias.py
 chk "tests/test_pipeline.py (avisos e IMERG incremental)" "$PY" -m unittest -q tests/test_pipeline.py
 chk "variables.json tiene lluvia, temperatura, lluvia_imerg y vegetacion" jq -e '[.[].id] == ["lluvia","temperatura","lluvia_imerg","vegetacion"]' data/variables.json
-# shortcut: la vegetación llega hasta el último bloque que entregó AppEEARS (no los 24 años); cuando
-# esté 2001–2024, volver a exigir 2024 también a vegetacion (FIN_VEG sobra)
-FIN_VEG=$(jq '.anio_fin' data/celdas/vegetacion.json)
-chk "variables.json: periodo 2001–2024 (vegetación 2001–$FIN_VEG, el de su malla), lluvia de POWER e IMERG aparte" jq -e --argjson fv "$FIN_VEG" 'all(.anio_inicio == 2001 and .anio_fin == (if .id == "vegetacion" then $fv else 2024 end)) and (.[0].fuente | test("POWER")) and (.[2].fuente | test("IMERG"))' data/variables.json
+chk "variables.json: periodo 2001–2024, lluvia de POWER e IMERG aparte" jq -e 'all(.anio_inicio == 2001 and .anio_fin == 2024) and (.[0].fuente | test("POWER")) and (.[2].fuente | test("IMERG"))' data/variables.json
+chk "celdas/vegetacion.json: 2001–2024" jq -e '.anio_inicio == 2001 and .anio_fin == 2024' data/celdas/vegetacion.json
 chk "zonas/lluvia_imerg.json: aviso del cambio de satélites de 2014 en las 25" jq -e 'all(.[].stats.aviso; type == "string" and test("2014"))' data/zonas/lluvia_imerg.json
 chk "zonas/lluvia_imerg.json: ninguna zona 'real' (salto de 2014)" jq -e 'all(.[].stats.status; . != "real")' data/zonas/lluvia_imerg.json
 chk "zonas/lluvia.json (POWER): sin el aviso de 2014 de IMERG" jq -e 'all(.[].stats; (.aviso // "") | test("2014") | not)' data/zonas/lluvia.json
@@ -43,8 +41,7 @@ for v in lluvia temperatura lluvia_imerg vegetacion; do
   chk "zonas/$v.json: todo 'real' cumple el criterio único (q<0.05, IC sin 0, |lag1|<=0.5)" jq -e 'all(.[].stats | select(.status == "real"); .q_value < 0.05 and (.ci_low > 0 or .ci_high < 0) and (.lag1 | fabs) <= 0.5)' data/zonas/$v.json
   chk "zonas/$v.json: 25 zonas con id 01–25" jq -e '[.[].id] == ([range(1;26)] | map(tostring | if length == 1 then "0" + . else . end))' data/zonas/$v.json
   chk "zonas/$v.json: stats numéricos (sin null/NaN)" jq -e '[.[].stats | to_entries[] | select(.key != "status" and .key != "aviso") | .value] | all(type == "number" and (isnan | not))' data/zonas/$v.json
-  fin=2024; [ "$v" = vegetacion ] && fin=$FIN_VEG
-  chk "zonas/$v.json: periodo 2001–$fin" jq -e --argjson fin "$fin" 'all(.[].stats; .year_start == 2001 and .year_end == $fin)' data/zonas/$v.json
+  chk "zonas/$v.json: periodo 2001–2024" jq -e 'all(.[].stats; .year_start == 2001 and .year_end == 2024)' data/zonas/$v.json
   chk "zonas/$v.json: status válido" jq -e 'all(.[].stats.status; IN("real","posible_casualidad","pocos_datos"))' data/zonas/$v.json
   chk "zonas/$v/: 25 fichas con serie numérica" bash -c "ls data/zonas/$v/*.json | wc -l | grep -qx 25 && jq -s -e 'all(.[].serie[]; (.anio|type==\"number\") and (.valor|type==\"number\"))' data/zonas/$v/*.json"
 done
