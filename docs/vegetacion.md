@@ -29,7 +29,18 @@ Resultado del Lab 3 de Favio (MODIS MOD13A3, 2001–2024, 6 zonas). Detalle y c�
 - **Tendencia:** el mismo método que la temperatura: `estadisticas()`, Benjamini-Hochberg entre las zonas del archivo y `clasificar()` de `pipeline/tendencias.py` (`scipy`, `pymannkendall` y el criterio único de [`tendencias.md`](tendencias.md) §2b, con mínimo de 20 años).
 - **Refresco:** a mano, una vez al año (enero): `enviar` → `estado` → `bajar` → `calcular`. AppEEARS tarda ~3 h, así que no va en el cron.
 
-### Selva: propuesta de variable (por decidir)
+### Selva: cobertura de árboles en la API (2026-11-15)
+`pipeline/cobertura.py` → `data/cobertura_arboles.json` → `GET /api/cobertura-arboles`. MODIS **MOD44B v061** (porcentaje de cobertura de árboles, anual, 250 m), pedido a AppEEARS (tarea `47c3f635…`). Bosque = píxel con 30 % o más de árboles (umbral de Global Forest Watch). Mismo criterio único de tendencia (`clasificar()`).
+
+| Zona | Árboles 2001 → 2024 | Bosque 2001 → 2024 | Tendencia |
+|---|---|---|---|
+| **La Pampa** (Madre de Dios, minería de oro) | 74,1 % → 45,9 % | 746 → 475 km² (−36 %) | −15,3 puntos por década, IC [−17,5; −12,5], q < 0,001, pero **lag1 = 0,58**: queda `posible_casualidad` con aviso |
+| **Selva cerca de Iquitos** (contraste) | 76,7 % → 79,7 % | 494 → 494 km² | +1,3 puntos por década, IC que incluye 0: `posible_casualidad` (estable) |
+
+- **Recuadros:** La Pampa se centró en el poblado (OpenStreetMap: −12,962, −70,001), el foco de minería 2014–2018 que reporta MAAP. Iquitos es el mismo recuadro del Lab 3.
+- **Ojo con La Pampa:** la caída es clara y empieza hacia 2010, con la Interoceánica y la minería. Pero no es lineal: estable hasta 2009 y luego baja fuerte. Por eso los residuos quedan autocorrelacionados (lag1 0,58) y el criterio único la deja en `posible_casualidad`. No se cambió el umbral; si el equipo quiere tratar los quiebres de otra forma (por ejemplo, desde 2009), es una decisión de `tendencias.md`.
+
+### Selva: por qué no NDVI (propuesta original)
 **MODIS MOD44B v061** (Vegetation Continuous Fields, NASA LP DAAC): porcentaje de cobertura de árboles, anual, 250 m, desde 2000 (colección verificada en el CMR de la NASA el 2026-11-14). No se satura como el NDVI y mide justo lo que importa en la selva: pérdida de bosque. Se pediría por AppEEARS igual que el MOD13A3. Es otra variable y otro JSON (regla 3).
 
 ### En la API (2026-11-15)

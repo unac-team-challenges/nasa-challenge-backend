@@ -1,3 +1,4 @@
+pub mod cobertura;
 pub mod gpm;
 pub mod power;
 pub mod variable;

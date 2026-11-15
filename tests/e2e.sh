@@ -44,6 +44,9 @@ if [ -f data/ndvi.json ]; then
 else
   echo "aviso data/ndvi.json no existe todavía: falta generarlo (python pipeline/ndvi.py enviar|bajar|calcular)"
 fi
+chk "pipeline/cobertura.py compila" python3 -m py_compile pipeline/cobertura.py
+chk "cobertura: autoprueba (años válidos, BH, criterio único, sin NaN)" python3 pipeline/cobertura.py autoprueba
+bash tests/checks_cobertura.sh data/cobertura_arboles.json || fallos=1
 
 echo "== tests de integración (cargo test)"
 chk "cargo test" cargo test --quiet
@@ -66,6 +69,8 @@ chk "GET /api/zonas/07 lleva nota"           bash -c "curl -sf '$URL/api/zonas/0
 chk "GET /api/zonas trae stats.status válido" bash -c "curl -sf '$URL/api/zonas?variable=lluvia' | jq -e 'length == 25 and all(.[].stats.status; IN(\"real\",\"posible_casualidad\",\"pocos_datos\"))'"
 chk "GET /api/zonas/15 lluvia: aviso 2014"   bash -c "curl -sf '$URL/api/zonas/15?variable=lluvia' | jq -e '(.stats.aviso | test(\"2014\")) and (.stats.q_value | type == \"number\")'"
 chk "GET /api/zonas/15 temperatura sin aviso" bash -c "curl -sf '$URL/api/zonas/15?variable=temperatura' | jq -e '.stats.status and (.stats | has(\"aviso\") | not)'"
+chk "GET /api/vegetacion (Caso 2)"         bash -c "curl -sf $URL/api/vegetacion | jq -e 'length >= 2 and all(.[]; (.unidad_geografica | type == \"string\") and (.stats.status | IN(\"real\",\"posible_casualidad\",\"pocos_datos\")))'"
+chk "GET /api/cobertura-arboles (selva)"   bash -c "curl -sf $URL/api/cobertura-arboles | jq -e 'length >= 2 and all(.[]; (.unidad_geografica | type == \"string\") and (.stats.status | IN(\"real\",\"posible_casualidad\",\"pocos_datos\")))'"
 chk "GET /api/zonas sin variable -> 400"  bash -c "[ \"\$(curl -s -o /dev/null -w '%{http_code}' $URL/api/zonas)\" = 400 ]"
 chk "GET /power/%C3%81ncash (acentos)"    bash -c "curl -sf $URL/power/%C3%81ncash | jq -e '.region == \"Áncash\"'"
 chk "GET /health"                         bash -c "curl -sf $URL/health | jq -e '.status == \"ok\"'"
