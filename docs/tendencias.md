@@ -1,6 +1,6 @@
-# Cálculo de tendencias (para Sebastian)
+# Cálculo de tendencias
 
-**Tarea de Sebastian:** pendiente de Sen, Mann-Kendall y el resto de `stats` por zona y variable. Lo que hay hecho, qué falta calcular y cómo debe quedar. Fuente de las decisiones: Drive (`07-stack-decidido`, `13-datos-unificado-14nov`, `06-datos-a-usar`) y [`reglas-datos.md`](reglas-datos.md). **Los campos de tendencia están en progreso: lo marcado «por confirmar» lo decide el equipo/Sebastian.**
+Método y campos de los `stats` por zona y variable. **Ya implementado:** lo calcula `pipeline/tendencias.py` (escribe `data/variables.json` y `data/zonas/`) y la API lo sirve tal cual en `/api/zonas` y `/api/zonas/{id}`. Fuente de las decisiones: Drive (`07-stack-decidido`, `13-datos-unificado-14nov`, `06-datos-a-usar`) y [`reglas-datos.md`](reglas-datos.md).
 
 ## 1. Qué tenemos (entrada)
 
@@ -24,11 +24,11 @@ Dos JSON en `data/`, generados por `pipeline/` (la API nunca calcula en vivo). M
 - **Unidad = promedio del departamento** (decidido y ya implementado en `pipeline/departamentos.py`): calcula las tendencias sobre estos JSON tal cual, sin volver a promediar. `lat`/`lon` son solo el punto del mapa (la capital).
 - **Callao en POWER** no tiene celdas propias (`celdas: 0`): usa la celda de su capital, igual que Lima, con `nota`. Acéptalo, no lo corrijas.
 - **Calcula con los años que haya y reporta `n_years`** (hoy 24 por serie; si el cron añade años, el cálculo no cambia).
-- API actual: `/power/{region}`, `/gpm/{region}` (JSON tal cual) y `/api/zonas/{id}?variable=` (serie + `nota`). Falta `stats`.
+- API: `/power/{region}` y `/gpm/{region}` (JSON tal cual), `/api/zonas?variable=` (las 25 zonas con `celdas`, `nota?` y `stats`) y `/api/zonas/{id}?variable=` (serie del mismo periodo de `stats` y su `stats`).
 
-## 2. Qué hay que calcular
+## 2. Qué calcula el pipeline
 
-Por **zona** (25) y por **variable** (lluvia, temperatura; decidir si también `T2M_MAX`/`T2M_MIN`), sobre la serie **anual** (método del Drive, v3 probada):
+Por **zona** (25) y por **variable** (lluvia, temperatura), sobre la serie **anual** (método del Drive, v3 probada):
 
 1. **Mann-Kendall con TFPW**: `pymannkendall.trend_free_pre_whitening_modification_test`. Alternativa: `hamed_rao_modification_test`. **No** Mann-Kendall estacional sobre meses (23–58 % de falsos positivos).
 2. **Pendiente de Sen** sobre la serie anual: unidades por año → **×10 = por década**.
@@ -101,25 +101,22 @@ Campos por zona (`stats`, contrato del `07`):
 | `lag1` | número | |
 | `status` | `"real"` · `"posible_casualidad"` · `"pocos_datos"` | siempre con texto en la ficha |
 
-Propuestos en el `13` (**por confirmar**, hay que avisar a los 4): `year_start`, `year_end`, `pct_change_per_decade` (útil en lluvia), `source` y `period` por variable, y dos periodos (largo y reciente).
+Además llevan `year_start`, `year_end` (el periodo de la tendencia), `pct_change_per_decade` (solo lluvia) y `aviso?` (texto). El modelo Rust (`src/models/zona.rs`) los lee con `deny_unknown_fields`: si el pipeline añade un campo, hay que añadirlo también allí.
 
-Guardar también `metadata.method` (método usado), unidad y fuente.
+## 3. Cómo sale
 
-## 3. Cómo debe salir (propuesta, ajustable)
-
-- **Reparto:** tú entregas el script y el JSON con los nombres de campo del `07`; quien mantiene la API (Leandro) añade `stats` al modelo Rust y a `/api/zonas/{id}`, regenera `openapi.json` y publica. Avisa cuando el JSON esté en `developer`.
-- **Punto de partida:** `pipeline/exploracion/josue/scripts/lab5_tendencias.py` y `validar_lab5.py` ya hacen parte del cálculo; adáptalos a leer `data/*.json` en vez de la API.
-- Script `pipeline/tendencias.py` que **lee** `data/power.json` y `data/gpm.json` y **escribe** JSON en `data/` (misma regla: precalculado, `allow_nan=False`).
-- Forma sugerida alineada al Drive: lista de zonas por variable (sin series) y detalle por zona (serie + `stats`). Si se prefiere un solo `data/tendencias.json` por ahora, está bien: lo importante son los **nombres de campo del `07`**, porque la API Rust los va a deserializar tal cual.
+- `pipeline/tendencias.py` **lee** `data/power.json` y `data/gpm.json` y **escribe** `data/variables.json`, `data/zonas/{variable}.json` (sin serie) y `data/zonas/{variable}/{id}.json` (serie + `stats`), con `allow_nan=False`.
+- La API embebe `variables.json` y `zonas/{variable}.json`, saca la serie de `power.json`/`gpm.json` recortada al periodo de `stats`, y no arranca si algo no cuadra (`src/data.rs`).
+- Tras regenerar `power.json` o `gpm.json`, corre también `python pipeline/tendencias.py`.
+- El laboratorio de partida está en `pipeline/exploracion/josue/scripts/lab5_tendencias.py`.
 - `id` de zona = **ubigeo como texto**: 01 Amazonas · 02 Áncash · 03 Apurímac · 04 Arequipa · 05 Ayacucho · 06 Cajamarca · 07 Callao · 08 Cusco · 09 Huancavelica · 10 Huánuco · 11 Ica · 12 Junín · 13 La Libertad · 14 Lambayeque · 15 Lima · 16 Loreto · 17 Madre de Dios · 18 Moquegua · 19 Pasco · 20 Piura · 21 Puno · 22 San Martín · 23 Tacna · 24 Tumbes · 25 Ucayali.
 
 ## 4. Reglas del repo que aplican
 
 - Nunca `NaN`/`null`: una serie constante o muy corta puede dar `p`/`lag1` indefinidos; decidir un valor o `status: "pocos_datos"` y **no** escribir `NaN`.
-- Si cambias la forma de un JSON, avisa al equipo (CONDITIONS.md) y actualiza `docs/`.
-- Añade tu validación a `tests/e2e.sh` (`jq`) como se hizo con `power.json`/`gpm.json`.
-- Dependencias nuevas a `pipeline/requirements.txt` (`scipy`, `pymannkendall`, `statsmodels`) **con versión fija** (`paquete==x.y.z`), como las demás.
-- PR a `developer`, rama `feat/tendencias`, `changelog/feat-tendencias.md`, `bash tests/e2e.sh` en verde.
+- Si cambias la forma de un JSON, avisa al equipo (CONDITIONS.md), actualiza `docs/` y el modelo Rust.
+- Valida con `tests/e2e.sh` (`jq`) y `cargo test`.
+- Dependencias nuevas a `pipeline/requirements.txt` **con versión fija** (`paquete==x.y.z`), como las demás.
 
 ## 5. Trampas conocidas
 

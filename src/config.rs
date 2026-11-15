@@ -20,8 +20,10 @@ impl Config {
 }
 
 pub fn origen_permitido(origen: &str, extra: &[String]) -> bool {
-    let local = ["http://localhost", "http://127.0.0.1"]
-        .iter()
-        .any(|h| origen.strip_prefix(h).is_some_and(|r| r.is_empty() || r.starts_with(':')));
+    let local = ["http://localhost", "http://127.0.0.1"].iter().any(|h| {
+        origen
+            .strip_prefix(h)
+            .is_some_and(|r| r.is_empty() || r.starts_with(':'))
+    });
     local || extra.iter().any(|e| e == origen)
 }
