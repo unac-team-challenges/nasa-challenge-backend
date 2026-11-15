@@ -1,6 +1,8 @@
+pub mod celdas;
 pub mod cobertura;
 pub mod gpm;
 pub mod power;
+pub mod recuadro;
 pub mod variable;
 pub mod vegetacion;
 pub mod zona;

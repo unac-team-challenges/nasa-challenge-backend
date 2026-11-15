@@ -7,6 +7,9 @@ del departamento (regla 3b de docs/reglas-datos.md), con la API regional
 en 4 recuadros (máximo 10° por lado), como en
 pipeline/exploracion/josue/scripts/power_departamentos.py.
 Callao no tiene celdas propias: usa la celda de su capital, con `nota`.
+
+También escribe data/celdas/temperatura.json: la T2M anual de cada celda dentro de Perú
+(mapa de calor del frontend), sin promediar por departamento.
 """
 import json
 import sys
@@ -103,13 +106,41 @@ def avisar_incompletos(incompletos, salida=sys.stderr):
         print(f"AVISO {anio}: sin 12 meses en {quien}; ese año no entra", file=salida)
 
 
+def celdas_json(df, inicio, fin):
+    """Malla anual dentro de Perú: celdas con centro en algún departamento, años con 12 meses
+    (null si falta). `t2m` va alineado con anio_inicio..anio_fin."""
+    from departamentos import mascara
+
+    lats, lons = np.unique(df["lat"]), np.unique(df["lon"])
+    i, j = np.nonzero(np.isfinite(mascara(lats, lons)))
+    dentro = pd.DataFrame({"lat": lats[i], "lon": lons[j]})
+    g = df.merge(dentro).groupby(["lat", "lon", "anio"])["valor"]
+    anual = g.mean()[g.size() == 12].unstack("anio").reindex(columns=range(int(inicio), int(fin) + 1))
+    return {
+        "fuente": "MERRA-2 vía NASA POWER (T2M)", "unidad": "°C",
+        "dlat": 0.5, "dlon": 0.625, "anio_inicio": int(inicio), "anio_fin": int(fin),
+        "celdas": [{"lat": float(a), "lon": float(o),
+                    "t2m": [None if np.isnan(v) else round(float(v), 2) for v in fila]}
+                   for (a, o), fila in anual.iterrows()],
+    }
+
+
 if __name__ == "__main__":
     from departamentos import a_json
 
     inicio, fin = (sys.argv[1:3] + ["2001", "2024"][len(sys.argv[1:3]):])[:2]
     por_var, celdas = {}, {}
+    salida = Path(__file__).parent.parent / "data"
     for var in VARIABLES:
-        por_var[var], celdas = por_departamento(malla(var, inicio, fin))
+        df = malla(var, inicio, fin)
+        por_var[var], celdas = por_departamento(df)
+        if var == "T2M":
+            (salida / "celdas").mkdir(exist_ok=True)
+            (salida / "celdas" / "temperatura.json").write_text(
+                json.dumps(celdas_json(df, inicio, fin), ensure_ascii=False, allow_nan=False,
+                           separators=(",", ":")),
+                encoding="utf-8",
+            )
         print(f"{var} listo", flush=True)
 
     datos = {}
@@ -120,7 +151,7 @@ if __name__ == "__main__":
                       for a in sorted(anios)}
     notas = {reg: "Sin celdas propias de POWER: se usa la celda de la capital (compartida con Lima)"
              for reg, n in celdas.items() if n == 0}
-    Path(__file__).parent.parent.joinpath("data", "power.json").write_text(
+    (salida / "power.json").write_text(
         json.dumps(a_json(datos, celdas, notas), ensure_ascii=False, indent=1, allow_nan=False),
         encoding="utf-8",
     )

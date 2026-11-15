@@ -374,6 +374,19 @@ async fn api_zonas_traen_stats() {
 }
 
 #[tokio::test]
+async fn ucayali_lleva_aviso_propio_en_temperatura_y_el_resto_no() {
+    let (_, _, u) = get("/api/zonas/25?variable=temperatura", None).await;
+    let aviso = u["stats"]["aviso"].as_str().unwrap();
+    assert!(aviso.contains("2023 y 2024"), "{aviso}");
+    assert_eq!(u["stats"]["status"], "real", "el aviso no cambia el status");
+    let (_, _, z) = get("/api/zonas?variable=temperatura", None).await;
+    for z in z.as_array().unwrap().iter().filter(|z| z["id"] != "25") {
+        let a = z["stats"]["aviso"].as_str().unwrap_or("");
+        assert!(!a.contains("2023 y 2024"), "temperatura/{}", z["id"]);
+    }
+}
+
+#[tokio::test]
 async fn imerg_trae_aviso_2014_y_power_no() {
     let (_, _, l) = get("/api/zonas/15?variable=lluvia_imerg", None).await;
     let st = &l["stats"];
@@ -768,4 +781,68 @@ fn cobertura_mal_formada_se_rechaza() {
         msg.contains("cobertura_arboles.json, zona 'iquitos'"),
         "{msg}"
     );
+}
+
+#[tokio::test]
+async fn celdas_de_temperatura() {
+    let (s, _, b) = get("/api/celdas?variable=temperatura", None).await;
+    assert_eq!(s, StatusCode::OK);
+    let anios = (b["anio_fin"].as_u64().unwrap() - b["anio_inicio"].as_u64().unwrap() + 1) as usize;
+    let celdas = b["celdas"].as_array().unwrap();
+    assert!(celdas.len() > 100, "Perú tiene cientos de celdas de 0,5°");
+    assert!(celdas
+        .iter()
+        .all(|c| c["t2m"].as_array().unwrap().len() == anios));
+}
+
+#[tokio::test]
+async fn celdas_solo_temperatura() {
+    for ruta in [
+        "/api/celdas?variable=lluvia",
+        "/api/celdas",
+        "/api/celdas?variable=nieve",
+    ] {
+        let (s, _, b) = get(ruta, None).await;
+        assert_eq!(s, StatusCode::BAD_REQUEST, "{ruta}");
+        assert!(b["error"].is_string(), "{ruta}");
+    }
+}
+
+#[test]
+fn celdas_mal_formadas_se_rechazan() {
+    let con = |f: Cambio| {
+        let c = editar(Fuentes::EMBEBIDAS.celdas, f);
+        Datos::desde(Fuentes {
+            celdas: &c,
+            ..Fuentes::EMBEBIDAS
+        })
+    };
+    assert!(con(|_| {}).is_ok());
+    let malos: [(&str, Cambio); 8] = [
+        ("sin celdas", |m| m["celdas"] = Value::Array(vec![])),
+        ("unidad que no es °C", |m| m["unidad"] = "K".into()),
+        ("sin fuente", |m| m["fuente"] = " ".into()),
+        ("celda sin ningún año", |m| {
+            m["celdas"][0]["t2m"]
+                .as_array_mut()
+                .unwrap()
+                .fill(Value::Null)
+        }),
+        ("fuera de Perú", |m| m["celdas"][0]["lat"] = 10.0.into()),
+        ("año de más", |m| {
+            m["celdas"][0]["t2m"]
+                .as_array_mut()
+                .unwrap()
+                .push(20.0.into())
+        }),
+        ("valor imposible", |m| {
+            m["celdas"][0]["t2m"][0] = 99.0.into()
+        }),
+        ("periodo fuera de variables.json", |m| {
+            m["anio_inicio"] = 1900.into()
+        }),
+    ];
+    for (caso, f) in malos {
+        assert!(con(f).is_err(), "{caso}");
+    }
 }

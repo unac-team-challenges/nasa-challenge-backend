@@ -19,6 +19,7 @@ chk "todos los valores son números (sin null/NaN)" jq -e '[.[].anios[][]] | len
 chk "gpm.json: lluvia entre 0 y 30 mm/día (detecta unidades mal)" jq -e '[.[].anios[].lluvia_mm_dia] | all(. >= 0 and . <= 30)' data/gpm.json
 chk "power.json: T2M entre -15 y 35 °C"                           jq -e '[.[].anios[].T2M] | all(. >= -15 and . <= 35)' data/power.json
 chk "power.json: PRECTOTCORR entre 0 y 30 mm/día"                 jq -e '[.[].anios[].PRECTOTCORR] | all(. >= 0 and . <= 30)' data/power.json
+chk "celdas/temperatura.json: celdas con T2M entre -15 y 35 °C"   jq -e '(.celdas | length > 100) and ([.celdas[].t2m[] | select(. != null)] | all(. >= -15 and . <= 35))' data/celdas/temperatura.json
 chk "pipeline/power.py compila" "$PY" -m py_compile pipeline/power.py
 chk "gpm.json es JSON válido con 25 regiones" jq -e 'length == 25' data/gpm.json
 chk "gpm.json: todos los valores son números (sin null/NaN)" jq -e '[.[].anios[][]] | length > 0 and all(type == "number" and (isnan | not))' data/gpm.json
@@ -74,8 +75,11 @@ chk "GET /api/zonas/07 lleva nota"           bash -c "curl -sf '$URL/api/zonas/0
 chk "GET /api/zonas trae stats.status válido" bash -c "curl -sf '$URL/api/zonas?variable=lluvia' | jq -e 'length == 25 and all(.[].stats.status; IN(\"real\",\"posible_casualidad\",\"pocos_datos\"))'"
 chk "GET /api/zonas/15 lluvia_imerg: aviso 2014" bash -c "curl -sf '$URL/api/zonas/15?variable=lluvia_imerg' | jq -e '(.stats.aviso | test(\"2014\")) and (.stats.q_value | type == \"number\")'"
 chk "GET /api/zonas/15 temperatura sin aviso" bash -c "curl -sf '$URL/api/zonas/15?variable=temperatura' | jq -e '.stats.status and (.stats | has(\"aviso\") | not)'"
+chk "GET /api/zonas/25 temperatura: aviso propio de Ucayali" bash -c "curl -sf '$URL/api/zonas/25?variable=temperatura' | jq -e '.stats.status == \"real\" and (.stats.aviso | test(\"2023 y 2024\"))'"
 chk "GET /api/vegetacion (Caso 2)"         bash -c "curl -sf $URL/api/vegetacion | jq -e 'length >= 2 and all(.[]; (.unidad_geografica | type == \"string\") and (.stats.status | IN(\"real\",\"posible_casualidad\",\"pocos_datos\")))'"
 chk "GET /api/cobertura-arboles (selva)"   bash -c "curl -sf $URL/api/cobertura-arboles | jq -e 'length >= 2 and all(.[]; (.unidad_geografica | type == \"string\") and (.stats.status | IN(\"real\",\"posible_casualidad\",\"pocos_datos\")))'"
+chk "GET /api/celdas?variable=temperatura" bash -c "curl -sf '$URL/api/celdas?variable=temperatura' | jq -e '.celdas | length > 100'"
+chk "GET /api/celdas?variable=lluvia -> 400" bash -c "[ \"\$(curl -s -o /dev/null -w '%{http_code}' '$URL/api/celdas?variable=lluvia')\" = 400 ]"
 chk "GET /api/zonas sin variable -> 400"  bash -c "[ \"\$(curl -s -o /dev/null -w '%{http_code}' $URL/api/zonas)\" = 400 ]"
 chk "GET /power/%C3%81ncash (acentos)"    bash -c "curl -sf $URL/power/%C3%81ncash | jq -e '.region == \"Áncash\"'"
 chk "GET /health"                         bash -c "curl -sf $URL/health | jq -e '.status == \"ok\"'"
