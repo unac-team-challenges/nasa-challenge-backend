@@ -308,5 +308,160 @@
    "q_value": 1e-06,
    "status": "real"
   }
+ },
+ {
+  "id": "olmos",
+  "nombre": "Olmos (tierras nuevas)",
+  "departamento": "Lambayeque",
+  "ubigeo": "14",
+  "tipo": "valle irrigado",
+  "unidad_geografica": "recuadro de 0,25° × 0,25° (~27 × 27 km) sobre el valle irrigado; no es el promedio del departamento",
+  "bbox": [
+   -80.15,
+   -6.25,
+   -79.9,
+   -6.0
+  ],
+  "lat": -6.125,
+  "lon": -80.025,
+  "pixeles": 900,
+  "fuente": "MODIS MOD13A3 v061 (NASA LP DAAC) vía AppEEARS",
+  "umbral_verde_ndvi": 0.3,
+  "tendencia_de": "ndvi_anual",
+  "serie": [
+   {
+    "anio": 2001,
+    "ndvi_anual": 0.2236,
+    "area_verde_km2": 124.5
+   },
+   {
+    "anio": 2002,
+    "ndvi_anual": 0.2146,
+    "area_verde_km2": 113.3
+   },
+   {
+    "anio": 2003,
+    "ndvi_anual": 0.1578,
+    "area_verde_km2": 4.3
+   },
+   {
+    "anio": 2004,
+    "ndvi_anual": 0.123,
+    "area_verde_km2": 0.9
+   },
+   {
+    "anio": 2005,
+    "ndvi_anual": 0.1079,
+    "area_verde_km2": 0.0
+   },
+   {
+    "anio": 2006,
+    "ndvi_anual": 0.1186,
+    "area_verde_km2": 0.0
+   },
+   {
+    "anio": 2007,
+    "ndvi_anual": 0.1007,
+    "area_verde_km2": 0.0
+   },
+   {
+    "anio": 2008,
+    "ndvi_anual": 0.2096,
+    "area_verde_km2": 100.5
+   },
+   {
+    "anio": 2009,
+    "ndvi_anual": 0.1479,
+    "area_verde_km2": 0.0
+   },
+   {
+    "anio": 2010,
+    "ndvi_anual": 0.1354,
+    "area_verde_km2": 0.0
+   },
+   {
+    "anio": 2011,
+    "ndvi_anual": 0.1021,
+    "area_verde_km2": 0.0
+   },
+   {
+    "anio": 2012,
+    "ndvi_anual": 0.2127,
+    "area_verde_km2": 112.5
+   },
+   {
+    "anio": 2013,
+    "ndvi_anual": 0.1216,
+    "area_verde_km2": 0.0
+   },
+   {
+    "anio": 2014,
+    "ndvi_anual": 0.096,
+    "area_verde_km2": 0.0
+   },
+   {
+    "anio": 2015,
+    "ndvi_anual": 0.1585,
+    "area_verde_km2": 23.2
+   },
+   {
+    "anio": 2016,
+    "ndvi_anual": 0.1653,
+    "area_verde_km2": 116.8
+   },
+   {
+    "anio": 2017,
+    "ndvi_anual": 0.3347,
+    "area_verde_km2": 456.8
+   },
+   {
+    "anio": 2018,
+    "ndvi_anual": 0.2915,
+    "area_verde_km2": 256.7
+   },
+   {
+    "anio": 2019,
+    "ndvi_anual": 0.2997,
+    "area_verde_km2": 329.7
+   },
+   {
+    "anio": 2020,
+    "ndvi_anual": 0.2677,
+    "area_verde_km2": 262.7
+   },
+   {
+    "anio": 2021,
+    "ndvi_anual": 0.2832,
+    "area_verde_km2": 292.8
+   },
+   {
+    "anio": 2022,
+    "ndvi_anual": 0.2637,
+    "area_verde_km2": 292.8
+   },
+   {
+    "anio": 2023,
+    "ndvi_anual": 0.4092,
+    "area_verde_km2": 640.5
+   },
+   {
+    "anio": 2024,
+    "ndvi_anual": 0.3305,
+    "area_verde_km2": 419.0
+   }
+  ],
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2024,
+   "n_years": 24,
+   "slope_per_decade": 0.080983,
+   "intercept": -16.110446,
+   "ci_low": 0.0249,
+   "ci_high": 0.1285,
+   "p_value": 7.4e-05,
+   "lag1": 0.4027,
+   "q_value": 7.4e-05,
+   "status": "real"
+  }
  }
 ]

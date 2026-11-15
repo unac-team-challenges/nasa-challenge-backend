@@ -10,12 +10,18 @@ Resultado del Lab 3 de Favio (MODIS MOD13A3, 2001–2024, 6 zonas). Detalle y c�
 ## Zonas sin dato útil (decidido el 2026-11-14)
 | Zona | Estado | Motivo |
 |---|---|---|
-| **Olmos** | **Sin dato por ahora. No usar en el producto.** | El recuadro de ~25 × 25 km cayó sobre bosque seco natural, no sobre las tierras irrigadas del proyecto (que empezó en 2014). Sale sin tendencia (p = 0,43) y el área verde baja de 737 a 589 km², lo que **engañaría** si se muestra como «sin reverdecimiento». |
+| **Olmos** | **Resuelto el 2026-11-15 con un recuadro nuevo** (ver abajo). | El recuadro del Lab 3 (~25 × 25 km) cayó sobre bosque seco natural, no sobre las tierras irrigadas del proyecto (que empezó en 2014): salía sin tendencia (p = 0,43). |
 | **Selva (Iquitos)** | No usar NDVI. | Saturado en ~0,85 todo el periodo: no detecta cambios. Propuesta: cobertura de árboles (ver abajo). |
 | **Lima** | Usar con cautela. | Pierde 13 de 288 meses por la garúa; área verde mínima (17 → 10 km²). |
 | **Valle del Mantaro** | Solo informativo. | El intervalo de la tendencia incluye 0 (p = 0,027). Con el criterio único de [`tendencias.md`](tendencias.md) §2b es `posible_casualidad`. |
 
-### Para retomar Olmos
+### Olmos con el recuadro nuevo (2026-11-15)
+- **Recuadro:** (−80,15, −6,25, −79,90, −6,00). Es la caja de 0,25° con más campos de cultivo en OpenStreetMap (unos 4.400 polígonos `landuse=farmland/orchard`, frente a unos 150 en la caja vieja), consultados con Overpass. **Se eligió sin mirar el NDVI**, para que la tendencia no salga «arreglada».
+- **Solicitud AppEEARS** `ee736bc9…` (`pipeline/exploracion/favio/scripts/lab3_olmos.py`).
+- **Resultado:** NDVI de 0,224 (2001) a 0,331 (2024); Sen +0,081 por década, IC [0,025; 0,129], `real`. El área verde media pasa de **35 km² (2001–2013) a 341 km² (2016–2024)**. El salto empieza en 2016–2017, cuando el agua del trasvase llega a las tierras nuevas, y se mantiene en años sin El Niño (2018–2022).
+- **Cuidado:** en años de El Niño (2017, 2023) el bosque seco también reverdece con la lluvia, así que no todo el verde de esos años es riego. La tendencia sigue con o sin ellos.
+
+### Cómo se retomó Olmos (histórico)
 1. Mover el recuadro al sur y al oeste, sobre las tierras irrigadas del proyecto.
 2. Repetir la solicitud con `scripts/lab3_appeears.py` (AppEEARS tardó ~3 h el 14-nov) y correr `lab3_analisis.py`.
 3. Mientras tanto la ficha de Olmos muestra «sin dato», nunca un valor del recuadro actual.

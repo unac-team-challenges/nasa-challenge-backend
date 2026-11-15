@@ -535,16 +535,18 @@ fn zonas_y_variables_mal_formadas_se_rechazan() {
 /// Valores de `data/ndvi.json` en 2001 y 2024: los mismos del Lab 3 de Favio
 /// (`pipeline/exploracion/favio/resultados/lab3_resumen.json`), servidos tal cual.
 #[tokio::test]
-async fn api_vegetacion_trae_las_2_zonas_del_caso_2() {
+async fn api_vegetacion_trae_las_3_zonas_del_caso_2() {
     let (s, _, b) = get("/api/vegetacion", None).await;
     assert_eq!(s, StatusCode::OK);
     let zonas = b.as_array().unwrap();
     let ids: Vec<_> = zonas.iter().map(|z| z["id"].as_str().unwrap()).collect();
-    assert_eq!(ids, ["chavimochic", "ica-villacuri"]);
+    assert_eq!(ids, ["chavimochic", "ica-villacuri", "olmos"]);
     // (ubigeo, NDVI 2001, km² 2001, NDVI 2024, km² 2024)
     let esperado = [
         ("13", 0.1906, 188.9, 0.3104, 355.5),
         ("11", 0.1403, 117.6, 0.198, 221.5),
+        // Olmos, recuadro sobre las tierras nuevas (el del Lab 3 cayó sobre bosque seco)
+        ("14", 0.2236, 124.5, 0.3305, 419.0),
     ];
     for (z, (ubigeo, n01, a01, n24, a24)) in zonas.iter().zip(esperado) {
         assert_eq!(z["ubigeo"], ubigeo);

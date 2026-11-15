@@ -16,9 +16,9 @@ Refresco: a mano, una vez al año (enero), no en el cron: AppEEARS tarda ~3 h po
 Credenciales: EARTHDATA_USERNAME y EARTHDATA_PASSWORD del entorno (.env local o secrets
 de GitHub); si no están, ~/.netrc o ~/_netrc en Windows (el que crea earthaccess). Nunca se imprimen.
 
-Zonas: solo los valles irrigados confirmados (docs/vegetacion.md). Fuera: Olmos (recuadro
-sobre bosque seco), selva (NDVI saturado), Lima (garúa: años incompletos) y Mantaro
-(IC que incluye 0; no aporta al Caso 2).
+Zonas: solo los valles irrigados confirmados (docs/vegetacion.md). Olmos entra con el recuadro
+movido a las tierras nuevas (2026-11-15; el del Lab 3 cayó sobre bosque seco). Fuera: selva (NDVI
+saturado; ver pipeline/cobertura.py), Lima (garúa: años incompletos) y Mantaro (IC que incluye 0).
 
 Área verde: píxeles cuyo NDVI medio del año (meses con dato confiable de ese píxel,
 como en el Lab 3) supera 0,3, por el área del píxel.
@@ -50,6 +50,9 @@ CAPAS = ["_1_km_monthly_NDVI", "_1_km_monthly_pixel_reliability"]
 ZONAS = [  # (id, nombre, departamento, ubigeo, tipo, (oeste, sur, este, norte)) — mismas cajas del Lab 3
     ("chavimochic", "Chavimochic (Virú-Chao)", "La Libertad", "13", "valle irrigado", (-78.85, -8.60, -78.60, -8.35)),
     ("ica-villacuri", "Ica (valle y Villacurí)", "Ica", "11", "valle irrigado", (-75.90, -14.15, -75.65, -13.90)),
+    # Tierras nuevas del Proyecto Olmos: la caja de 0,25° con más campos de cultivo en OpenStreetMap
+    # (landuse=farmland/orchard, ~4.400 polígonos; Overpass, 2026-11-15). Elegida sin mirar el NDVI.
+    ("olmos", "Olmos (tierras nuevas)", "Lambayeque", "14", "valle irrigado", (-80.15, -6.25, -79.90, -6.00)),
 ]
 UNIDAD_GEO = ("recuadro de 0,25° × 0,25° (~27 × 27 km) sobre el valle irrigado; "
               "no es el promedio del departamento")
