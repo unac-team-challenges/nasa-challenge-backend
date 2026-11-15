@@ -4,6 +4,7 @@
  "lat": -5.19,
  "lon": -80.63,
  "celdas": 47,
+ "nota": "Serie de solo 12 años (2001–2012): hacen falta 20 para medir una tendencia",
  "variable": "vegetacion",
  "unidad": "NDVI",
  "fuente": "MODIS MOD13A3 v061 (NDVI) vía AppEEARS",
@@ -31,19 +32,43 @@
   {
    "anio": 2006,
    "valor": 0.3488
+  },
+  {
+   "anio": 2007,
+   "valor": 0.3158
+  },
+  {
+   "anio": 2008,
+   "valor": 0.4027
+  },
+  {
+   "anio": 2009,
+   "valor": 0.3699
+  },
+  {
+   "anio": 2010,
+   "valor": 0.3689
+  },
+  {
+   "anio": 2011,
+   "valor": 0.3273
+  },
+  {
+   "anio": 2012,
+   "valor": 0.3958
   }
  ],
  "stats": {
   "year_start": 2001,
-  "year_end": 2006,
-  "n_years": 6,
-  "slope_per_decade": -0.12725,
-  "intercept": 25.836888,
-  "ci_low": -0.4705,
-  "ci_high": 0.216,
-  "p_value": 0.806496,
-  "lag1": 0.2229,
-  "q_value": 0.8401,
+  "year_end": 2012,
+  "n_years": 12,
+  "slope_per_decade": 0.001143,
+  "intercept": 0.129536,
+  "ci_low": -0.0804,
+  "ci_high": 0.0863,
+  "p_value": 0.350201,
+  "lag1": 0.1687,
+  "q_value": 0.673464,
   "status": "pocos_datos"
  }
 }

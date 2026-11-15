@@ -50,6 +50,7 @@ PASO = 0.25  # grados por lado de la celda
 MIN_MESES = 6  # meses confiables por píxel para que su año cuente
 MIN_FRAC_PIXELES = 0.5  # fracción de píxeles con año válido para que la celda tenga ese año
 MIN_ANIOS_REGION = 15  # una celda "cuenta" para la cobertura si tiene dato en 15 años o más
+MIN_ANIOS_TENDENCIA = 20  # = tendencias.MIN_ANIOS (no se importa: arrastra scipy a la autoprueba)
 NOTA = (f"NDVI anual = media de los meses sin nubes de cada píxel de 1 km (mínimo {MIN_MESES} meses), "
         f"promediada a celdas de {PASO}°. En la selva el NDVI se satura (~0,8–0,9): sirve para ver dónde hay "
         "vegetación, no para medir cambios de bosque (ver /api/cobertura-arboles).")
@@ -143,6 +144,11 @@ def por_departamento(malla, dentro, regiones, capitales):
             lat, lon = capitales[r]
             propias = [min(malla["celdas"], key=lambda c: (c["lat"] - lat) ** 2 + (c["lon"] - lon) ** 2)]
             notas[r] = f"Sin celdas propias de {PASO}°: se usa la celda más cercana a su capital"
+        if len(anios) < MIN_ANIOS_TENDENCIA:
+            # pocos_datos por la serie corta, no por las celdas: la nota dice el motivo real
+            corta = (f"Serie de solo {len(anios)} años ({anios[0]}–{anios[-1]}): hacen falta "
+                     f"{MIN_ANIOS_TENDENCIA} para medir una tendencia")
+            notas[r] = f"{notas[r]}. {corta}" if r in notas else corta
         datos[r] = {}
         for k, a in enumerate(anios):
             vals = [c["valor"][k] for c in propias if c["valor"][k] is not None]
@@ -304,6 +310,7 @@ def autoprueba():
     assert datos["Loreto"] == {"2001": {"ndvi": 0.7}, "2002": {"ndvi": 0.7}}, datos["Loreto"]
     assert datos["Lima"] == {"2001": {"ndvi": 0.1}} and celdas["Callao"] == 0
     assert datos["Callao"] == datos["Lima"] and "capital" in notas["Callao"]
+    assert "solo 2 años" in notas["Loreto"] and "solo 2 años" in notas["Callao"]
     # Tiempo de AppEEARS: en segundos (MOD13A3 de 2026) o en días
     assert list(anios_de([0, 31_536_000 * 2], "seconds since 2000-01-01 00:00:00+00:00")) == [2000, 2001]
     assert list(anios_de([366, 400], "days since 2000-01-01")) == [2001, 2001]

@@ -29,6 +29,6 @@
   "fuente": "MODIS MOD13A3 v061 (NDVI) vía AppEEARS",
   "descripcion": "Vegetación (NDVI de MODIS): promedio de cada año",
   "anio_inicio": 2001,
-  "anio_fin": 2006
+  "anio_fin": 2012
  }
 ]

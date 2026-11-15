@@ -4,6 +4,7 @@
  "lat": -8.38,
  "lon": -74.55,
  "celdas": 137,
+ "nota": "Serie de solo 12 años (2001–2012): hacen falta 20 para medir una tendencia",
  "variable": "vegetacion",
  "unidad": "NDVI",
  "fuente": "MODIS MOD13A3 v061 (NDVI) vía AppEEARS",
@@ -31,19 +32,43 @@
   {
    "anio": 2006,
    "valor": 0.8375
+  },
+  {
+   "anio": 2007,
+   "valor": 0.8348
+  },
+  {
+   "anio": 2008,
+   "valor": 0.8325
+  },
+  {
+   "anio": 2009,
+   "valor": 0.8328
+  },
+  {
+   "anio": 2010,
+   "valor": 0.838
+  },
+  {
+   "anio": 2011,
+   "valor": 0.8406
+  },
+  {
+   "anio": 2012,
+   "valor": 0.8385
   }
  ],
  "stats": {
   "year_start": 2001,
-  "year_end": 2006,
-  "n_years": 6,
-  "slope_per_decade": -0.0065,
-  "intercept": 2.140625,
-  "ci_low": -0.043,
-  "ci_high": 0.03,
-  "p_value": 0.086411,
-  "lag1": -0.4123,
-  "q_value": 0.270034,
+  "year_end": 2012,
+  "n_years": 12,
+  "slope_per_decade": -0.001944,
+  "intercept": 1.228153,
+  "ci_low": -0.011,
+  "ci_high": 0.0033,
+  "p_value": 1.0,
+  "lag1": 0.3829,
+  "q_value": 1.0,
   "status": "pocos_datos",
   "aviso": "El NDVI de este departamento ronda 0,84, casi saturado: en la selva apenas cambia aunque se pierda bosque. Para el bosque, mira la cobertura de árboles."
  }

@@ -112,6 +112,11 @@ de lag1 si algún día aplica. Los demás departamentos no cambian.
 (la temperatura conserva `t2m` para no romper el contrato). La sirve `GET /api/celdas?variable=lluvia`. Coincide
 celda por celda con la copia del frontend (`nasa-challenge-frontend/src/data/celdas_lluvia.json`): 0 diferencias.
 
+**La unidad la manda cada respuesta.** `/api/variables` y `/api/zonas` dan la lluvia en **mm/día** (promedio diario,
+como POWER e IMERG); `/api/celdas?variable=lluvia` la da en **mm/año**, que se lee mejor en un mapa. No se unificó para
+no romper el contrato de las tendencias. Cada respuesta de `/api/celdas` trae su campo `unidad`: el frontend lee la
+unidad de la malla de ahí, nunca de `/api/variables`.
+
 Solo las mallas, sin tocar `power.json` (8 llamadas a POWER): `python pipeline/power.py celdas`.
 
 ## Malla de vegetación
@@ -137,3 +142,6 @@ y `data/ndvi_departamentos.json` (NDVI anual por departamento, fuente de `zonas/
   −40..50 °C (temperatura), 0..12 000 mm/año (lluvia).
 - **Refresco:** a mano, una vez al año: `enviar` → `estado` → `bajar` → `calcular` y luego `python pipeline/tendencias.py`.
   Si falta algún bloque, `calcular` lo avisa y la malla llega hasta el último año leído (nunca se inventan años).
+- **Serie corta = `pocos_datos` con `nota`:** con menos de 20 años no se mide tendencia; cada departamento lleva una
+  `nota` con los años que tiene («Serie de solo 12 años (2001–2012)…»), para no confundirlo con «pocas celdas».
+  `tests/e2e.sh` exige que `variables.json` y `zonas/vegetacion.json` acaben en el mismo año que la malla.

@@ -3,9 +3,10 @@
 Malla de vegetación (NDVI de MODIS) en las 25 regiones y malla de lluvia, para pintar el mapa como ya se pinta la
 temperatura. Tarea: «vegetación en las 25 regiones, para pintar el mapa».
 
-> **Estado: borrador con datos reales parciales (2001–2006).** AppEEARS entregó 1 de los 4 bloques de años; los otros
-> tres (2007–2024) siguen en proceso. Nada es inventado: la malla llega hasta el último año descargado. Al completar se
-> corre `bajar` → `calcular` → `tendencias.py` y se actualiza este PR.
+> **Datos reales parciales (2001–2012), por fuera del alcance de este PR completar 2013–2024.** AppEEARS entregó 2 de
+> los 4 bloques de años; 2013–2018 sigue en proceso y 2019–2024 en cola en la NASA (horas o días, sin fecha que
+> dependa del equipo). Nada es inventado: la malla llega hasta el último año descargado y el contrato, los tests y el
+> frontend ya funcionan con cualquier `anio_fin`. Completar es solo datos: `bajar` → `calcular` → `tendencias.py`.
 
 ## Añadido
 - `pipeline/vegetacion_malla.py`: NDVI mensual de MODIS MOD13A3 v061 (1 km) vía AppEEARS para todo el Perú, en 4
@@ -29,40 +30,41 @@ temperatura. Tarea: «vegetación en las 25 regiones, para pintar el mapa».
   variable incluyen `vegetacion`. `tests/test_tendencias.py`: aviso de saturación. Checks nuevos en `tests/e2e.sh`.
 - Docs: «Malla de lluvia» y «Malla de vegetación» en `docs/datos.md`; sección en `docs/vegetacion.md`; README y CLAUDE.md.
 
-## Cobertura de las 25 regiones (con los 6 años descargados)
+## Cobertura de las 25 regiones (con los 12 años descargados)
 
-Celdas con dato en los 6 años; NDVI medio 2001–2006. Callao tiene 1 celda propia (lleva `nota` de pocas celdas).
-Tumbes (5), Lambayeque (18) y Moquegua (19) quedan justas pero sobre el mínimo de 4.
+Celdas con dato en los 12 años (con la serie parcial, «15 años o más» de la tarea se vuelve «todos los años leídos»);
+NDVI medio 2001–2012. Callao tiene 1 celda propia (lleva `nota`). Tumbes (5), Lambayeque (17) y Moquegua (19) quedan
+justas pero sobre el mínimo de 4. La tabla con el criterio original (≥ 15 años) se publica cuando llegue 2013–2018.
 
-
-| Región | Celdas (≥ 6 años) | NDVI medio |
+| Región | Celdas (≥ 12 años) | NDVI medio |
 |---|---|---|
 | Amazonas | 52 | 0,803 |
-| Áncash | 47 | 0,327 |
+| Áncash | 47 | 0,334 |
 | Apurímac | 28 | 0,417 |
-| Arequipa | 83 | 0,141 |
-| Ayacucho | 60 | 0,345 |
-| Cajamarca | 44 | 0,588 |
-| Callao | 1 ⚠️ | 0,127 |
-| Cusco | 97 | 0,619 |
-| Huancavelica | 29 | 0,363 |
-| Huánuco | 47 | 0,697 |
-| Ica | 31 | 0,101 |
+| Arequipa | 83 | 0,143 |
+| Ayacucho | 60 | 0,348 |
+| Cajamarca | 44 | 0,596 |
+| Callao | 1 ⚠️ | 0,126 |
+| Cusco | 97 | 0,618 |
+| Huancavelica | 29 | 0,367 |
+| Huánuco | 47 | 0,695 |
+| Ica | 31 | 0,107 |
 | Junín | 56 | 0,643 |
-| La Libertad | 31 | 0,343 |
-| Lambayeque | 18 | 0,273 |
-| Lima | 48 | 0,238 |
-| Loreto | 490 | 0,832 |
-| Madre de Dios | 112 | 0,846 |
+| La Libertad | 31 | 0,352 |
+| Lambayeque | 17 | 0,289 |
+| Lima | 48 | 0,245 |
+| Loreto | 490 | 0,831 |
+| Madre de Dios | 112 | 0,844 |
 | Moquegua | 19 | 0,114 |
-| Pasco | 31 | 0,745 |
-| Piura | 47 | 0,351 |
-| Puno | 94 | 0,447 |
-| San Martín | 68 | 0,818 |
-| Tacna | 23 | 0,108 |
-| Tumbes | 5 | 0,476 |
+| Pasco | 31 | 0,743 |
+| Piura | 47 | 0,357 |
+| Puno | 94 | 0,445 |
+| San Martín | 68 | 0,815 |
+| Tacna | 23 | 0,109 |
+| Tumbes | 5 | 0,494 |
+| Ucayali | 137 | 0,837 |
 
-Sanidad: selva alta como se esperaba (Loreto 0,83, Ucayali 0,84, Madre de Dios 0,85) y costa y sur bajos (Ica 0,10,
+Sanidad: selva alta como se esperaba (Loreto 0,83, Ucayali 0,84, Madre de Dios 0,84) y costa y sur bajos (Ica 0,11,
 Tacna 0,11, Moquegua 0,11, Arequipa 0,14).
 
 ## Decisiones
@@ -70,8 +72,16 @@ Tacna 0,11, Moquegua 0,11, Arequipa 0,14).
 - **Variable NDVI** (no % de árboles), como recomienda la tarea; la saturación de la selva va en la `nota` y en el aviso.
 - **`t2m` se queda en temperatura** y las mallas nuevas usan `valor`, como propone la tarea.
 
-## Pendiente
-- Bajar los bloques 2007–2012, 2013–2018 y 2019–2024 cuando AppEEARS termine y regenerar. Hasta entonces fallan, por
-  la serie parcial y no por el código: `pocos_datos_lleva_nota` (las 25 zonas son `pocos_datos` con 6 años) y los
-  checks de periodo 2001–2024 de `tests/e2e.sh`.
-- Avisar a Leandro para `pnpm gen` y la variable en el frontend (hay una rama local de prueba, `feat/vegetacion-mapa`).
+## Cambiado tras la revisión
+- Malla y tendencias regeneradas con 2001–2012 (antes 2001–2006).
+- Con menos de 20 años, cada departamento de `zonas/vegetacion.json` lleva una `nota` con los años que tiene: el motivo
+  real de `pocos_datos` (antes no llevaba nota y fallaba `pocos_datos_lleva_nota`).
+- `tests/e2e.sh`: el periodo de la vegetación se compara con el `anio_fin` de su malla (lluvia y temperatura siguen
+  exigiendo 2001–2024).
+- `docs/datos.md`: la lluvia va en mm/día en `/api/zonas` y en mm/año en `/api/celdas`; el frontend lee la `unidad` de
+  cada respuesta.
+
+## Pendiente (PR aparte, solo datos)
+- Bajar 2013–2018 y 2019–2024 cuando AppEEARS termine, regenerar y volver a exigir 2024 en `tests/e2e.sh` (marcado con
+  `shortcut:`). Publicar la tabla de cobertura con ≥ 15 años.
+- Confirmar como equipo el mínimo de 6 meses sin nubes por píxel (la tarea decía 12).
