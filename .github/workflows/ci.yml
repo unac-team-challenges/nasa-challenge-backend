@@ -21,18 +21,24 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - run: cargo fmt --check
       - run: cargo clippy --all-targets -- -D warnings
+      - uses: astral-sh/setup-uv@v7
+        with:
+          version: "0.13.8" # fijo: otra versión puede escribir el lock distinto y romper el diff
+      # dependabot solo toca requirements.txt: si el lock no lo sigue, el CI estaría probando versiones viejas.
+      # Se parte del lock actual para que uv conserve los pins de las transitivas y solo cambie lo que pide
+      # requirements.txt (sin la copia, cualquier release nueva de una transitiva pondría el CI en rojo).
+      # Va antes del pip install: si el lock está viejo, falla en segundos.
+      - name: Lock de Python al día con requirements.txt
+        run: |
+          cp pipeline/requirements.lock "$RUNNER_TEMP/requirements.lock"
+          uv pip compile pipeline/requirements.txt --python-version 3.12 --python-platform linux \
+            --generate-hashes --quiet -o "$RUNNER_TEMP/requirements.lock"
+          diff -u -I '^#' pipeline/requirements.lock "$RUNNER_TEMP/requirements.lock" \
+            || { echo "::error file=pipeline/requirements.lock::Desactualizado. Regenera con el comando de su cabecera."; exit 1; }
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
           cache: pip
           cache-dependency-path: pipeline/requirements.lock
       - run: pip install --require-hashes -r pipeline/requirements.lock  # para tests/test_tendencias.py
-      - uses: astral-sh/setup-uv@v7
-      # dependabot solo toca requirements.txt: si el lock no lo sigue, el CI estaría probando versiones viejas.
-      - name: Lock de Python al día con requirements.txt
-        run: |
-          uv pip compile pipeline/requirements.txt --python-version 3.12 --python-platform linux \
-            --generate-hashes --quiet -o "$RUNNER_TEMP/requirements.lock"
-          diff -u -I '^#' pipeline/requirements.lock "$RUNNER_TEMP/requirements.lock" \
-            || { echo "::error file=pipeline/requirements.lock::Desactualizado. Regenera con el comando de su cabecera."; exit 1; }
       - run: bash tests/e2e.sh

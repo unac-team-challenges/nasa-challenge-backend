@@ -45,12 +45,15 @@ jobs:
           git checkout -b "$rama"
           git add data/
           git commit -m "chore: actualizar datos (POWER, GPM y tendencias)"
-          # Sin --force: si ya corrió hoy, la rama (y lo que alguien le haya subido) no se pisa.
-          if git ls-remote --exit-code --heads origin "$rama" >/dev/null; then
-            echo "::error::La rama $rama ya existe (¿otra ejecución hoy?). Mezcla o cierra su PR, borra la rama y relanza."
-            exit 1
+          # Sin --force: si la rama ya existe (otra ejecución hoy), git rechaza el push y no se pisa nada.
+          if ! git push origin "$rama"; then
+            if [ -n "$(gh pr list --head "$rama" --state all --json number --jq '.[].number')" ]; then
+              echo "::error::$rama ya tiene PR. Mézclalo o ciérralo y borra la rama antes de relanzar."
+              exit 1
+            fi
+            # Rama subida sin PR (un gh fallido en una ejecución anterior): se abre con lo que ya está subido.
+            echo "::warning::Push rechazado y $rama sin PR: se abre el PR con la rama remota."
           fi
-          git push origin "$rama"
           # Sin `|| echo`: si gh falla (permisos, red...), el job queda en rojo con el error real.
           gh pr create --base developer --head "$rama" \
             --title "chore: actualizar datos ($(date +%F))" \
