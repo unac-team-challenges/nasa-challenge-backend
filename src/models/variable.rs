@@ -14,7 +14,9 @@ impl Variable {
     pub const TODAS: [Variable; 2] = [Variable::Lluvia, Variable::Temperatura];
 
     pub fn parse(s: &str) -> Option<Self> {
-        Self::TODAS.into_iter().find(|v| v.id() == s.trim().to_lowercase())
+        Self::TODAS
+            .into_iter()
+            .find(|v| v.id() == s.trim().to_lowercase())
     }
     pub fn id(self) -> &'static str {
         match self {

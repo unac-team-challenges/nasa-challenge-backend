@@ -1,5 +1,10 @@
 use crate::{
-    models::{gpm, power, variable::{Variable, VariableInfo}, zona::Zona, Region},
+    models::{
+        gpm, power,
+        variable::{Variable, VariableInfo},
+        zona::Zona,
+        Region,
+    },
     schema::Punto,
     ubigeo::UBIGEOS,
 };
@@ -76,7 +81,11 @@ pub fn clave(s: &str) -> String {
 }
 
 fn indexar<M>(regiones: &[Region<M>]) -> HashMap<String, usize> {
-    regiones.iter().enumerate().map(|(i, r)| (clave(&r.region), i)).collect()
+    regiones
+        .iter()
+        .enumerate()
+        .map(|(i, r)| (clave(&r.region), i))
+        .collect()
 }
 
 impl Datos {
@@ -93,11 +102,27 @@ impl Datos {
             return Err(error("power.json y gpm.json no tienen las mismas regiones"));
         }
         let variables: Vec<VariableInfo> = serde_json::from_str(f.variables)?;
-        if !variables.iter().map(|v| v.id.as_str()).eq(Variable::TODAS.map(Variable::id)) {
-            return Err(error("variables.json debe tener exactamente: lluvia, temperatura"));
+        if !variables
+            .iter()
+            .map(|v| v.id.as_str())
+            .eq(Variable::TODAS.map(Variable::id))
+        {
+            return Err(error(
+                "variables.json debe tener exactamente: lluvia, temperatura",
+            ));
         }
-        let mut d = Self { indice, indice_gpm, regiones, gpm, variables, fichas: Default::default() };
-        d.fichas = [d.fichas_de(Variable::Lluvia, f.zonas[0])?, d.fichas_de(Variable::Temperatura, f.zonas[1])?];
+        let mut d = Self {
+            indice,
+            indice_gpm,
+            regiones,
+            gpm,
+            variables,
+            fichas: Default::default(),
+        };
+        d.fichas = [
+            d.fichas_de(Variable::Lluvia, f.zonas[0])?,
+            d.fichas_de(Variable::Temperatura, f.zonas[1])?,
+        ];
         Ok(d)
     }
 
@@ -105,7 +130,12 @@ impl Datos {
     fn fichas_de(&self, v: Variable, json: &str) -> Result<Vec<Ficha>, serde_json::Error> {
         let zonas: Vec<Zona> = serde_json::from_str(json)?;
         if zonas.len() != UBIGEOS.len() {
-            return Err(error(format_args!("zonas/{}.json: {} zonas, se esperaban {}", v.id(), zonas.len(), UBIGEOS.len())));
+            return Err(error(format_args!(
+                "zonas/{}.json: {} zonas, se esperaban {}",
+                v.id(),
+                zonas.len(),
+                UBIGEOS.len()
+            )));
         }
         let info = &self.variables[v as usize];
         zonas
@@ -174,7 +204,12 @@ fn serie_de<M>(zona: &Zona, r: &Region<M>, valor: impl Fn(&M) -> f64) -> Option<
     Some(
         r.anios
             .iter()
-            .filter_map(|(a, m)| Some(Punto { anio: a.parse().ok()?, valor: valor(m) }))
+            .filter_map(|(a, m)| {
+                Some(Punto {
+                    anio: a.parse().ok()?,
+                    valor: valor(m),
+                })
+            })
             .filter(|p| periodo.contains(&p.anio))
             .collect(),
     )

@@ -1,5 +1,8 @@
 //! Lo que la API devuelve cuando no es un modelo completo.
-use crate::models::{power::Region, zona::{Stats, Zona}};
+use crate::models::{
+    power::Region,
+    zona::{Stats, Zona},
+};
 use serde::Serialize;
 use utoipa::ToSchema;
 
@@ -12,7 +15,11 @@ pub struct RegionResumen {
 
 impl From<&Region> for RegionResumen {
     fn from(r: &Region) -> Self {
-        Self { region: r.region.clone(), lat: r.lat, lon: r.lon }
+        Self {
+            region: r.region.clone(),
+            lat: r.lat,
+            lon: r.lon,
+        }
     }
 }
 
@@ -43,7 +50,13 @@ pub struct ZonaDetalle<'a> {
 }
 
 impl<'a> ZonaDetalle<'a> {
-    pub fn new(z: &'a Zona, variable: &'static str, unidad: &'a str, fuente: &'a str, serie: &'a [Punto]) -> Self {
+    pub fn new(
+        z: &'a Zona,
+        variable: &'static str,
+        unidad: &'a str,
+        fuente: &'a str,
+        serie: &'a [Punto],
+    ) -> Self {
         Self {
             id: &z.id,
             nombre: &z.nombre,

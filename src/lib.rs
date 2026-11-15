@@ -19,7 +19,8 @@ use tower_http::{
 
 pub fn app(datos: Estado, origenes: Vec<String>) -> Router {
     let cors = CorsLayer::new().allow_origin(AllowOrigin::predicate(move |o, _| {
-        o.to_str().is_ok_and(|o| config::origen_permitido(o, &origenes))
+        o.to_str()
+            .is_ok_and(|o| config::origen_permitido(o, &origenes))
     }));
     // Los datos se embeben al compilar y no cambian mientras el binario vive:
     // 1 h en el navegador, 1 día en el CDN (se invalida al desplegar).
