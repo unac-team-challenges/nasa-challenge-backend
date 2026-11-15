@@ -54,3 +54,14 @@ Se agregó a este PR para dejar en uno solo todo lo avanzado en local:
 - **Pendientes cerrados:**
   - el choque con #34 ya no existe (se cerró);
   - `cargo fmt` lo hizo #46.
+
+## Revisión de Leandro (14 nov)
+
+| Punto | Respuesta |
+|---|---|
+| `t.year` falla con fechas `datetime64` en `_leer_zona` | Corregido: `ds["time"].dt.year` y `.dt.month` sirven con `datetime64` y con `cftime`. Una prueba con un NetCDF sintético reproducía el `AttributeError` antes del arreglo |
+| El e2e usa el `python3` del sistema y falla en local sin las dependencias | Ahora usa `.venv/bin/python` si existe; el CI no cambia |
+| Falta `data/ndvi.json` y el endpoint | Los trae **#50** (Favio), hecho sobre esta rama: con los NetCDF reales del Lab 3, coincide con el Lab 3 y agrega `GET /api/vegetacion`. La credencial de Earthdata ya funciona (AppEEARS responde 200), por si hay que volver a pedir los datos |
+| Choque con #34 | #34 se cerró: ya no hay conflicto |
+| `lab5_tendencias.csv` con la regla vieja | Regenerado en este PR (ver «Más pruebas») |
+| «Un PR = un tema» | La tarea A se cierra con #50 encima de este PR, como acordó el equipo |

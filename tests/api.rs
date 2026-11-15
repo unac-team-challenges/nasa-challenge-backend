@@ -6,7 +6,7 @@ use axum::{
 use nasa_challenge_backend::{
     app,
     data::{Datos, Estado, Fuentes},
-    models::{power, zona::Status},
+    models::{power, variable::Variable, zona::Status},
 };
 use serde_json::Value;
 use std::sync::{Arc, LazyLock};
@@ -179,6 +179,22 @@ async fn api_variable_es_obligatoria_y_valida() {
         assert_eq!(s, StatusCode::BAD_REQUEST, "{ruta}");
         assert!(b["error"].as_str().unwrap().contains("lluvia"));
     }
+}
+
+#[tokio::test]
+async fn api_variable_ignora_mayusculas_y_espacios() {
+    for v in ["LLUVIA", "Lluvia", "%20lluvia%20"] {
+        let (s, _, b) = get(&format!("/api/zonas/15?variable={v}"), None).await;
+        assert_eq!(s, StatusCode::OK, "{v}");
+        assert_eq!(b["variable"], "lluvia", "{v}");
+    }
+}
+
+/// `Variable::parse` compara con `eq_ignore_ascii_case`: un id con tilde (p. ej. "vegetación")
+/// dejaría de ignorar mayúsculas en esa letra. Si este test falla, vuelve a `to_lowercase()`.
+#[test]
+fn ids_de_variable_son_ascii() {
+    assert!(Variable::TODAS.iter().all(|v| v.id().is_ascii()));
 }
 
 #[tokio::test]
@@ -539,13 +555,23 @@ async fn api_vegetacion_trae_las_2_zonas_del_caso_2() {
             .contains("recuadro"));
         assert!(status_valido(&z["stats"]["status"]));
         assert_eq!(z["stats"]["status"], "real", "{}", z["id"]);
-        let anios = z["anios"].as_object().unwrap();
-        assert_eq!(anios.len(), 24);
+        let serie = z["serie"].as_array().unwrap();
+        assert_eq!(serie.len(), 24);
         assert_eq!(z["stats"]["n_years"], 24);
-        assert_eq!(anios["2001"]["ndvi_anual"], n01);
-        assert_eq!(anios["2001"]["area_verde_km2"], a01);
-        assert_eq!(anios["2024"]["ndvi_anual"], n24);
-        assert_eq!(anios["2024"]["area_verde_km2"], a24);
+        let (p01, p24) = (&serie[0], &serie[23]);
+        assert_eq!(
+            (p01["anio"].as_u64(), p24["anio"].as_u64()),
+            (Some(2001), Some(2024))
+        );
+        assert_eq!(p01["ndvi_anual"], n01);
+        assert_eq!(p01["area_verde_km2"], a01);
+        assert_eq!(p24["ndvi_anual"], n24);
+        assert_eq!(p24["area_verde_km2"], a24);
+        // p y q nunca se publican como 0: el piso es 0,000001
+        assert!(
+            z["stats"]["p_value"].as_f64().unwrap() > 0.0
+                && z["stats"]["q_value"].as_f64().unwrap() > 0.0
+        );
     }
 }
 
@@ -557,17 +583,17 @@ fn vegetacion_mal_formada_se_rechaza() {
         Datos::desde(Fuentes { ndvi: &n, ..e })
     };
     assert!(con_ndvi(|_| {}).is_ok(), "ndvi.json sin cambios carga");
-    let malos: [(&str, Cambio); 12] = [
+    let malos: [(&str, Cambio); 13] = [
         ("sin zonas", |z| z.as_array_mut().unwrap().clear()),
         ("campo desconocido en la zona", |z| z[0]["nuevo"] = 1.into()),
         ("campo desconocido en un año", |z| {
-            z[0]["anios"]["2001"]["nuevo"] = 1.into()
+            z[0]["serie"][0]["nuevo"] = 1.into()
         }),
         ("NDVI fuera de −1 a 1", |z| {
-            z[0]["anios"]["2001"]["ndvi_anual"] = 1.5.into()
+            z[0]["serie"][0]["ndvi_anual"] = 1.5.into()
         }),
         ("área verde negativa", |z| {
-            z[0]["anios"]["2001"]["area_verde_km2"] = (-1.0).into()
+            z[0]["serie"][0]["area_verde_km2"] = (-1.0).into()
         }),
         ("ubigeo inexistente", |z| z[0]["ubigeo"] = "99".into()),
         ("departamento que no es el del ubigeo", |z| {
@@ -577,7 +603,10 @@ fn vegetacion_mal_formada_se_rechaza() {
             z[0]["unidad_geografica"] = " ".into()
         }),
         ("lat fuera del recuadro", |z| z[0]["lat"] = 0.into()),
-        ("n_years no cuadra con anios", |z| {
+        ("años desordenados en la serie", |z| {
+            z[0]["serie"].as_array_mut().unwrap().swap(0, 1)
+        }),
+        ("n_years no cuadra con serie", |z| {
             z[0]["stats"]["n_years"] = 23.into()
         }),
         ("id repetido", |z| {
@@ -607,11 +636,17 @@ async fn api_cobertura_arboles_trae_la_pampa_e_iquitos() {
     let ids: Vec<_> = zonas.iter().map(|z| z["id"].as_str().unwrap()).collect();
     assert_eq!(ids, ["la-pampa", "iquitos"]);
     // Valores de MOD44B servidos tal cual: La Pampa pierde bosque, Iquitos se mantiene
-    let pct = |z: &Value, a: &str| z["anios"][a]["arboles_pct"].as_f64().unwrap();
-    assert_eq!(
-        (pct(&zonas[0], "2001"), pct(&zonas[0], "2024")),
-        (74.1, 45.86)
-    );
+    let pct = |z: &Value, a: u64| {
+        z["serie"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|p| p["anio"] == a)
+            .unwrap()["arboles_pct"]
+            .as_f64()
+            .unwrap()
+    };
+    assert_eq!((pct(&zonas[0], 2001), pct(&zonas[0], 2024)), (74.1, 45.86));
     assert!(zonas[0]["stats"]["slope_per_decade"].as_f64().unwrap() < -10.0);
     assert!(zonas[0]["stats"]["ci_high"].as_f64().unwrap() < 0.0);
     assert!(zonas[1]["stats"]["ci_low"].as_f64().unwrap() <= 0.0);
@@ -622,12 +657,12 @@ async fn api_cobertura_arboles_trae_la_pampa_e_iquitos() {
             .unwrap()
             .contains("no es el promedio del departamento"));
         assert!(status_valido(&z["stats"]["status"]));
-        let anios = z["anios"].as_object().unwrap();
+        let serie = z["serie"].as_array().unwrap();
         assert_eq!(
             z["stats"]["n_years"].as_u64().unwrap() as usize,
-            anios.len()
+            serie.len()
         );
-        assert!(anios.values().all(|a| {
+        assert!(serie.iter().all(|a| {
             let pct = a["arboles_pct"].as_f64().unwrap();
             (0.0..=100.0).contains(&pct) && a["area_bosque_km2"].as_f64().unwrap() >= 0.0
         }));
@@ -648,10 +683,10 @@ fn cobertura_mal_formada_se_rechaza() {
     let malos: [(&str, Cambio); 8] = [
         ("sin zonas", |z| z.as_array_mut().unwrap().clear()),
         ("campo desconocido en un año", |z| {
-            z[0]["anios"]["2001"]["nuevo"] = 1.into()
+            z[0]["serie"][0]["nuevo"] = 1.into()
         }),
         ("cobertura mayor que 100 %", |z| {
-            z[0]["anios"]["2001"]["arboles_pct"] = 101.into()
+            z[0]["serie"][0]["arboles_pct"] = 101.into()
         }),
         ("umbral de bosque fuera de 0 a 100", |z| {
             z[0]["umbral_bosque_pct"] = 150.into()
@@ -663,7 +698,7 @@ fn cobertura_mal_formada_se_rechaza() {
             z[0]["departamento"] = "Loreto".into()
         }),
         ("lon fuera del recuadro", |z| z[0]["lon"] = 0.into()),
-        ("n_years no cuadra con anios", |z| {
+        ("n_years no cuadra con la serie", |z| {
             z[0]["stats"]["n_years"] = 3.into()
         }),
     ];

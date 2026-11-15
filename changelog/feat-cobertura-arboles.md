@@ -1,6 +1,6 @@
 # feat/cobertura-arboles
 
-PR: base `feat/ndvi-api` (#50), porque reutiliza su modelo de recuadros. Autor: Favio. Es la parte 2 de la tarea de vegetación (selva).
+PR: base `developer` (#42 y #50 ya mezclados; reutiliza el modelo de recuadros de #50 y su `serie` como lista). Autor: Favio. Es la parte 2 de la tarea de vegetación (selva).
 
 ## Añadido
 - **`pipeline/cobertura.py`**: cobertura de árboles de **MODIS MOD44B v061** (250 m, anual) vía AppEEARS, con la misma estructura que `ndvi.py` (`enviar`, `estado`, `bajar`, `calcular`, `autoprueba`). Reutiliza la sesión de AppEEARS de `ndvi.py` y `clasificar()` de `tendencias.py`, sin copiar los umbrales. Bosque = 30 % o más de árboles.
@@ -19,5 +19,4 @@ PR: base `feat/ndvi-api` (#50), porque reutiliza su modelo de recuadros. Autor: 
 - **La Pampa no sale `real` por el lag1**, aunque la pérdida de bosque es grande y el IC no incluye 0. La serie es estable hasta 2009 y luego cae fuerte. No cambié el criterio único. Si se quiere tratar los quiebres de otra forma, es una decisión de `docs/tendencias.md`.
 
 ## Pendiente
-- Mezclar después de #42 y #50.
 - Frontend: `pnpm gen` y decidir dónde se muestra la selva (¿ficha de Madre de Dios y Loreto, como el Caso 2?).

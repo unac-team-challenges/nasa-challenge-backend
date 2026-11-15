@@ -89,7 +89,7 @@ def zona_json(zona, pixeles, serie):
         "lat": round((s + n) / 2, 3), "lon": round((o + e) / 2, 3),
         "pixeles": pixeles, "fuente": FUENTE, "umbral_bosque_pct": BOSQUE,
         "tendencia_de": "arboles_pct",
-        "anios": {str(a): v for a, v in serie.items()},
+        "serie": [{"anio": int(a), **v} for a, v in sorted(serie.items())],
         "stats": st,
     }
 
@@ -202,7 +202,7 @@ def calcular():
         filas.append(zona_json(zona, pixeles, serie))
     escribir(con_estado(filas))
     for f in filas:
-        st, a = f["stats"], f["anios"]
+        st, a = f["stats"], {str(p["anio"]): p for p in f["serie"]}
         ext = " · ".join(f"{k}: {a[k]['arboles_pct']} % árboles, {a[k]['area_bosque_km2']} km² de bosque"
                          for k in (min(a, default=""), max(a, default="")) if k in a)
         print(f"{f['nombre']}: {st['n_years']} años, Sen {st.get('slope_per_decade', 0):+.3f} pp/déc "

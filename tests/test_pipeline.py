@@ -8,6 +8,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "pipeline"))
 
 import gpm  # noqa: E402
+import ndvi  # noqa: E402
 import power  # noqa: E402
 
 DATOS = Path(__file__).resolve().parent.parent / "data"
@@ -39,6 +40,37 @@ class Avisos(unittest.TestCase):
         lineas = salida.getvalue().splitlines()
         self.assertEqual(lineas, ["AVISO 2003: sin 12 meses en Callao; ese año no entra",
                                   "AVISO 2026: sin 12 meses en 25 regiones; ese año no entra"])
+
+
+class LeerNetcdf(unittest.TestCase):
+    """_leer_zona con un NetCDF sintético como los de AppEEARS (revisión de #42, Leandro)."""
+
+    def test_fechas_datetime64(self):
+        import tempfile
+
+        import numpy as np
+        import pandas as pd
+        import xarray as xr
+
+        o, s, e, n = ndvi.ZONAS[0][5]
+        tiempo = pd.date_range("2001-01-01", periods=24, freq="MS")  # se decodifica como datetime64
+        lat, lon = np.linspace(s + 0.01, n - 0.01, 3), np.linspace(o + 0.01, e - 0.01, 3)
+        forma = (len(tiempo), len(lat), len(lon))
+        ds = xr.Dataset(
+            {ndvi.CAPAS[0]: (("time", "lat", "lon"), np.full(forma, 0.4)),
+             ndvi.CAPAS[1]: (("time", "lat", "lon"), np.zeros(forma))},
+            coords={"time": tiempo, "lat": lat, "lon": lon})
+        with tempfile.TemporaryDirectory() as tmp:
+            ds.to_netcdf(Path(tmp) / "zona.nc", engine="h5netcdf")
+            antes, ndvi.CACHE = ndvi.CACHE, Path(tmp)
+            try:
+                pixeles, meses, areas = ndvi._leer_zona(ndvi.ZONAS[0])
+            finally:
+                ndvi.CACHE = antes
+        self.assertEqual(pixeles, 9)
+        self.assertEqual(meses[0][:3], (2001, 1, True))
+        self.assertEqual(meses[-1][:2], (2002, 12))
+        self.assertEqual(sorted(areas), [2001, 2002])
 
 
 if __name__ == "__main__":

@@ -3,13 +3,13 @@
 //! devuelve en `/api/cobertura-arboles`: la API no recalcula ni redondea ningún valor.
 use crate::models::zona::Stats;
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
 use utoipa::ToSchema;
 
 /// Medidas de un año (MOD44B es un producto anual).
 #[derive(Clone, Debug, Deserialize, Serialize, ToSchema)]
 #[serde(deny_unknown_fields)]
 pub struct AnioCobertura {
+    pub anio: u16,
     /// Cobertura de árboles media del recuadro, en % (0–100).
     pub arboles_pct: f64,
     /// Área con cobertura de árboles mayor o igual que `umbral_bosque_pct`, en km².
@@ -40,10 +40,9 @@ pub struct ZonaCobertura {
     pub fuente: String,
     /// % de cobertura de árboles desde el que un píxel cuenta como bosque.
     pub umbral_bosque_pct: f64,
-    /// Sobre qué campo de `anios` se calcula `stats` (hoy, "arboles_pct").
+    /// Sobre qué campo de `serie` se calcula `stats` (hoy, "arboles_pct").
     pub tendencia_de: String,
-    /// Por año ("2001", ...).
-    #[schema(value_type = BTreeMap<String, AnioCobertura>)]
-    pub anios: BTreeMap<String, AnioCobertura>,
+    /// Un punto por año, de menor a mayor (como `serie` de `/api/zonas/{id}`).
+    pub serie: Vec<AnioCobertura>,
     pub stats: Stats,
 }

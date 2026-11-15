@@ -226,8 +226,8 @@ trait Recuadro: serde::de::DeserializeOwned {
     fn stats(&self) -> &Stats;
     /// Problema en los campos propios del archivo (umbral), si lo hay.
     fn revisar(&self) -> Option<&'static str>;
-    /// Años de `anios`, cada uno con su problema de rango si lo tiene.
-    fn anios(&self) -> Vec<(&str, Option<&'static str>)>;
+    /// Años de `serie`, en orden, cada uno con su problema de rango si lo tiene.
+    fn anios(&self) -> Vec<(u16, Option<&'static str>)>;
 }
 
 /// Los campos comunes de `Recuadro` (mismos nombres en los dos modelos).
@@ -268,13 +268,13 @@ impl Recuadro for ZonaVegetacion {
         (!(-1.0..=1.0).contains(&self.umbral_verde_ndvi))
             .then_some("umbral_verde_ndvi fuera de −1 a 1")
     }
-    fn anios(&self) -> Vec<(&str, Option<&'static str>)> {
-        self.anios
+    fn anios(&self) -> Vec<(u16, Option<&'static str>)> {
+        self.serie
             .iter()
-            .map(|(a, m)| {
+            .map(|m| {
                 let mal = !(-1.0..=1.0).contains(&m.ndvi_anual) || m.area_verde_km2 < 0.0;
                 (
-                    a.as_str(),
+                    m.anio,
                     mal.then_some("NDVI fuera de −1 a 1 o área verde negativa"),
                 )
             })
@@ -290,13 +290,13 @@ impl Recuadro for ZonaCobertura {
         (!(0.0..=100.0).contains(&self.umbral_bosque_pct))
             .then_some("umbral_bosque_pct fuera de 0 a 100")
     }
-    fn anios(&self) -> Vec<(&str, Option<&'static str>)> {
-        self.anios
+    fn anios(&self) -> Vec<(u16, Option<&'static str>)> {
+        self.serie
             .iter()
-            .map(|(a, m)| {
+            .map(|m| {
                 let mal = !(0.0..=100.0).contains(&m.arboles_pct) || m.area_bosque_km2 < 0.0;
                 (
-                    a.as_str(),
+                    m.anio,
                     mal.then_some("cobertura de árboles fuera de 0 a 100 % o área negativa"),
                 )
             })
@@ -344,13 +344,13 @@ fn recuadros<Z: Recuadro>(json: &str) -> Result<Vec<Z>, serde_json::Error> {
         }
         let mut anios = Vec::new();
         for (a, problema) in z.anios() {
-            let Ok(a) = a.parse::<u16>() else {
-                return mal("un año no es un número");
-            };
             if let Some(p) = problema {
                 return mal(&format!("año {a} con {p}"));
             }
             anios.push(a);
+        }
+        if !anios.windows(2).all(|w| w[0] < w[1]) {
+            return mal("serie con años repetidos o desordenados");
         }
         let st = z.stats();
         let en_periodo = anios
@@ -362,7 +362,7 @@ fn recuadros<Z: Recuadro>(json: &str) -> Result<Vec<Z>, serde_json::Error> {
             || en_periodo != usize::from(st.n_years)
         {
             return mal(&format!(
-                "stats dice {}–{} ({} años) pero anios va de {:?} a {:?} ({} años)",
+                "stats dice {}–{} ({} años) pero serie va de {:?} a {:?} ({} años)",
                 st.year_start,
                 st.year_end,
                 st.n_years,

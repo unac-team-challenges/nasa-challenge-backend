@@ -6,6 +6,9 @@ cd "$(dirname "$0")/.."
 PORT=${PORT:-3099}
 URL=http://127.0.0.1:$PORT
 fallos=0
+# Python con las dependencias de pipeline/requirements.txt: la .venv local si existe (el CI las instala
+# en el python3 del sistema). Sin ellas fallan test_tendencias, test_pipeline y las autopruebas.
+PY=python3; [ -x .venv/bin/python ] && PY=.venv/bin/python
 ok()  { echo "ok   $1"; }
 mal() { echo "FAIL $1"; fallos=1; }
 chk() { local d=$1; shift; if "$@" >/dev/null 2>&1; then ok "$d"; else mal "$d"; fi; }
@@ -16,13 +19,13 @@ chk "todos los valores son números (sin null/NaN)" jq -e '[.[].anios[][]] | len
 chk "gpm.json: lluvia entre 0 y 30 mm/día (detecta unidades mal)" jq -e '[.[].anios[].lluvia_mm_dia] | all(. >= 0 and . <= 30)' data/gpm.json
 chk "power.json: T2M entre -15 y 35 °C"                           jq -e '[.[].anios[].T2M] | all(. >= -15 and . <= 35)' data/power.json
 chk "power.json: PRECTOTCORR entre 0 y 30 mm/día"                 jq -e '[.[].anios[].PRECTOTCORR] | all(. >= 0 and . <= 30)' data/power.json
-chk "pipeline/power.py compila" python3 -m py_compile pipeline/power.py
+chk "pipeline/power.py compila" "$PY" -m py_compile pipeline/power.py
 chk "gpm.json es JSON válido con 25 regiones" jq -e 'length == 25' data/gpm.json
 chk "gpm.json: todos los valores son números (sin null/NaN)" jq -e '[.[].anios[][]] | length > 0 and all(type == "number" and (isnan | not))' data/gpm.json
-chk "pipeline/gpm.py compila" python3 -m py_compile pipeline/gpm.py
-chk "pipeline/tendencias.py compila" python3 -m py_compile pipeline/tendencias.py
-chk "tests/test_tendencias.py (semáforo, aviso, periodo)" python3 -m unittest -q tests/test_tendencias.py
-chk "tests/test_pipeline.py (avisos e IMERG incremental)" python3 -m unittest -q tests/test_pipeline.py
+chk "pipeline/gpm.py compila" "$PY" -m py_compile pipeline/gpm.py
+chk "pipeline/tendencias.py compila" "$PY" -m py_compile pipeline/tendencias.py
+chk "tests/test_tendencias.py (semáforo, aviso, periodo)" "$PY" -m unittest -q tests/test_tendencias.py
+chk "tests/test_pipeline.py (avisos e IMERG incremental)" "$PY" -m unittest -q tests/test_pipeline.py
 chk "variables.json tiene lluvia y temperatura" jq -e '[.[].id] == ["lluvia","temperatura"]' data/variables.json
 chk "variables.json: periodo 2001–2024 y lluvia de IMERG" jq -e 'all(.anio_inicio == 2001 and .anio_fin == 2024) and (.[0].fuente | test("IMERG"))' data/variables.json
 chk "zonas/lluvia.json: aviso del cambio de satélites de 2014 en las 25" jq -e 'all(.[].stats.aviso; type == "string" and test("2014"))' data/zonas/lluvia.json
@@ -35,10 +38,10 @@ for v in lluvia temperatura; do
   chk "zonas/$v.json: status válido" jq -e 'all(.[].stats.status; IN("real","posible_casualidad","pocos_datos"))' data/zonas/$v.json
   chk "zonas/$v/: 25 fichas con serie numérica" bash -c "ls data/zonas/$v/*.json | wc -l | grep -qx 25 && jq -s -e 'all(.[].serie[]; (.anio|type==\"number\") and (.valor|type==\"number\"))' data/zonas/$v/*.json"
 done
-chk "pipeline/ndvi.py compila" python3 -m py_compile pipeline/ndvi.py
-chk "ndvi: autoprueba (años completos, BH, criterio único, sin NaN)" python3 pipeline/ndvi.py autoprueba
-chk "tests/test_ndvi_checks.py (los checks de ndvi.json detectan 7 roturas)" python3 -m unittest -q tests/test_ndvi_checks.py
-chk "lab5: autoprueba del criterio de tendencia" python3 -c "import sys; sys.path.insert(0, 'pipeline/exploracion/josue/scripts'); import lab5_tendencias as l; l.autoprueba()"
+chk "pipeline/ndvi.py compila" "$PY" -m py_compile pipeline/ndvi.py
+chk "ndvi: autoprueba (años completos, BH, criterio único, sin NaN)" "$PY" pipeline/ndvi.py autoprueba
+chk "tests/test_ndvi_checks.py (los checks de ndvi.json detectan 7 roturas)" "$PY" -m unittest -q tests/test_ndvi_checks.py
+chk "lab5: autoprueba del criterio de tendencia" "$PY" -c "import sys; sys.path.insert(0, 'pipeline/exploracion/josue/scripts'); import lab5_tendencias as l; l.autoprueba()"
 if [ -f data/ndvi.json ]; then
   bash tests/checks_ndvi.sh data/ndvi.json || fallos=1
 else
