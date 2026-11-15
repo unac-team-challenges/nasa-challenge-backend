@@ -29,3 +29,12 @@ La primera revisión independiente de lo pedido se interrumpió (límite de uso)
 - `pipeline/exploracion/josue/resultados/lab5_tendencias.csv` sigue con la regla vieja (solo `q`): su entrada `salida/lab1_power_anual.csv` no está en el repo. Es un resultado del lab, no lo lee el producto.
 - `cargo fmt`: `developer` no pasa `cargo fmt --check`; formatear en un PR aparte.
 - Selva: decidir si se usa MOD44B.
+
+## Además: pipeline más robusto (propuestas 5 y 6 de `docs/propuestas-mejora/`)
+
+Se agregó a este PR para dejar en uno solo todo lo avanzado en local:
+
+- **`power.py` reintenta** con `urllib3.Retry`: 4 intentos con espera creciente ante 429/500/502/503/504. Antes, un 503 pasajero tumbaba las 16 llamadas.
+- **Avisos de años descartados** por `stderr`, en `power.py` y `gpm.py`: qué año no entra y en qué regiones. Un año que falta cambia la pendiente y `n_years`, y debe verse en el log.
+- **`gpm.py` incremental:** no vuelve a pedir los años que ya están completos en las 25 regiones de `data/gpm.json`. IMERG v07 está congelado desde sep 2025: sin esto, el cron mensual pedía todo para obtener el mismo resultado. `--todo` fuerza la descarga completa.
+- **`tests/test_pipeline.py`:** 4 pruebas sin red, incluido en el e2e. Detecta la mutación de cambiar la intersección de años por la unión.
