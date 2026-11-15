@@ -4,21 +4,6 @@
 
 ---
 
-## 1. El cron de datos nunca se ejecuta
-
-**Qué pasa.** GitHub solo dispara `schedule` desde la **rama por defecto**, y la rama por defecto del repo es `main`. El workflow `actualizar-datos.yml` ya existe en `main`, pero `main` está 19 commits detrás de `developer` y el 2026-11-14 `gh run list --workflow "Actualizar datos"` no mostraba ninguna ejecución:
-
-Los datos nunca se han actualizado solos. Falta lanzarlo una vez a mano (`workflow_dispatch`) para comprobar que corre, con `EARTHDATA_USERNAME` y `EARTHDATA_PASSWORD` como *secrets*.
-
-**Cómo (elegir una).**
-
-- Mientras dure el hackathon: **cambiar la rama por defecto a `developer`** (Settings → General → Default branch). Es lo que el equipo usa de verdad.
-- O hacer el primer PR `developer → main` ya, como dice `CONDITIONS.md`.
-
-Antes de activarlo, leer el punto 2 y el [§1 de 02](02-pipeline-y-datos.md#1-imerg-v07-ya-no-se-actualiza): hoy correría ~2 horas para no cambiar nada en `gpm.json`.
-
----
-
 ## 2. El bot sube datos sin validarlos
 
 **Qué pasa.** El job hace `git push` directo a `developer` usando el `GITHUB_TOKEN`. GitHub **no dispara otros workflows** con eventos creados por ese token (lo hace a propósito para evitar bucles). Resultado: el commit de datos **no pasa por `e2e`**.
@@ -65,9 +50,3 @@ jobs:
 - Al terminar el evento, **hacer público el repo**: en repos públicos la protección de ramas y el *required check* `e2e` son gratis. Antes, revisar que no haya secretos en el historial (no se encontró ninguno en esta revisión).
 
 **Además:** activar **"Automatically delete head branches"** (hoy `delete_branch_on_merge: false`; hay 20 ramas remotas, casi todas ya mezcladas). Ayuda también con el punto 6.
-
----
-
-## 7. `main` como "producción"
-
-`main` no se ha actualizado nunca. Si Vercel apunta a `main` para producción, hoy publicaría solo un README. Conviene decidir una fecha concreta para el primer `developer → main` (por ejemplo, el *code freeze* antes de la demo) y escribirla en `CONDITIONS.md`.
