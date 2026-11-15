@@ -51,3 +51,24 @@ Reglas generales (años completos, costa, fuentes): [`reglas-datos.md`](reglas-d
 
 ## Archivos
 - `pipeline/power.py`: consulta las 25 regiones y escribe `data/power.json` (tabla región × año con `PRECTOTCORR`, `T2M`, `T2M_MAX` y `T2M_MIN`).
+
+## Malla de temperatura (mapa de calor)
+
+`pipeline/power.py` también escribe `data/celdas/temperatura.json`: la `T2M` anual de **cada celda**
+de POWER cuyo centro cae en un departamento (344 celdas, 2001–2024). La sirve `GET /api/celdas?variable=temperatura`
+y el frontend la pinta como mapa de calor (1 px por celda, interpolación bilineal, recortada por los polígonos).
+
+**Por qué celdas y no el promedio del departamento:** el promedio mezcla costa, Andes y selva. Lima sale
+13,8 °C y Pasco 19,6 °C, cifras que nadie reconoce. La celda muestra el valor donde está: costa de Lima ~18 °C,
+altiplano de Puno ~8 °C, Iquitos ~26 °C. Las tendencias por departamento (°C/década) sí usan el promedio:
+para el cambio no importa mezclar alturas.
+
+**Límites conocidos:**
+- La celda (~50 km) tiene la elevación media de MERRA-2: en los Andes los valles salen más fríos y las cumbres
+  más templadas que una estación (Cusco ciudad ~12 °C, su celda ~8 °C). La leyenda lo dice.
+  Fuente: respuesta del equipo POWER en el [foro de Earthdata](https://forum.earthdata.nasa.gov/viewtopic.php?p=16275).
+- Las tendencias 2001–2024 (0,14–0,77 °C/década) son coherentes con estudios andinos (0,13–0,45 °C/década,
+  p. ej. [SENAMHI, 1964–2014](https://www.sidalc.net/search/Record/dig-senamhi-pe-20.500.12542-142)).
+  Ucayali (0,77) es atípico: pendiente revisar si es deforestación real o un artefacto del reanálisis.
+- Mejora futura: [PISCOt v1.2](https://link.springer.com/article/10.1038/s41597-023-02777-w) de SENAMHI
+  (~1 km, corrige por topografía, MAE ~1,3 °C), pero solo llega a 2020.

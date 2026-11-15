@@ -1,5 +1,6 @@
 use crate::{
     models::{
+        celdas::Malla,
         cobertura::ZonaCobertura,
         gpm, power,
         variable::{Variable, VariableInfo},
@@ -10,6 +11,7 @@ use crate::{
     schema::Punto,
     ubigeo::UBIGEOS,
 };
+use axum::body::Bytes;
 use serde::de::Error as _;
 use std::{
     collections::{BTreeSet, HashMap},
@@ -25,6 +27,7 @@ const ZONAS_TEMPERATURA: &str = include_str!("../data/zonas/temperatura.json");
 const ZONAS_LLUVIA_IMERG: &str = include_str!("../data/zonas/lluvia_imerg.json");
 const NDVI: &str = include_str!("../data/ndvi.json");
 const COBERTURA: &str = include_str!("../data/cobertura_arboles.json");
+const CELDAS_TEMPERATURA: &str = include_str!("../data/celdas/temperatura.json");
 
 pub type Estado = Arc<Datos>;
 
@@ -40,6 +43,8 @@ pub struct Fuentes<'a> {
     pub ndvi: &'a str,
     /// `data/cobertura_arboles.json`: cobertura de árboles de la selva.
     pub cobertura: &'a str,
+    /// `data/celdas/temperatura.json`.
+    pub celdas: &'a str,
 }
 
 impl Fuentes<'static> {
@@ -50,6 +55,7 @@ impl Fuentes<'static> {
         zonas: [ZONAS_LLUVIA, ZONAS_TEMPERATURA, ZONAS_LLUVIA_IMERG],
         ndvi: NDVI,
         cobertura: COBERTURA,
+        celdas: CELDAS_TEMPERATURA,
     };
 }
 
@@ -72,6 +78,8 @@ pub struct Datos {
     pub vegetacion: Vec<ZonaVegetacion>,
     /// `data/cobertura_arboles.json` tal cual, ya validado.
     pub cobertura: Vec<ZonaCobertura>,
+    /// Malla de temperatura ya validada; se sirve tal cual (clonar `Bytes` no copia).
+    pub celdas: Bytes,
 }
 
 fn error(msg: impl std::fmt::Display) -> serde_json::Error {
@@ -135,13 +143,56 @@ impl Datos {
             fichas: Default::default(),
             vegetacion: recuadros(f.ndvi)?,
             cobertura: recuadros(f.cobertura)?,
+            celdas: Bytes::new(),
         };
         d.fichas = [
             d.fichas_de(Variable::Lluvia, f.zonas[0])?,
             d.fichas_de(Variable::Temperatura, f.zonas[1])?,
             d.fichas_de(Variable::LluviaImerg, f.zonas[2])?,
         ];
+        d.validar_celdas(f.celdas)?;
+        d.celdas = Bytes::copy_from_slice(f.celdas.as_bytes());
         Ok(d)
+    }
+
+    /// La malla debe caber en Perú, en el periodo de la temperatura y con valores físicos.
+    fn validar_celdas(&self, json: &str) -> Result<(), serde_json::Error> {
+        let m: Malla = serde_json::from_str(json)?;
+        let info = &self.variables[Variable::Temperatura as usize];
+        let anios = usize::from(m.anio_fin.saturating_sub(m.anio_inicio)) + 1;
+        let falla = |msg: String| Err(error(format_args!("celdas/temperatura.json: {msg}")));
+        if m.celdas.is_empty() {
+            return falla("sin celdas".into());
+        }
+        if m.anio_inicio > m.anio_fin
+            || m.anio_inicio < info.anio_inicio
+            || m.anio_fin > info.anio_fin
+        {
+            return falla(format!(
+                "{}–{} se sale del periodo de variables.json",
+                m.anio_inicio, m.anio_fin
+            ));
+        }
+        if !(m.dlat > 0.0 && m.dlon > 0.0) {
+            return falla("dlat y dlon deben ser > 0".into());
+        }
+        for c in &m.celdas {
+            let donde = format!("celda ({}, {})", c.lat, c.lon);
+            // Caja de Perú con margen de media celda
+            if !(-18.6..=0.1).contains(&c.lat) || !(-81.7..=-68.4).contains(&c.lon) {
+                return falla(format!("{donde} fuera de Perú"));
+            }
+            if c.t2m.len() != anios {
+                return falla(format!(
+                    "{donde}: {} valores, se esperaban {anios}",
+                    c.t2m.len()
+                ));
+            }
+            if c.t2m.iter().flatten().any(|t| !(-40.0..=50.0).contains(t)) {
+                return falla(format!("{donde}: temperatura fuera de -40..50 °C"));
+            }
+        }
+        Ok(())
     }
 
     /// Lee `zonas/{v}.json` y lo cruza con `variables.json`, los ubigeos y `power.json`/`gpm.json`.

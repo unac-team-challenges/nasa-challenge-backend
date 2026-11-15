@@ -41,6 +41,7 @@ uv pip compile pipeline/requirements.txt --python-version 3.12 --python-platform
 | `GET /api/zonas/{id}?variable=` | Serie anual de la zona (`serie: [{anio, valor}]`) y su `stats` del mismo periodo (`aviso` siempre en lluvia); 404 si el ubigeo no existe |
 | `GET /api/vegetacion` | Vegetación del Caso 2 (`data/ndvi.json`, MODIS MOD13A3): Chavimochic e Ica-Villacurí, cada una con `unidad_geografica` (recuadro sobre el valle, **no** el departamento), `serie: [{anio, ndvi_anual, area_verde_km2}]` y `stats` con su `status` |
 | `GET /api/cobertura-arboles` | Cobertura de árboles de la selva (`data/cobertura_arboles.json`, MODIS MOD44B), donde el NDVI se satura: La Pampa (Madre de Dios, minería de oro) e Iquitos (contraste), cada una con `unidad_geografica`, `serie: [{anio, arboles_pct, area_bosque_km2}]` y `stats` |
+| `GET /api/celdas?variable=temperatura` | Mapa de calor: `T2M` anual de cada celda de NASA POWER (~0,5° × 0,625°) dentro de Perú (`data/celdas/temperatura.json`, 344 celdas), `t2m` alineado con `anio_inicio`..`anio_fin`. Solo `temperatura` (400 con otra variable) |
 | `GET /gpm/{region}` | Lluvia anual GPM IMERG de la región (`lluvia_mm_dia` por año; mismas reglas de búsqueda y 404 que `/power`) |
 | `GET /power/{region}` | Promedios anuales de la región (404 JSON si no existe; ignora mayúsculas y tildes: `/power/ancash`) |
 

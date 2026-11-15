@@ -5,6 +5,7 @@ use crate::{
     data::Estado,
     error::ApiError,
     models::{
+        celdas::Malla,
         cobertura::ZonaCobertura,
         variable::{Variable, VariableInfo},
         vegetacion::ZonaVegetacion,
@@ -14,6 +15,7 @@ use crate::{
 };
 use axum::{
     extract::{Path, Query, State},
+    http::header,
     response::{IntoResponse, Response},
     Json,
 };
@@ -89,4 +91,23 @@ pub async fn vegetacion(State(d): State<Estado>) -> Response {
     responses((status = 200, body = Vec<ZonaCobertura>)))]
 pub async fn cobertura(State(d): State<Estado>) -> Response {
     Json(&d.cobertura).into_response()
+}
+
+/// T2M anual de cada celda de NASA POWER (~0,5° × 0,625°) dentro de Perú, para el mapa de calor.
+/// Solo existe para `temperatura`.
+#[utoipa::path(get, path = "/api/celdas", tag = "api",
+    params(("variable" = Variable, Query, description = "Obligatoria; solo temperatura")),
+    responses((status = 200, body = Malla), (status = 400, body = ErrorRespuesta)))]
+pub async fn celdas(
+    State(d): State<Estado>,
+    Query(p): Query<Params>,
+) -> Result<Response, ApiError> {
+    match variable(p)? {
+        Variable::Temperatura => Ok((
+            [(header::CONTENT_TYPE, "application/json")],
+            d.celdas.clone(),
+        )
+            .into_response()),
+        v => Err(ApiError::SinCeldas(v.id())),
+    }
 }

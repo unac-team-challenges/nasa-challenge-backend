@@ -1,3 +1,4 @@
+pub mod celdas;
 pub mod cobertura;
 pub mod gpm;
 pub mod power;

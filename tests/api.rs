@@ -769,3 +769,59 @@ fn cobertura_mal_formada_se_rechaza() {
         "{msg}"
     );
 }
+
+#[tokio::test]
+async fn celdas_de_temperatura() {
+    let (s, _, b) = get("/api/celdas?variable=temperatura", None).await;
+    assert_eq!(s, StatusCode::OK);
+    let anios = (b["anio_fin"].as_u64().unwrap() - b["anio_inicio"].as_u64().unwrap() + 1) as usize;
+    let celdas = b["celdas"].as_array().unwrap();
+    assert!(celdas.len() > 100, "Perú tiene cientos de celdas de 0,5°");
+    assert!(celdas
+        .iter()
+        .all(|c| c["t2m"].as_array().unwrap().len() == anios));
+}
+
+#[tokio::test]
+async fn celdas_solo_temperatura() {
+    for ruta in [
+        "/api/celdas?variable=lluvia",
+        "/api/celdas",
+        "/api/celdas?variable=nieve",
+    ] {
+        let (s, _, b) = get(ruta, None).await;
+        assert_eq!(s, StatusCode::BAD_REQUEST, "{ruta}");
+        assert!(b["error"].is_string(), "{ruta}");
+    }
+}
+
+#[test]
+fn celdas_mal_formadas_se_rechazan() {
+    let con = |f: Cambio| {
+        let c = editar(Fuentes::EMBEBIDAS.celdas, f);
+        Datos::desde(Fuentes {
+            celdas: &c,
+            ..Fuentes::EMBEBIDAS
+        })
+    };
+    assert!(con(|_| {}).is_ok());
+    let malos: [(&str, Cambio); 5] = [
+        ("sin celdas", |m| m["celdas"] = Value::Array(vec![])),
+        ("fuera de Perú", |m| m["celdas"][0]["lat"] = 10.0.into()),
+        ("año de más", |m| {
+            m["celdas"][0]["t2m"]
+                .as_array_mut()
+                .unwrap()
+                .push(20.0.into())
+        }),
+        ("valor imposible", |m| {
+            m["celdas"][0]["t2m"][0] = 99.0.into()
+        }),
+        ("periodo fuera de variables.json", |m| {
+            m["anio_inicio"] = 1900.into()
+        }),
+    ];
+    for (caso, f) in malos {
+        assert!(con(f).is_err(), "{caso}");
+    }
+}
