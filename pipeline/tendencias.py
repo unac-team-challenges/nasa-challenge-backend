@@ -1,6 +1,6 @@
-"""Tendencias por departamento: lee data/power.json (temperatura) y
-data/gpm.json (lluvia, IMERG) y escribe los archivos del contrato del
-Drive (07-stack-decidido) en data/:
+"""Tendencias por departamento: lee data/power.json (lluvia y temperatura, NASA POWER)
+y data/gpm.json (lluvia IMERG, segunda fuente para comparar) y escribe los archivos del
+contrato del Drive (07-stack-decidido) en data/:
 
   data/variables.json                 -> GET /api/variables
   data/zonas/{variable}.json          -> GET /api/zonas?variable=        (sin serie)
@@ -16,9 +16,9 @@ años a los JSON de entrada. Método (docs/tendencias.md), sobre la serie anual:
 - lag1: autocorrelación de la serie sin tendencia (como lab5 de Josue)
 - status: pocos_datos si n_years < 20 o celdas < 4; real solo con el criterio
   único de tendencia_comun.py (q < 0.05, IC95 sin 0, |lag1| <= 0.5); si no,
-  posible_casualidad. La lluvia (solo IMERG) nunca sale real: el salto de 2014
-  puede fingir la tendencia.
-- aviso (texto): siempre en lluvia (salto de IMERG en 2014), si |lag1| > 0.5 y si
+  posible_casualidad. La lluvia de IMERG (lluvia_imerg) nunca sale real: el salto
+  de 2014 puede fingir la tendencia.
+- aviso (texto): siempre en lluvia_imerg (salto de 2014), si |lag1| > 0.5 y si
   la prueba es significativa pero el IC incluye 0 (explica por qué no es real).
 """
 import json
@@ -38,22 +38,33 @@ P_MIN = 1e-6  # menor p/q que se publica; el front muestra «< 0,000001» cuando
 MIN_ANIOS = 20  # ALFA y MAX_LAG1 viven en tendencia_comun.py (criterio único)
 
 # unidad, fuente y descripcion: mismos textos que src/models/variable.rs
+# El orden es el de Variable::TODAS en src/models/variable.rs.
 VARIABLES = {
+    # Lluvia principal: NASA POWER, la misma fuente y el mismo criterio que la temperatura
+    # (opción C, 2026-11-15). IMERG baja en 25 de 25 departamentos por el salto de 2014;
+    # POWER no tiene ese salto. IMERG queda como segunda fuente para comparar.
     "lluvia": {
-        "archivo": "gpm.json", "campo": "lluvia_mm_dia",
-        "unidad": "mm/día", "fuente": "GPM IMERG v07 (NASA)",
+        "archivo": "power.json", "campo": "PRECTOTCORR",
+        "unidad": "mm/día", "fuente": "MERRA-2 vía NASA POWER (PRECTOTCORR)",
         "descripcion": "Lluvia: promedio diario de cada año",
         "porcentaje": True,
-        # Regla 3b: la NASA advierte saltos de homogeneidad al pasar de TRMM a GPM.
-        "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): "
-                 "la tendencia de lluvia puede estar sesgada a la baja, por eso no se marca como real.",
-        "sin_real": True,
     },
     "temperatura": {
         "archivo": "power.json", "campo": "T2M",
         "unidad": "°C", "fuente": "MERRA-2 vía NASA POWER (T2M)",
         "descripcion": "Temperatura del aire a 2 m: promedio de cada año",
         "porcentaje": False,
+    },
+    # Segunda fuente de lluvia, solo para «¿Coinciden dos fuentes de NASA?»: no va en el selector.
+    "lluvia_imerg": {
+        "archivo": "gpm.json", "campo": "lluvia_mm_dia",
+        "unidad": "mm/día", "fuente": "GPM IMERG v07 (NASA)",
+        "descripcion": "Lluvia por satélite (segunda fuente, para comparar con POWER)",
+        "porcentaje": True,
+        # Regla 3b: la NASA advierte saltos de homogeneidad al pasar de TRMM a GPM.
+        "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): "
+                 "la tendencia de lluvia puede estar sesgada a la baja, por eso no se marca como real.",
+        "sin_real": True,
     },
 }
 
@@ -114,9 +125,12 @@ def zonas_de(cfg):
     return salida
 
 
-def escribir(ruta, contenido):
+def escribir(ruta, contenido, salto_final=False):
+    """Único escritor de data/*.json (también lo usan ndvi.py y cobertura.py, que terminan en salto de
+    línea). allow_nan=False: un NaN rompe aquí, no en la API."""
     ruta.parent.mkdir(parents=True, exist_ok=True)
-    ruta.write_text(json.dumps(contenido, ensure_ascii=False, indent=1, allow_nan=False), encoding="utf-8")
+    texto = json.dumps(contenido, ensure_ascii=False, indent=1, allow_nan=False)
+    ruta.write_text(texto + ("\n" if salto_final else ""), encoding="utf-8")
 
 
 def main():

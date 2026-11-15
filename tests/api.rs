@@ -117,7 +117,7 @@ async fn cors_permite_localhost_y_extra_pero_no_otros() {
 }
 
 #[tokio::test]
-async fn api_variables_lista_lluvia_y_temperatura() {
+async fn api_variables_lista_lluvia_temperatura_e_imerg() {
     let (s, _, b) = get("/api/variables", None).await;
     assert_eq!(s, StatusCode::OK);
     let ids: Vec<_> = b
@@ -126,7 +126,7 @@ async fn api_variables_lista_lluvia_y_temperatura() {
         .iter()
         .map(|v| v["id"].as_str().unwrap())
         .collect();
-    assert_eq!(ids, ["lluvia", "temperatura"]);
+    assert_eq!(ids, ["lluvia", "temperatura", "lluvia_imerg"]);
     assert!(b[0]["anio_inicio"].is_number() && b[0]["unidad"] == "mm/día");
 }
 
@@ -152,7 +152,11 @@ async fn api_zonas_son_25_con_ubigeo_texto() {
 
 #[tokio::test]
 async fn api_zona_devuelve_serie_por_variable() {
-    for (var, unidad) in [("lluvia", "mm/día"), ("temperatura", "°C")] {
+    for (var, unidad) in [
+        ("lluvia", "mm/día"),
+        ("temperatura", "°C"),
+        ("lluvia_imerg", "mm/día"),
+    ] {
         let (s, _, b) = get(&format!("/api/zonas/15?variable={var}"), None).await;
         assert_eq!(s, StatusCode::OK);
         assert_eq!(
@@ -294,16 +298,17 @@ async fn callao_lleva_celdas_y_nota_y_lima_no_lleva_nota() {
 
 #[tokio::test]
 async fn zona_devuelve_la_nota_de_su_variable() {
-    for var in ["temperatura", "lluvia"] {
+    for var in ["temperatura", "lluvia", "lluvia_imerg"] {
         let (_, _, callao) = get(&format!("/api/zonas/07?variable={var}"), None).await;
         assert!(callao["nota"].is_string(), "Callao/{var}");
         let (_, _, lima) = get(&format!("/api/zonas/15?variable={var}"), None).await;
         assert!(lima.get("nota").is_none(), "Lima/{var}");
     }
-    // Lambayeque tiene 3 celdas en POWER pero muchas en IMERG: la nota depende de la variable
+    // Lambayeque tiene 3 celdas en POWER pero muchas en IMERG: la nota depende de la fuente
     let (_, _, t) = get("/api/zonas/14?variable=temperatura", None).await;
     let (_, _, l) = get("/api/zonas/14?variable=lluvia", None).await;
-    assert!(t["nota"].is_string() && l.get("nota").is_none());
+    let (_, _, i) = get("/api/zonas/14?variable=lluvia_imerg", None).await;
+    assert!(t["nota"].is_string() && l["nota"].is_string() && i.get("nota").is_none());
 }
 
 #[test]
@@ -336,7 +341,7 @@ fn openapi_json_esta_al_dia() {
 }
 
 #[tokio::test]
-async fn openapi_se_sirve_con_las_4_rutas() {
+async fn openapi_se_sirve_con_las_5_rutas() {
     let (s, _, b) = get("/api/openapi.json", None).await;
     assert_eq!(s, StatusCode::OK);
     let rutas = b["paths"].as_object().unwrap();
@@ -345,6 +350,7 @@ async fn openapi_se_sirve_con_las_4_rutas() {
             && rutas.contains_key("/api/zonas")
             && rutas.contains_key("/api/zonas/{id}")
             && rutas.contains_key("/api/vegetacion")
+            && rutas.contains_key("/api/cobertura-arboles")
     );
 }
 
@@ -354,7 +360,7 @@ fn status_valido(v: &Value) -> bool {
 
 #[tokio::test]
 async fn api_zonas_traen_stats() {
-    for var in ["lluvia", "temperatura"] {
+    for var in ["lluvia", "temperatura", "lluvia_imerg"] {
         let (s, _, b) = get(&format!("/api/zonas?variable={var}"), None).await;
         assert_eq!(s, StatusCode::OK);
         let zonas = b.as_array().unwrap();
@@ -368,8 +374,8 @@ async fn api_zonas_traen_stats() {
 }
 
 #[tokio::test]
-async fn lluvia_trae_aviso_2014_y_temperatura_no() {
-    let (_, _, l) = get("/api/zonas/15?variable=lluvia", None).await;
+async fn imerg_trae_aviso_2014_y_power_no() {
+    let (_, _, l) = get("/api/zonas/15?variable=lluvia_imerg", None).await;
     let st = &l["stats"];
     assert!(st["aviso"].as_str().unwrap().contains("2014"));
     assert!(st["q_value"].is_number() && st["pct_change_per_decade"].is_number());
@@ -377,6 +383,36 @@ async fn lluvia_trae_aviso_2014_y_temperatura_no() {
     let (_, _, t) = get("/api/zonas/15?variable=temperatura", None).await;
     assert!(t["stats"].get("aviso").is_none() && t["stats"].get("pct_change_per_decade").is_none());
     assert!(t["celdas"].is_u64());
+    // La lluvia principal (POWER) no lleva el aviso del salto de satélites de IMERG
+    let (_, _, p) = get("/api/zonas?variable=lluvia", None).await;
+    for z in p.as_array().unwrap() {
+        let aviso = z["stats"]["aviso"].as_str().unwrap_or("");
+        assert!(!aviso.contains("2014"), "lluvia/{}", z["id"]);
+        assert!(
+            z["stats"]["pct_change_per_decade"].is_number(),
+            "lluvia/{}",
+            z["id"]
+        );
+    }
+}
+
+/// Opción C: la lluvia principal (POWER) puede salir «real»; IMERG, la segunda fuente, nunca.
+#[tokio::test]
+async fn lluvia_power_puede_ser_real_e_imerg_nunca() {
+    let reales = |b: &Value| {
+        b.as_array()
+            .unwrap()
+            .iter()
+            .filter(|z| z["stats"]["status"] == "real")
+            .count()
+    };
+    let (_, _, power) = get("/api/zonas?variable=lluvia", None).await;
+    let (_, _, imerg) = get("/api/zonas?variable=lluvia_imerg", None).await;
+    assert!(reales(&power) > 0);
+    assert_eq!(reales(&imerg), 0);
+    let (_, _, v) = get("/api/variables", None).await;
+    assert!(v[0]["fuente"].as_str().unwrap().contains("POWER"));
+    assert!(v[2]["fuente"].as_str().unwrap().contains("IMERG"));
 }
 
 #[tokio::test]
@@ -384,7 +420,7 @@ async fn pocos_datos_lleva_nota() {
     let (_, _, callao) = get("/api/zonas/07?variable=temperatura", None).await;
     assert_eq!(callao["stats"]["status"], "pocos_datos");
     assert!(callao["nota"].is_string());
-    for var in ["lluvia", "temperatura"] {
+    for var in ["lluvia", "temperatura", "lluvia_imerg"] {
         let (_, _, b) = get(&format!("/api/zonas?variable={var}"), None).await;
         for z in b
             .as_array()
@@ -399,7 +435,7 @@ async fn pocos_datos_lleva_nota() {
 
 #[tokio::test]
 async fn serie_y_stats_hablan_del_mismo_periodo() {
-    for var in ["lluvia", "temperatura"] {
+    for var in ["lluvia", "temperatura", "lluvia_imerg"] {
         for n in 1..=25 {
             let (s, _, b) = get(&format!("/api/zonas/{n:02}?variable={var}"), None).await;
             assert_eq!(s, StatusCode::OK);
@@ -440,7 +476,7 @@ async fn ids_que_no_son_ubigeo_exacto_dan_404() {
 
 #[tokio::test]
 async fn detalle_trae_la_zona_entera() {
-    for var in ["lluvia", "temperatura"] {
+    for var in ["lluvia", "temperatura", "lluvia_imerg"] {
         let (_, _, lista) = get(&format!("/api/zonas?variable={var}"), None).await;
         for z in lista.as_array().unwrap() {
             let (_, _, d) = get(
@@ -463,7 +499,7 @@ fn zonas_y_variables_mal_formadas_se_rechazan() {
     let con_zonas = |f: Cambio| {
         let z = editar(e.zonas[0], f);
         Datos::desde(Fuentes {
-            zonas: [&z, e.zonas[1]],
+            zonas: [&z, e.zonas[1], e.zonas[2]],
             ..e
         })
     };
@@ -532,19 +568,22 @@ fn zonas_y_variables_mal_formadas_se_rechazan() {
     );
 }
 
-/// Valores de `data/ndvi.json` en 2001 y 2024: los mismos del Lab 3 de Favio
-/// (`pipeline/exploracion/favio/resultados/lab3_resumen.json`), servidos tal cual.
+/// Valores de `data/ndvi.json` en 2001 y 2024, servidos tal cual. Chavimochic e Ica: los mismos
+/// del Lab 3 de Favio (`pipeline/exploracion/favio/resultados/lab3_resumen.json`, tarea 44445de3).
+/// Olmos: caja nueva (tarea ee736bc9, `pipeline/exploracion/favio/scripts/lab3_olmos.py`).
 #[tokio::test]
-async fn api_vegetacion_trae_las_2_zonas_del_caso_2() {
+async fn api_vegetacion_trae_las_3_zonas_del_caso_2() {
     let (s, _, b) = get("/api/vegetacion", None).await;
     assert_eq!(s, StatusCode::OK);
     let zonas = b.as_array().unwrap();
     let ids: Vec<_> = zonas.iter().map(|z| z["id"].as_str().unwrap()).collect();
-    assert_eq!(ids, ["chavimochic", "ica-villacuri"]);
+    assert_eq!(ids, ["chavimochic", "ica-villacuri", "olmos"]);
     // (ubigeo, NDVI 2001, km² 2001, NDVI 2024, km² 2024)
     let esperado = [
         ("13", 0.1906, 188.9, 0.3104, 355.5),
         ("11", 0.1403, 117.6, 0.198, 221.5),
+        // Olmos, recuadro sobre las tierras nuevas (el del Lab 3 se descartó: bosque seco)
+        ("14", 0.2236, 124.5, 0.3305, 419.0),
     ];
     for (z, (ubigeo, n01, a01, n24, a24)) in zonas.iter().zip(esperado) {
         assert_eq!(z["ubigeo"], ubigeo);
@@ -553,7 +592,19 @@ async fn api_vegetacion_trae_las_2_zonas_del_caso_2() {
             .unwrap()
             .contains("recuadro"));
         assert!(status_valido(&z["stats"]["status"]));
-        assert_eq!(z["stats"]["status"], "real", "{}", z["id"]);
+        // Chavimochic e Ica son reales con margen; Olmos no se fija (puede cambiar con un año más),
+        // pero siempre lleva su aviso
+        if z["id"] == "olmos" {
+            assert!(z["stats"]["aviso"].as_str().unwrap().contains("Lab 3"));
+            // Mismo mensaje que el aviso: la caja mezcla riego y bosque seco, no es un valle irrigado
+            assert_ne!(z["tipo"], "valle irrigado");
+            assert!(z["unidad_geografica"]
+                .as_str()
+                .unwrap()
+                .contains("bosque seco"));
+        } else {
+            assert_eq!(z["stats"]["status"], "real", "{}", z["id"]);
+        }
         let serie = z["serie"].as_array().unwrap();
         assert_eq!(serie.len(), 24);
         assert_eq!(z["stats"]["n_years"], 24);
@@ -625,4 +676,96 @@ fn vegetacion_mal_formada_se_rechaza() {
         .unwrap()
         .to_string();
     assert!(msg.contains("ica-villacuri"), "{msg}");
+}
+
+#[tokio::test]
+async fn api_cobertura_arboles_trae_la_pampa_e_iquitos() {
+    let (s, _, b) = get("/api/cobertura-arboles", None).await;
+    assert_eq!(s, StatusCode::OK);
+    let zonas = b.as_array().unwrap();
+    let ids: Vec<_> = zonas.iter().map(|z| z["id"].as_str().unwrap()).collect();
+    assert_eq!(ids, ["la-pampa", "iquitos"]);
+    // Valores de MOD44B servidos tal cual: La Pampa pierde bosque; en Iquitos el IC incluye 0
+    let pct = |z: &Value, a: u64| {
+        z["serie"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|p| p["anio"] == a)
+            .unwrap()["arboles_pct"]
+            .as_f64()
+            .unwrap()
+    };
+    assert_eq!((pct(&zonas[0], 2001), pct(&zonas[0], 2024)), (74.1, 45.86));
+    assert!(zonas[0]["stats"]["slope_per_decade"].as_f64().unwrap() < -10.0);
+    assert!(zonas[0]["stats"]["ci_high"].as_f64().unwrap() < 0.0);
+    assert!(zonas[1]["stats"]["ci_low"].as_f64().unwrap() <= 0.0);
+    // La Pampa explica su quiebre de 2009 (el umbral no cambia: puede seguir posible_casualidad)
+    assert!(zonas[0]["stats"]["aviso"]
+        .as_str()
+        .unwrap()
+        .contains("desde 2009"));
+    for (z, ubigeo) in zonas.iter().zip(["17", "16"]) {
+        assert_eq!(z["ubigeo"], ubigeo);
+        assert!(z["unidad_geografica"]
+            .as_str()
+            .unwrap()
+            .contains("no es el promedio del departamento"));
+        assert!(status_valido(&z["stats"]["status"]));
+        let serie = z["serie"].as_array().unwrap();
+        assert_eq!(
+            z["stats"]["n_years"].as_u64().unwrap() as usize,
+            serie.len()
+        );
+        assert!(serie.iter().all(|a| {
+            let pct = a["arboles_pct"].as_f64().unwrap();
+            (0.0..=100.0).contains(&pct) && a["area_bosque_km2"].as_f64().unwrap() >= 0.0
+        }));
+    }
+}
+
+#[test]
+fn cobertura_mal_formada_se_rechaza() {
+    let e = Fuentes::EMBEBIDAS;
+    let con_cobertura = |f: Cambio| {
+        let c = editar(e.cobertura, f);
+        Datos::desde(Fuentes { cobertura: &c, ..e })
+    };
+    assert!(
+        con_cobertura(|_| {}).is_ok(),
+        "cobertura_arboles.json sin cambios carga"
+    );
+    let malos: [(&str, Cambio); 8] = [
+        ("sin zonas", |z| z.as_array_mut().unwrap().clear()),
+        ("campo desconocido en un año", |z| {
+            z[0]["serie"][0]["nuevo"] = 1.into()
+        }),
+        ("cobertura mayor que 100 %", |z| {
+            z[0]["serie"][0]["arboles_pct"] = 101.into()
+        }),
+        ("umbral de bosque fuera de 0 a 100", |z| {
+            z[0]["umbral_bosque_pct"] = 150.into()
+        }),
+        ("tendencia sobre otro campo", |z| {
+            z[0]["tendencia_de"] = "ndvi_anual".into()
+        }),
+        ("departamento que no es el del ubigeo", |z| {
+            z[0]["departamento"] = "Loreto".into()
+        }),
+        ("lon fuera del recuadro", |z| z[0]["lon"] = 0.into()),
+        ("n_years no cuadra con la serie", |z| {
+            z[0]["stats"]["n_years"] = 3.into()
+        }),
+    ];
+    for (caso, f) in malos {
+        assert!(con_cobertura(f).is_err(), "{caso}");
+    }
+    let msg = con_cobertura(|z| z[1]["ubigeo"] = "99".into())
+        .err()
+        .unwrap()
+        .to_string();
+    assert!(
+        msg.contains("cobertura_arboles.json, zona 'iquitos'"),
+        "{msg}"
+    );
 }

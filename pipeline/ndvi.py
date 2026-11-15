@@ -1,4 +1,4 @@
-"""Vegetación (NDVI) de los valles irrigados de la costa -> data/ndvi.json.
+"""Vegetación (NDVI) de la costa (valles irrigados y tierras nuevas de Olmos) -> data/ndvi.json.
 
 Fuente: MODIS MOD13A3 v061 (NASA LP DAAC), NDVI mensual a 1 km, pedido a AppEEARS.
 Origen: Lab 3 de Favio (pipeline/exploracion/favio/scripts/lab3_analisis.py), con las
@@ -13,32 +13,37 @@ Uso (desde la raíz del repo):
   python pipeline/ndvi.py autoprueba  prueba la lógica sin red ni NetCDF (la corre tests/e2e.sh)
 
 Refresco: a mano, una vez al año (enero), no en el cron: AppEEARS tarda ~3 h por solicitud.
-Credenciales: EARTHDATA_USERNAME y EARTHDATA_PASSWORD del entorno (.env local o secrets
-de GitHub); si no están, ~/.netrc o ~/_netrc en Windows (el que crea earthaccess). Nunca se imprimen.
+AppEEARS (credenciales, solicitud, descarga): pipeline/appeears.py, compartido con cobertura.py.
 
-Zonas: solo los valles irrigados confirmados (docs/vegetacion.md). Fuera: Olmos (recuadro
-sobre bosque seco), selva (NDVI saturado), Lima (garúa: años incompletos) y Mantaro
-(IC que incluye 0; no aporta al Caso 2).
+Zonas: los valles irrigados confirmados (Chavimochic e Ica, docs/vegetacion.md) y Olmos, que entra
+con un recuadro nuevo (2026-11-15) sobre las tierras nuevas (mezcla riego y bosque seco) y con
+aviso: el del Lab 3 cayó sobre bosque seco y se descartó tras ver su resultado; esa prueba descartada se cuenta en Benjamini-Hochberg (PRUEBAS_DESCARTADAS). Fuera: selva
+(NDVI saturado; ver pipeline/cobertura.py), Lima (garúa: años incompletos) y Mantaro (IC que incluye 0).
+
+Reproducir data/ndvi.json: el archivo publicado salió de dos solicitudes (44445de3: Chavimochic e
+Ica, la del Lab 3; ee736bc9: Olmos). Hoy `enviar` pide las 3 zonas en una sola solicitud, así que
+enviar → estado → bajar → calcular lo reproduce entero.
 
 Área verde: píxeles cuyo NDVI medio del año (meses con dato confiable de ese píxel,
 como en el Lab 3) supera 0,3, por el área del píxel.
 """
+import copy
 import json
-import netrc
-import os
 import sys
 from pathlib import Path
 
 import numpy as np
 from statsmodels.stats.multitest import multipletests
 
+import appeears
+import tendencias
 from tendencias import clasificar, estadisticas
 
 RAIZ = Path(__file__).resolve().parent.parent
 CACHE = RAIZ / "pipeline" / "cache" / "ndvi"  # en .gitignore
 TASK = CACHE / "task.json"
 SALIDA = RAIZ / "data" / "ndvi.json"
-APPEEARS = "https://appeears.earthdatacloud.nasa.gov/api"
+PRODUCTO = "MOD13A3.061"
 
 FUENTE = "MODIS MOD13A3 v061 (NASA LP DAAC) vía AppEEARS"
 ANIOS = range(2001, 2025)  # MODIS empieza en feb 2000: 2000 nunca es año completo
@@ -47,12 +52,32 @@ KM2_PIXEL = 0.9266 ** 2  # píxel MODIS de 926,6 m
 MIN_FRAC_PIXELES = 0.5  # un mes vale si al menos la mitad de los píxeles tiene dato confiable
 CAPAS = ["_1_km_monthly_NDVI", "_1_km_monthly_pixel_reliability"]
 
-ZONAS = [  # (id, nombre, departamento, ubigeo, tipo, (oeste, sur, este, norte)) — mismas cajas del Lab 3
+ZONAS = [  # (id, nombre, departamento, ubigeo, tipo, (oeste, sur, este, norte))
+    # Chavimochic e Ica: las mismas cajas del Lab 3
     ("chavimochic", "Chavimochic (Virú-Chao)", "La Libertad", "13", "valle irrigado", (-78.85, -8.60, -78.60, -8.35)),
     ("ica-villacuri", "Ica (valle y Villacurí)", "Ica", "11", "valle irrigado", (-75.90, -14.15, -75.65, -13.90)),
+    # Olmos: caja nueva. La del Lab 3 (-80.00, -6.10, -79.75, -5.85) se descartó DESPUÉS de ver su
+    # resultado (bosque seco, p = 0,43). La nueva es la caja de 0,25° con más campos de cultivo en
+    # OpenStreetMap (landuse=farmland/orchard, ~4.400 polígonos; Overpass, 2026-11-15), elegida antes
+    # de ver su propio NDVI. Mide ~765 km² y mezcla riego con bosque seco: ver AVISOS.
+    ("olmos", "Olmos (tierras nuevas)", "Lambayeque", "14", "riego nuevo y bosque seco", (-80.15, -6.25, -79.90, -6.00)),
 ]
+# Pruebas hechas y descartadas que también cuentan en Benjamini-Hochberg (honestidad estadística):
+# la caja de Olmos del Lab 3 (pipeline/exploracion/favio/resultados/lab3_resumen.json).
+PRUEBAS_DESCARTADAS = [0.4282]
+# Aviso por zona (va en stats.aviso y la ficha lo muestra).
+AVISOS = {
+    "olmos": ("Recuadro movido después de descartar el del Lab 3 (caía sobre bosque seco y no tenía "
+              "tendencia). Mezcla tierras de riego con bosque seco, y la subida pesa mucho en los años "
+              "de El Niño (2015–2017 y 2023): sin ellos, el rango probable incluye 0."),
+}
 UNIDAD_GEO = ("recuadro de 0,25° × 0,25° (~27 × 27 km) sobre el valle irrigado; "
               "no es el promedio del departamento")
+# Olmos no es un valle irrigado: la caja cae sobre las tierras nuevas y mezcla riego con bosque seco
+UNIDAD_GEO_ZONA = {
+    "olmos": ("recuadro de 0,25° × 0,25° (~27 × 27 km) sobre las tierras nuevas del proyecto, "
+              "que mezcla riego y bosque seco; no es el promedio del departamento"),
+}
 
 
 # ---------- lógica (sin red ni NetCDF: se prueba en autoprueba) ----------
@@ -83,7 +108,7 @@ def zona_json(zona, pixeles, serie):
     st = estadisticas(anios, y, porcentaje=False) if len(y) >= 3 else {"n_years": len(y)}
     return {
         "id": zid, "nombre": nombre, "departamento": depto, "ubigeo": ubigeo, "tipo": tipo,
-        "unidad_geografica": UNIDAD_GEO, "bbox": [o, s, e, n],
+        "unidad_geografica": UNIDAD_GEO_ZONA.get(zid, UNIDAD_GEO), "bbox": [o, s, e, n],
         "lat": round((s + n) / 2, 3), "lon": round((o + e) / 2, 3),
         "pixeles": pixeles, "fuente": FUENTE, "umbral_verde_ndvi": VERDE,
         "tendencia_de": "ndvi_anual",
@@ -92,12 +117,14 @@ def zona_json(zona, pixeles, serie):
     }
 
 
-def con_estado(filas):
-    """q_value (BH entre las zonas con prueba), status y aviso con clasificar() de tendencias.py."""
+def con_estado(filas, descartadas=PRUEBAS_DESCARTADAS):
+    """q_value (BH entre las zonas con prueba y las pruebas descartadas), status y aviso con
+    clasificar() de tendencias.py. Las descartadas solo suman a la corrección: no se publican."""
     con_p = [f for f in filas if "p_value" in f["stats"]]
-    qs = multipletests([f["stats"]["p_value"] for f in con_p], method="fdr_bh")[1] if con_p else []
+    ps = [f["stats"]["p_value"] for f in con_p] + list(descartadas)
+    qs = multipletests(ps, method="fdr_bh")[1][: len(con_p)] if con_p else []
     for f, q in zip(con_p, qs):
-        clasificar(f["stats"], q, f["pixeles"])
+        clasificar(f["stats"], q, f["pixeles"], AVISOS.get(f["id"]))
     for f in filas:
         if "p_value" not in f["stats"]:
             f["stats"]["status"] = "pocos_datos"
@@ -105,83 +132,23 @@ def con_estado(filas):
 
 
 def escribir(filas, ruta=SALIDA):
-    ruta.write_text(json.dumps(filas, ensure_ascii=False, indent=1, allow_nan=False) + "\n", encoding="utf-8")
+    tendencias.escribir(ruta, filas, salto_final=True)
 
 
-# ---------- AppEEARS (red) ----------
+# ---------- AppEEARS (red): pipeline/appeears.py ----------
 
-def _credenciales():
-    try:
-        from dotenv import load_dotenv
-        load_dotenv(RAIZ / ".env")
-    except ImportError:
-        pass
-    usuario, clave = os.environ.get("EARTHDATA_USERNAME"), os.environ.get("EARTHDATA_PASSWORD")
-    if usuario and clave:
-        return usuario, clave
-    for nombre in (".netrc", "_netrc"):  # en Windows, earthaccess lo guarda como _netrc
-        ruta = Path.home() / nombre
-        if ruta.exists() and (a := netrc.netrc(ruta).authenticators("urs.earthdata.nasa.gov")):
-            return a[0], a[2]
-    sys.exit("Faltan EARTHDATA_USERNAME y EARTHDATA_PASSWORD (ver .env.example) o ~/.netrc.")
+def enviar(zonas=None, task=None, nombre="detective-peru-ndvi"):
+    """Crea la solicitud en AppEEARS (por defecto, todas las ZONAS) y guarda el task_id en `task`."""
+    appeears.enviar(zonas or ZONAS, PRODUCTO, CAPAS, ANIOS, task or TASK, nombre)
 
 
-def _token():
-    import requests
-    r = requests.post(f"{APPEEARS}/login", auth=_credenciales(), timeout=60)
-    r.raise_for_status()
-    return {"Authorization": f"Bearer {r.json()['token']}"}
+def consultar(task=None):
+    appeears.consultar(task or TASK)
 
 
-def enviar():
-    import requests
-    feats = [{"type": "Feature", "properties": {"id": z[0]},
-              "geometry": {"type": "Polygon", "coordinates": [[[o, s], [e, s], [e, n], [o, n], [o, s]]]}}
-             for z in ZONAS for (o, s, e, n) in [z[5]]]
-    tarea = {"task_type": "area", "task_name": "detective-peru-ndvi",
-             "params": {"dates": [{"startDate": f"01-01-{ANIOS[0]}", "endDate": f"12-31-{ANIOS[-1]}"}],
-                        "layers": [{"product": "MOD13A3.061", "layer": c} for c in CAPAS],
-                        "geo": {"type": "FeatureCollection", "features": feats},
-                        "output": {"format": {"type": "netcdf4"}, "projection": "geographic"}}}
-    r = requests.post(f"{APPEEARS}/task", json=tarea, headers=_token(), timeout=120)
-    r.raise_for_status()
-    CACHE.mkdir(parents=True, exist_ok=True)
-    TASK.write_text(json.dumps(r.json()))
-    print("solicitud creada:", r.json()["task_id"])
-
-
-def _estado(h):
-    import requests
-    tid = json.loads(TASK.read_text())["task_id"]
-    r = requests.get(f"{APPEEARS}/task/{tid}", headers=h, timeout=60)
-    r.raise_for_status()
-    return tid, r.json().get("status")
-
-
-def consultar():
-    print(_estado(_token())[1])
-
-
-def bajar():
-    import requests
-    h = _token()
-    tid, estado = _estado(h)
-    if estado != "done":
-        sys.exit(f"La solicitud aún no termina (estado: {estado}). Prueba más tarde con `estado`.")
-    r = requests.get(f"{APPEEARS}/bundle/{tid}", headers=h, timeout=60)
-    r.raise_for_status()
-    for viejo in CACHE.glob("*.nc"):  # sin NetCDF de solicitudes anteriores
-        viejo.unlink()
-    for f in r.json()["files"]:
-        if not f["file_name"].endswith(".nc"):
-            continue
-        destino = CACHE / Path(f["file_name"]).name
-        with requests.get(f"{APPEEARS}/bundle/{tid}/{f['file_id']}", headers=h, stream=True, timeout=600) as d:
-            d.raise_for_status()
-            with open(destino, "wb") as fh:
-                for trozo in d.iter_content(1 << 20):
-                    fh.write(trozo)
-        print(destino.name, f"{destino.stat().st_size / 1e6:.1f} MB")
+def bajar(task=None, destino_dir=None):
+    """Descarga los NetCDF de la solicitud a `destino_dir` (por defecto, la caché de ndvi)."""
+    appeears.bajar(task or TASK, destino_dir or CACHE)
 
 
 # ---------- NetCDF -> data/ndvi.json ----------
@@ -189,15 +156,7 @@ def bajar():
 def _leer_zona(zona):
     """NetCDF cuyo centro cae en la caja de la zona -> (pixeles, meses, areas)."""
     import xarray as xr
-    o, s, e, n = zona[5]
-    candidatos = []
-    for ruta in sorted(CACHE.glob("*.nc")):
-        with xr.open_dataset(ruta) as ds:
-            if o <= float(ds.lon.mean()) <= e and s <= float(ds.lat.mean()) <= n:
-                candidatos.append(ruta)
-    if len(candidatos) != 1:
-        sys.exit(f"{zona[1]}: {len(candidatos)} NetCDF en {CACHE} (se espera 1). Corre `bajar` de nuevo.")
-    with xr.open_dataset(candidatos[0]) as ds:
+    with xr.open_dataset(appeears.nc_de_zona(CACHE, zona)) as ds:
         ndvi, fiable = ds[CAPAS[0]].values, ds[CAPAS[1]].values  # (tiempo, lat, lon), NDVI ya escalado
         # .dt sirve con datetime64 y con cftime (calendario juliano de AppEEARS); t.year solo con cftime
         anios, mes = ds["time"].dt.year.values, ds["time"].dt.month.values
@@ -258,6 +217,23 @@ def autoprueba():
     texto = json.dumps(filas, allow_nan=False)
     assert "NaN" not in texto and "null" not in texto
     assert filas[0]["ubigeo"] == "13" and "no es el promedio del departamento" in filas[0]["unidad_geografica"]
+    ids = [z[0] for z in ZONAS]
+    assert ids == ["chavimochic", "ica-villacuri", "olmos"], ids
+    for zid, _, _, _, _, (o, s_, e, n) in ZONAS:
+        assert o < e and s_ < n, zid
+    fila = zona_json(ZONAS[2], 900, zona(0.005, 0.005))
+    assert fila["bbox"][0] <= fila["lon"] <= fila["bbox"][2] and fila["bbox"][1] <= fila["lat"] <= fila["bbox"][3]
+    olmos = con_estado([zona_json(ZONAS[0], 847, zona(0.005, 0.005)), fila])[1]
+    assert "Lab 3" in olmos["stats"]["aviso"], "Olmos lleva su aviso"
+    # El texto de Olmos dice lo mismo que el aviso: no es un valle irrigado, mezcla riego y bosque seco
+    assert "bosque seco" in olmos["unidad_geografica"] and "valle irrigado" not in olmos["unidad_geografica"]
+    assert "no es el promedio del departamento" in olmos["unidad_geografica"]
+    assert olmos["tipo"] != "valle irrigado", olmos["tipo"]
+    # La prueba descartada sube los q: con [p, descartada] el q de p no puede bajar
+    base = zona_json(ZONAS[0], 847, zona(0.0, 0.01))
+    sin = con_estado([copy.deepcopy(base)], descartadas=[])[0]["stats"]["q_value"]
+    con = con_estado([copy.deepcopy(base)])[0]["stats"]["q_value"]
+    assert con >= sin, (sin, con)
     print("autoprueba ndvi OK")
 
 
