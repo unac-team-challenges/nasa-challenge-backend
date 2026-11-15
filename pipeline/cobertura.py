@@ -54,12 +54,19 @@ ZONAS = [  # (id, nombre, departamento, ubigeo, tipo, (oeste, sur, este, norte))
 UNIDAD_GEO = "recuadro de {lado} sobre la selva; no es el promedio del departamento"
 # Aviso por zona (va en stats.aviso, delante del aviso de lag1, y la ficha lo muestra). El umbral NO
 # cambia (decisión de Favio, 2026-11-15): La Pampa sigue posible_casualidad, pero se explica por qué.
-AVISOS = {
-    "la-pampa": ("La pérdida no fue pareja: de 2001 a 2008 la cobertura se mantuvo cerca del 75 % y "
-                 "desde 2009 baja casi cada año, hasta 46 % en 2024. La caída es grande y su rango "
-                 "probable no incluye 0, pero como empezó de golpe una recta la describe mal, y el "
-                 "criterio único no la marca como cambio real."),
-}
+# Los números salen de la serie, no del texto: al regenerar con un año nuevo el aviso no queda viejo.
+# El 2009 solo describe lo que se ve; no es un corte con el que se calcule nada.
+def aviso_la_pampa(serie):
+    antes = [p["arboles_pct"] for p in serie if p["anio"] < 2009]
+    ultimo = serie[-1]
+    return (f"La pérdida no fue pareja: de {serie[0]['anio']} a 2008 la cobertura se mantuvo cerca del "
+            f"{round(sum(antes) / len(antes))} % y desde 2009 baja casi cada año, hasta "
+            f"{round(ultimo['arboles_pct'])} % en {ultimo['anio']}. La caída es grande y su rango "
+            "probable no incluye 0, pero como empezó de golpe una recta la describe mal, y el "
+            "criterio único no la marca como cambio real.")
+
+
+AVISOS = {"la-pampa": aviso_la_pampa}
 
 
 def unidad_geo(caja):
@@ -149,7 +156,8 @@ def con_estado(filas):
     con_p = [f for f in filas if "p_value" in f["stats"]]
     qs = multipletests([f["stats"]["p_value"] for f in con_p], method="fdr_bh")[1] if con_p else []
     for f, q in zip(con_p, qs):
-        clasificar(f["stats"], q, f["pixeles"], AVISOS.get(f["id"]))
+        aviso = AVISOS.get(f["id"])
+        clasificar(f["stats"], q, f["pixeles"], aviso and aviso(f["serie"]))
     for f in filas:
         if "p_value" not in f["stats"]:
             f["stats"]["status"] = "pocos_datos"
@@ -328,7 +336,8 @@ def autoprueba():
     assert resumen_anio(medio, tierra, area) == (0.5, 80.0, 16.0)
     assert filas[0]["stats"]["slope_per_decade"] < 0
     # La Pampa lleva su aviso aunque salga real; Iquitos no lleva aviso propio
-    assert "2009" in filas[0]["stats"]["aviso"], filas[0]["stats"]
+    ultimo = filas[0]["serie"][-1]
+    assert f"hasta {round(ultimo['arboles_pct'])} % en {ultimo['anio']}" in filas[0]["stats"]["aviso"], filas[0]["stats"]
     assert "aviso" not in filas[1]["stats"] or "2009" not in filas[1]["stats"]["aviso"]
     texto = json.dumps(filas, allow_nan=False)
     assert "NaN" not in texto and "null" not in texto
