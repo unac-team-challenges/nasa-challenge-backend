@@ -26,11 +26,12 @@ chk "pipeline/gpm.py compila" "$PY" -m py_compile pipeline/gpm.py
 chk "pipeline/tendencias.py compila" "$PY" -m py_compile pipeline/tendencias.py
 chk "tests/test_tendencias.py (semáforo, aviso, periodo)" "$PY" -m unittest -q tests/test_tendencias.py
 chk "tests/test_pipeline.py (avisos e IMERG incremental)" "$PY" -m unittest -q tests/test_pipeline.py
-chk "variables.json tiene lluvia y temperatura" jq -e '[.[].id] == ["lluvia","temperatura"]' data/variables.json
-chk "variables.json: periodo 2001–2024 y lluvia de IMERG" jq -e 'all(.anio_inicio == 2001 and .anio_fin == 2024) and (.[0].fuente | test("IMERG"))' data/variables.json
-chk "zonas/lluvia.json: aviso del cambio de satélites de 2014 en las 25" jq -e 'all(.[].stats.aviso; type == "string" and test("2014"))' data/zonas/lluvia.json
-chk "zonas/lluvia.json: ninguna zona 'real' (solo IMERG, salto de 2014)" jq -e 'all(.[].stats.status; . != "real")' data/zonas/lluvia.json
-for v in lluvia temperatura; do
+chk "variables.json tiene lluvia, temperatura y lluvia_imerg" jq -e '[.[].id] == ["lluvia","temperatura","lluvia_imerg"]' data/variables.json
+chk "variables.json: periodo 2001–2024, lluvia de POWER e IMERG aparte" jq -e 'all(.anio_inicio == 2001 and .anio_fin == 2024) and (.[0].fuente | test("POWER")) and (.[2].fuente | test("IMERG"))' data/variables.json
+chk "zonas/lluvia_imerg.json: aviso del cambio de satélites de 2014 en las 25" jq -e 'all(.[].stats.aviso; type == "string" and test("2014"))' data/zonas/lluvia_imerg.json
+chk "zonas/lluvia_imerg.json: ninguna zona 'real' (salto de 2014)" jq -e 'all(.[].stats.status; . != "real")' data/zonas/lluvia_imerg.json
+chk "zonas/lluvia.json (POWER): sin el aviso de 2014 de IMERG" jq -e 'all(.[].stats; (.aviso // "") | test("2014") | not)' data/zonas/lluvia.json
+for v in lluvia temperatura lluvia_imerg; do
   chk "zonas/$v.json: todo 'real' cumple el criterio único (q<0.05, IC sin 0, |lag1|<=0.5)" jq -e 'all(.[].stats | select(.status == "real"); .q_value < 0.05 and (.ci_low > 0 or .ci_high < 0) and (.lag1 | fabs) <= 0.5)' data/zonas/$v.json
   chk "zonas/$v.json: 25 zonas con id 01–25" jq -e '[.[].id] == ([range(1;26)] | map(tostring | if length == 1 then "0" + . else . end))' data/zonas/$v.json
   chk "zonas/$v.json: stats numéricos (sin null/NaN)" jq -e '[.[].stats | to_entries[] | select(.key != "status" and .key != "aviso") | .value] | all(type == "number" and (isnan | not))' data/zonas/$v.json
@@ -65,12 +66,12 @@ chk "GET /regiones devuelve 25"           bash -c "curl -sf $URL/regiones | jq -
 chk "GET /power/lima devuelve años"       bash -c "curl -sf $URL/power/lima | jq -e '.anios | length > 0'"
 chk "GET /gpm/lima devuelve lluvia"       bash -c "curl -sf $URL/gpm/lima | jq -e '[.anios[].lluvia_mm_dia] | length > 0 and all(type == \"number\")'"
 chk "GET /gpm/noexiste -> 404"            bash -c "[ \"\$(curl -s -o /dev/null -w '%{http_code}' $URL/gpm/noexiste)\" = 404 ]"
-chk "GET /api/variables"                  bash -c "curl -sf $URL/api/variables | jq -e 'map(.id) == [\"lluvia\",\"temperatura\"]'"
+chk "GET /api/variables"                  bash -c "curl -sf $URL/api/variables | jq -e 'map(.id) == [\"lluvia\",\"temperatura\",\"lluvia_imerg\"]'"
 chk "GET /api/zonas?variable=lluvia (25)" bash -c "curl -sf '$URL/api/zonas?variable=lluvia' | jq -e 'length == 25 and .[0].id == \"01\"'"
 chk "GET /api/zonas/15 (serie)"           bash -c "curl -sf '$URL/api/zonas/15?variable=temperatura' | jq -e '.nombre == \"Lima\" and (.serie | length > 0)'"
 chk "GET /api/zonas/07 lleva nota"           bash -c "curl -sf '$URL/api/zonas/07?variable=temperatura' | jq -e '.nota | type == \"string\"'"
 chk "GET /api/zonas trae stats.status válido" bash -c "curl -sf '$URL/api/zonas?variable=lluvia' | jq -e 'length == 25 and all(.[].stats.status; IN(\"real\",\"posible_casualidad\",\"pocos_datos\"))'"
-chk "GET /api/zonas/15 lluvia: aviso 2014"   bash -c "curl -sf '$URL/api/zonas/15?variable=lluvia' | jq -e '(.stats.aviso | test(\"2014\")) and (.stats.q_value | type == \"number\")'"
+chk "GET /api/zonas/15 lluvia_imerg: aviso 2014" bash -c "curl -sf '$URL/api/zonas/15?variable=lluvia_imerg' | jq -e '(.stats.aviso | test(\"2014\")) and (.stats.q_value | type == \"number\")'"
 chk "GET /api/zonas/15 temperatura sin aviso" bash -c "curl -sf '$URL/api/zonas/15?variable=temperatura' | jq -e '.stats.status and (.stats | has(\"aviso\") | not)'"
 chk "GET /api/vegetacion (Caso 2)"         bash -c "curl -sf $URL/api/vegetacion | jq -e 'length >= 2 and all(.[]; (.unidad_geografica | type == \"string\") and (.stats.status | IN(\"real\",\"posible_casualidad\",\"pocos_datos\")))'"
 chk "GET /api/cobertura-arboles (selva)"   bash -c "curl -sf $URL/api/cobertura-arboles | jq -e 'length >= 2 and all(.[]; (.unidad_geografica | type == \"string\") and (.stats.status | IN(\"real\",\"posible_casualidad\",\"pocos_datos\")))'"

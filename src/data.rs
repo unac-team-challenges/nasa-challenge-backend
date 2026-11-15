@@ -22,6 +22,7 @@ const GPM: &str = include_str!("../data/gpm.json");
 const VARIABLES: &str = include_str!("../data/variables.json");
 const ZONAS_LLUVIA: &str = include_str!("../data/zonas/lluvia.json");
 const ZONAS_TEMPERATURA: &str = include_str!("../data/zonas/temperatura.json");
+const ZONAS_LLUVIA_IMERG: &str = include_str!("../data/zonas/lluvia_imerg.json");
 const NDVI: &str = include_str!("../data/ndvi.json");
 const COBERTURA: &str = include_str!("../data/cobertura_arboles.json");
 
@@ -34,7 +35,7 @@ pub struct Fuentes<'a> {
     pub gpm: &'a str,
     pub variables: &'a str,
     /// `data/zonas/{variable}.json`, en el orden de `Variable::TODAS`.
-    pub zonas: [&'a str; 2],
+    pub zonas: [&'a str; 3],
     /// `data/ndvi.json`: vegetación de los valles irrigados (Caso 2).
     pub ndvi: &'a str,
     /// `data/cobertura_arboles.json`: cobertura de árboles de la selva.
@@ -46,7 +47,7 @@ impl Fuentes<'static> {
         power: POWER,
         gpm: GPM,
         variables: VARIABLES,
-        zonas: [ZONAS_LLUVIA, ZONAS_TEMPERATURA],
+        zonas: [ZONAS_LLUVIA, ZONAS_TEMPERATURA, ZONAS_LLUVIA_IMERG],
         ndvi: NDVI,
         cobertura: COBERTURA,
     };
@@ -66,7 +67,7 @@ pub struct Datos {
     /// En el orden de `Variable::TODAS`.
     pub variables: Vec<VariableInfo>,
     /// Por variable; ids "01"–"25" en orden.
-    fichas: [Vec<Ficha>; 2],
+    fichas: [Vec<Ficha>; 3],
     /// `data/ndvi.json` tal cual, ya validado.
     pub vegetacion: Vec<ZonaVegetacion>,
     /// `data/cobertura_arboles.json` tal cual, ya validado.
@@ -122,7 +123,7 @@ impl Datos {
             .eq(Variable::TODAS.map(Variable::id))
         {
             return Err(error(
-                "variables.json debe tener exactamente: lluvia, temperatura",
+                "variables.json debe tener exactamente: lluvia, temperatura, lluvia_imerg",
             ));
         }
         let mut d = Self {
@@ -138,6 +139,7 @@ impl Datos {
         d.fichas = [
             d.fichas_de(Variable::Lluvia, f.zonas[0])?,
             d.fichas_de(Variable::Temperatura, f.zonas[1])?,
+            d.fichas_de(Variable::LluviaImerg, f.zonas[2])?,
         ];
         Ok(d)
     }
@@ -168,7 +170,8 @@ impl Datos {
                     return Err(error(format_args!("{}: el periodo de stats se sale del de variables.json", donde())));
                 }
                 let serie = match v {
-                    Variable::Lluvia => self.buscar_gpm(nombre).map(|r| serie_de(&zona, r, |m| m.lluvia_mm_dia)),
+                    Variable::Lluvia => self.buscar(nombre).map(|r| serie_de(&zona, r, |m| m.prectotcorr)),
+                    Variable::LluviaImerg => self.buscar_gpm(nombre).map(|r| serie_de(&zona, r, |m| m.lluvia_mm_dia)),
                     Variable::Temperatura => self.buscar(nombre).map(|r| serie_de(&zona, r, |m| m.t2m)),
                 };
                 let serie = serie

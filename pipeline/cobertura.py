@@ -20,7 +20,7 @@ Zonas (recuadros de 0,25°, no el departamento):
   en la zona de amortiguamiento de la Reserva Nacional Tambopata (MAAP / Amazon Conservation).
   Centrado en el poblado de La Pampa (OpenStreetMap: -12.962, -70.001).
 - Selva cerca de Iquitos (Loreto): el mismo recuadro del Lab 3, bosque sin un frente de pérdida
-  conocido; sirve de contraste («baja aquí, se mantiene allá»).
+  conocido; sirve de contraste (su tendencia no es distinguible de 0).
 
 Bosque: píxeles con 30 % o más de cobertura de árboles (el umbral de Global Forest Watch).
 """
@@ -43,8 +43,8 @@ APPEEARS = ndvi.APPEEARS
 FUENTE = "MODIS MOD44B v061 (NASA LP DAAC) vía AppEEARS"
 ANIOS = range(2001, 2025)  # mismo periodo que el resto del producto
 BOSQUE = 30  # % de cobertura de árboles desde el que un píxel cuenta como bosque
-KM2_PIXEL = 0.231656 ** 2  # píxel MODIS de 231,656 m
-MIN_FRAC_PIXELES = 0.5  # un año vale si al menos la mitad de los píxeles de tierra tiene dato
+KM_POR_GRADO = 111.32  # km por grado de latitud (y de longitud en el ecuador)
+MIN_FRAC_PIXELES = 0.5  # un año vale si tiene dato al menos la mitad del área de tierra
 CAPA = "Percent_Tree_Cover"  # 0–100 %; 200 = agua; 253 = sin dato
 
 ZONAS = [  # (id, nombre, departamento, ubigeo, tipo, (oeste, sur, este, norte))
@@ -63,12 +63,37 @@ def unidad_geo(caja):
 
 # ---------- lógica (sin red ni NetCDF: se prueba en autoprueba) ----------
 
+def km2_pixeles(lats, dlat, dlon):
+    """Área (km²) de un píxel en cada fila de latitud de una malla en grados.
+
+    AppEEARS entrega el ráster en proyección geográfica: el lado este-oeste del píxel mide
+    dlon × 111,32 × cos(lat) km, así que un área constante inflaría los km² lejos del ecuador.
+    """
+    return (abs(dlat) * KM_POR_GRADO) * (abs(dlon) * KM_POR_GRADO * np.cos(np.radians(lats)))
+
+
+def resumen_anio(valores, tierra, area):
+    """(fracción de tierra con dato, % de árboles medio, km² de bosque) de un año.
+
+    valores: % de árboles por píxel (NaN = sin dato); tierra: máscara de píxeles de tierra;
+    area: km² de cada píxel. El bosque se extrapola a toda la tierra según la fracción con dato
+    (por área), para que un año con huecos no meta un escalón falso en la serie de km².
+    """
+    ok = tierra & ~np.isnan(valores)
+    area_tierra = float(area[tierra].sum())
+    area_ok = float(area[ok].sum())
+    if area_ok == 0:
+        return 0.0, float("nan"), 0.0
+    bosque = float(area[ok & (valores >= BOSQUE)].sum())
+    return area_ok / area_tierra, float(valores[ok].mean()), bosque * area_tierra / area_ok
+
+
 def anual(por_anio):
     """Serie anual con solo años válidos (reglas-datos.md §1: MOD44B ya es un producto anual).
 
-    por_anio: {anio: (fraccion_de_pixeles_con_dato, arboles_pct_medio, km2_de_bosque)}.
-    Devuelve {anio: {"arboles_pct", "area_bosque_km2"}} solo para años de ANIOS con la mitad o más
-    de los píxeles de tierra con dato.
+    por_anio: {anio: (fraccion_de_tierra_con_dato, arboles_pct_medio, km2_de_bosque)}.
+    Devuelve {anio: {"arboles_pct", "area_bosque_km2"}} solo para años de ANIOS con dato en la
+    mitad o más del área de tierra.
     """
     return {
         a: {"arboles_pct": round(pct, 2), "area_bosque_km2": round(km2, 1)}
@@ -82,7 +107,12 @@ def zona_json(zona, pixeles, serie):
     zid, nombre, depto, ubigeo, tipo, (o, s, e, n) = zona
     anios = np.array(sorted(serie))
     y = np.array([serie[a]["arboles_pct"] for a in anios], dtype=float)
-    st = estadisticas(anios, y, porcentaje=False) if len(y) >= 3 else {"n_years": len(y)}
+    if len(y) < 3:
+        # Con menos de 3 años no hay pendiente ni intervalo, y Stats (src/models/zona.rs) exige esos
+        # campos: publicar la zona haría que la API no arranque. Mejor fallar aquí, con el motivo.
+        raise ValueError(f"{nombre}: solo {len(y)} años válidos; con menos de 3 no hay tendencia "
+                         "y no se publica. Revisa la descarga de AppEEARS.")
+    st = estadisticas(anios, y, porcentaje=False)
     return {
         "id": zid, "nombre": nombre, "departamento": depto, "ubigeo": ubigeo, "tipo": tipo,
         "unidad_geografica": unidad_geo((o, s, e, n)), "bbox": [o, s, e, n],
@@ -149,18 +179,33 @@ def bajar():
         sys.exit(f"La solicitud aún no termina (estado: {estado}). Prueba más tarde con `estado`.")
     r = requests.get(f"{APPEEARS}/bundle/{tid}", headers=h, timeout=60)
     r.raise_for_status()
+    # Se baja todo a .part y solo al final se reemplazan los .nc: si la descarga se corta,
+    # la copia buena anterior sigue ahí (repetir la solicitud a AppEEARS cuesta horas).
+    nuevos = []
+    try:
+        for f in r.json()["files"]:
+            if not f["file_name"].endswith(".nc"):
+                continue
+            destino = CACHE / Path(f["file_name"]).name
+            parcial = destino.with_name(destino.name + ".part")
+            with requests.get(f"{APPEEARS}/bundle/{tid}/{f['file_id']}", headers=h, stream=True,
+                              timeout=600) as d:
+                d.raise_for_status()
+                with open(parcial, "wb") as fh:
+                    for trozo in d.iter_content(1 << 20):
+                        fh.write(trozo)
+            nuevos.append((parcial, destino))
+            print(destino.name, f"{parcial.stat().st_size / 1e6:.1f} MB")
+    except BaseException:
+        for parcial, _ in nuevos:
+            parcial.unlink(missing_ok=True)
+        raise
+    finales = {d for _, d in nuevos}
     for viejo in CACHE.glob("*.nc"):
-        viejo.unlink()
-    for f in r.json()["files"]:
-        if not f["file_name"].endswith(".nc"):
-            continue
-        destino = CACHE / Path(f["file_name"]).name
-        with requests.get(f"{APPEEARS}/bundle/{tid}/{f['file_id']}", headers=h, stream=True, timeout=600) as d:
-            d.raise_for_status()
-            with open(destino, "wb") as fh:
-                for trozo in d.iter_content(1 << 20):
-                    fh.write(trozo)
-        print(destino.name, f"{destino.stat().st_size / 1e6:.1f} MB")
+        if viejo not in finales:
+            viejo.unlink()
+    for parcial, destino in nuevos:
+        parcial.replace(destino)
 
 
 # ---------- NetCDF -> data/cobertura_arboles.json ----------
@@ -178,18 +223,18 @@ def _leer_zona(zona):
         sys.exit(f"{zona[1]}: {len(candidatos)} NetCDF en {CACHE} (se espera 1). Corre `bajar` de nuevo.")
     with xr.open_dataset(candidatos[0], mask_and_scale=False) as ds:
         v = ds[CAPA].values.astype(float)  # (tiempo, lat, lon)
-        anios = [int(t.year) for t in ds["time"].values]
+        anios = [int(a) for a in ds["time"].dt.year.values]  # .dt sirve con datetime64 y cftime
+        lats, lons = ds["lat"].values, ds["lon"].values
+    area = np.repeat(
+        km2_pixeles(lats, np.diff(lats).mean(), np.diff(lons).mean())[:, None], len(lons), axis=1)
     valido = (v >= 0) & (v <= 100)  # fuera: 200 (agua) y 253 (sin dato)
     agua = (v == 200).all(axis=0)
-    pixeles = int((~agua & valido.any(axis=0)).sum())  # píxeles de tierra con algún año con dato
+    tierra = ~agua & valido.any(axis=0)  # píxeles de tierra con algún año con dato
     por_anio = {}
     for i, a in enumerate(anios):
-        ok = valido[i]
-        if not ok.any():
-            continue
-        por_anio[a] = (float(ok.sum() / max(pixeles, 1)), float(v[i][ok].mean()),
-                       float((v[i][ok] >= BOSQUE).sum() * KM2_PIXEL))
-    return pixeles, por_anio
+        if valido[i].any():
+            por_anio[a] = resumen_anio(np.where(valido[i], v[i], np.nan), tierra, area)
+    return int(tierra.sum()), por_anio
 
 
 def calcular():
@@ -223,12 +268,32 @@ def autoprueba():
 
     filas = con_estado([
         zona_json(ZONAS[0], 12000, zona(-0.8, 0.5)),                       # pierde bosque: real
-        zona_json(ZONAS[1], 9000, zona(0.0, 0.5)),                         # estable: posible_casualidad
+        zona_json(ZONAS[1], 9000, zona(0.0, 0.5)),                         # sin cambio: posible_casualidad
         zona_json(ZONAS[1], 9000, zona(-0.8, 0.5, range(2001, 2013))),     # 12 años: pocos_datos
-        zona_json(ZONAS[1], 9000, {}),                                     # sin años
     ])
     estados = [f["stats"]["status"] for f in filas]
-    assert estados == ["real", "posible_casualidad", "pocos_datos", "pocos_datos"], estados
+    assert estados == ["real", "posible_casualidad", "pocos_datos"], estados
+    assert all({"year_start", "year_end", "slope_per_decade", "ci_low", "q_value"} <= set(f["stats"])
+               for f in filas), "todos los status con el esquema completo de Stats"
+    for pocos in ({}, zona(-0.8, 0.5, range(2001, 2003))):  # 0 y 2 años: no se publican
+        try:
+            zona_json(ZONAS[1], 9000, pocos)
+            raise AssertionError("una zona con menos de 3 años no debe publicarse")
+        except ValueError:
+            pass
+
+    # Área: el recuadro de Iquitos (0,2° × 0,2°, lat −4,1) suma ~22,26 × 22,21 km, no más
+    lats = np.arange(-4.199, -4.0, 0.002)
+    caja = km2_pixeles(lats, 0.002, 0.002).sum() * 100
+    assert abs(caja - 22.264 * 22.264 * np.cos(np.radians(4.1))) < 1, caja
+    # Un año con la mitad de la tierra sin dato da el mismo bosque (extrapolado), sin escalón
+    area = np.ones((4, 4))
+    tierra = np.ones((4, 4), bool)
+    lleno = np.full((4, 4), 80.0)
+    medio = lleno.copy()
+    medio[:2] = np.nan
+    assert resumen_anio(lleno, tierra, area) == (1.0, 80.0, 16.0)
+    assert resumen_anio(medio, tierra, area) == (0.5, 80.0, 16.0)
     assert filas[0]["stats"]["slope_per_decade"] < 0
     texto = json.dumps(filas, allow_nan=False)
     assert "NaN" not in texto and "null" not in texto

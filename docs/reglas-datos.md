@@ -20,14 +20,15 @@ Valen para todo `pipeline/*.py` y todo `data/*.json`, hoy y en los que se añada
 ## 3b. Fuentes elegidas (decididas el 2026-11-14)
 | Variable | Fuente del producto | Archivo | Notas |
 |---|---|---|---|
-| **Lluvia** | **GPM IMERG** (NASA, `GPM_3IMERGM` v07, ~10 km) | `data/gpm.json` | Es la única lluvia que muestra la ficha. Periodo: 2001–2024 (decidido el 2026-11-14, el mismo que la temperatura). IMERG v07 mensual existe de **ene 1998 a sep 2025** (catálogo CMR de NASA, verificado el 2026-11-14): se puede ampliar hacia atrás y **2025 nunca será año completo**. |
+| **Lluvia** (principal, `lluvia`) | **MERRA-2 vía POWER** (`PRECTOTCORR`) | `data/power.json` | **Cambio del 2026-11-15 (opción C, propuesta de Favio):** la lluvia del mapa y de la ficha sale de POWER, con el mismo criterio que la temperatura. Motivo: con IMERG el mapa salía todo «baja / posible casualidad» por el salto de 2014, y el plan B del frontend (POWER) contradecía a la API en 13 de 24 departamentos. Periodo: 2001–2024. |
+| **Lluvia por satélite** (segunda fuente, `lluvia_imerg`) | **GPM IMERG** (NASA, `GPM_3IMERGM` v07, ~10 km) | `data/gpm.json` | Solo para comparar con POWER («¿Coinciden dos fuentes de NASA?»): no va en el selector. Periodo: 2001–2024 (decidido el 2026-11-14, el mismo que la temperatura). IMERG v07 mensual existe de **ene 1998 a sep 2025** (catálogo CMR de NASA, verificado el 2026-11-14): se puede ampliar hacia atrás y **2025 nunca será año completo**. |
 | **Temperatura** | **MERRA-2 vía POWER** (`T2M`, `T2M_MAX`, `T2M_MIN`) | `data/power.json` | POWER ya usa MERRA-2: no se baja MERRA-2 aparte. Periodo: 2001–2024. |
 
 - **Unidad geográfica: promedio del departamento** (todas las regiones, no solo la costa), no el píxel de la capital. `pipeline/power.py` y `pipeline/gpm.py` ya lo calculan (máscara en `pipeline/departamentos.py`); `lat`/`lon` siguen siendo la capital, solo como punto del mapa.
 - **Temperatura en la primera versión: solo `T2M`.** `T2M_MAX` y `T2M_MIN` quedan en `power.json` como extra si sobra tiempo; la API no las expone todavía.
-- **Aviso en la tendencia de lluvia:** IMERG cambia de constelación de satélites en 2014 (TRMM → GPM) y la tendencia puede salir sesgada a la baja; `pipeline/tendencias.py` lo escribe en el `aviso` de cada zona de lluvia. **Mientras la lluvia sea solo IMERG, su `status` nunca es `real`** (con `q < 0.05` queda `posible_casualidad`): en 2001–2024 IMERG baja en 25 de 25 departamentos y POWER solo en 11, señal de un escalón de instrumento. Se revisa cuando haya un segundo dato independiente (GPCP).
+- **Aviso en la tendencia de IMERG:** IMERG cambia de constelación de satélites en 2014 (TRMM → GPM) y la tendencia puede salir sesgada a la baja; `pipeline/tendencias.py` lo escribe en el `aviso` de cada zona de `lluvia_imerg`. **El `status` de IMERG nunca es `real`** (con `q < 0.05` queda `posible_casualidad`): en 2001–2024 IMERG baja en 25 de 25 departamentos y POWER solo en 11, señal de un escalón de instrumento. Se revisa cuando haya un segundo dato independiente (GPCP).
 - **CHIRPS descartado**: no es de NASA y daría una segunda lluvia que contradice a IMERG en la costa (regla 3). La rama `feat/pipeline-chirps` queda en GitHub por si se retoma; no entra a `developer`.
-- **`PRECTOTCORR` de POWER** sigue en `power.json` solo como referencia: la ficha no la muestra.
+- **`PRECTOTCORR` de POWER** es la lluvia principal desde el 2026-11-15 (`data/zonas/lluvia.json`); IMERG queda en `data/zonas/lluvia_imerg.json`. Son dos fuentes separadas, nunca promediadas (regla 3).
 - Si hace falta lluvia de largo plazo (desde 1981/1983), es una decisión aparte (propuesta del Drive: GPCP v3.2).
 
 ### IMERG v07 está congelado

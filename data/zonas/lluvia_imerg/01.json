@@ -1,0 +1,123 @@
+{
+ "id": "01",
+ "nombre": "Amazonas",
+ "lat": -6.23,
+ "lon": -77.87,
+ "celdas": 317,
+ "variable": "lluvia_imerg",
+ "unidad": "mm/día",
+ "fuente": "GPM IMERG v07 (NASA)",
+ "serie": [
+  {
+   "anio": 2001,
+   "valor": 5.2597
+  },
+  {
+   "anio": 2002,
+   "valor": 4.8955
+  },
+  {
+   "anio": 2003,
+   "valor": 4.6143
+  },
+  {
+   "anio": 2004,
+   "valor": 4.8
+  },
+  {
+   "anio": 2005,
+   "valor": 5.0253
+  },
+  {
+   "anio": 2006,
+   "valor": 5.1714
+  },
+  {
+   "anio": 2007,
+   "valor": 5.5474
+  },
+  {
+   "anio": 2008,
+   "valor": 5.4667
+  },
+  {
+   "anio": 2009,
+   "valor": 5.0738
+  },
+  {
+   "anio": 2010,
+   "valor": 4.4825
+  },
+  {
+   "anio": 2011,
+   "valor": 4.7472
+  },
+  {
+   "anio": 2012,
+   "valor": 5.3649
+  },
+  {
+   "anio": 2013,
+   "valor": 4.906
+  },
+  {
+   "anio": 2014,
+   "valor": 5.1168
+  },
+  {
+   "anio": 2015,
+   "valor": 4.8986
+  },
+  {
+   "anio": 2016,
+   "valor": 4.6304
+  },
+  {
+   "anio": 2017,
+   "valor": 5.7143
+  },
+  {
+   "anio": 2018,
+   "valor": 5.1037
+  },
+  {
+   "anio": 2019,
+   "valor": 4.7504
+  },
+  {
+   "anio": 2020,
+   "valor": 3.9687
+  },
+  {
+   "anio": 2021,
+   "valor": 4.2974
+  },
+  {
+   "anio": 2022,
+   "valor": 4.5216
+  },
+  {
+   "anio": 2023,
+   "valor": 3.9092
+  },
+  {
+   "anio": 2024,
+   "valor": 4.0089
+  }
+ ],
+ "stats": {
+  "year_start": 2001,
+  "year_end": 2024,
+  "n_years": 24,
+  "slope_per_decade": -0.36775,
+  "intercept": 78.906738,
+  "ci_low": -0.6512,
+  "ci_high": -0.0754,
+  "p_value": 0.00434,
+  "lag1": 0.3899,
+  "pct_change_per_decade": -7.59,
+  "q_value": 0.01085,
+  "status": "posible_casualidad",
+  "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja, por eso no se marca como real."
+ }
+}
