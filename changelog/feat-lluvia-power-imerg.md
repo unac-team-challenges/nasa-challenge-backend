@@ -1,6 +1,6 @@
 # feat/lluvia-power-imerg
 
-PR: base `feat/pipeline-ndvi` (#42), porque usa su criterio único de tendencia. Autor: Favio.
+PR: base `developer`. Autor: Favio. Salió de `feat/pipeline-ndvi` (#42) por su criterio único de tendencia; con #42 y #50 ya mezclados, la base pasó a `developer` y se trajo `developer` (conflictos de `src/data.rs` y `CLAUDE.md` resueltos: se conservan `ndvi.json`/`vegetacion` de #50 y se suma `lluvia_imerg`).
 
 ## Por qué
 Con la lluvia de IMERG, el mapa salía entero en «baja / posible casualidad»: IMERG baja en 25 de 25 departamentos por el cambio de satélites de 2014 (TRMM → GPM), no por el clima. Además, el plan B del frontend (NASA POWER) contradecía a la API en **13 de 24 departamentos** con el mismo periodo, 2001–2024 (Piura: IMERG −20 mm, POWER +11 mm; Puno: IMERG −91 mm, POWER +141 mm, real). Según por dónde se entraba a la web, el mismo departamento subía o bajaba.
@@ -25,6 +25,6 @@ Decisión de producto (Favio, 2026-11-15, opción C): **POWER como lluvia princi
 - `/api/zonas?variable=lluvia` mantiene la forma de siempre, pero cambia su fuente. `/api/variables` trae una tercera entrada, `lluvia_imerg`. **El frontend tiene que filtrar `lluvia_imerg` del selector** (va en su propio PR).
 
 ## Pendiente
-- Que el equipo (Josue, Leandro) acuerde el cambio de la regla 3b: cambia la decisión del 2026-11-14.
+- Visto bueno de Leandro a la decisión (POWER principal, IMERG segunda fuente). Falta el de Josue.
 - Frontend: `pnpm gen`, plan B idéntico a la API (POWER + IMERG) y el bloque «¿Coinciden dos fuentes de NASA?» en la ficha.
 - Lluvia larga (1981–2024) con POWER: posible, pero es otra decisión (power.json hoy empieza en 2001).
