@@ -1,10 +1,11 @@
 //! Rutas del contrato del Drive (`07-stack-decidido`): `/api/variables`, `/api/zonas`, `/api/zonas/{id}`,
-//! más `/api/vegetacion` (Caso 2).
+//! más `/api/vegetacion` (Caso 2, costa) y `/api/cobertura-arboles` (selva).
 //! Solo devuelven lo que dejó `pipeline/` (validado al arrancar en `data.rs`): nunca calculan.
 use crate::{
     data::Estado,
     error::ApiError,
     models::{
+        cobertura::ZonaCobertura,
         variable::{Variable, VariableInfo},
         vegetacion::ZonaVegetacion,
         zona::Zona,
@@ -79,4 +80,13 @@ pub async fn zona(
     responses((status = 200, body = Vec<ZonaVegetacion>)))]
 pub async fn vegetacion(State(d): State<Estado>) -> Response {
     Json(&d.vegetacion).into_response()
+}
+
+/// Cobertura de árboles (MODIS MOD44B) de recuadros de selva, donde el NDVI se satura: cada zona con
+/// su serie anual (`arboles_pct`, `area_bosque_km2`), su tendencia y su `unidad_geografica`
+/// (un recuadro, **no** el promedio del departamento).
+#[utoipa::path(get, path = "/api/cobertura-arboles", tag = "api",
+    responses((status = 200, body = Vec<ZonaCobertura>)))]
+pub async fn cobertura(State(d): State<Estado>) -> Response {
+    Json(&d.cobertura).into_response()
 }

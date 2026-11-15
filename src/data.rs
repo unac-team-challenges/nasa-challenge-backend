@@ -1,9 +1,10 @@
 use crate::{
     models::{
+        cobertura::ZonaCobertura,
         gpm, power,
         variable::{Variable, VariableInfo},
         vegetacion::ZonaVegetacion,
-        zona::Zona,
+        zona::{Stats, Zona},
         Region,
     },
     schema::Punto,
@@ -23,6 +24,7 @@ const ZONAS_LLUVIA: &str = include_str!("../data/zonas/lluvia.json");
 const ZONAS_TEMPERATURA: &str = include_str!("../data/zonas/temperatura.json");
 const ZONAS_LLUVIA_IMERG: &str = include_str!("../data/zonas/lluvia_imerg.json");
 const NDVI: &str = include_str!("../data/ndvi.json");
+const COBERTURA: &str = include_str!("../data/cobertura_arboles.json");
 
 pub type Estado = Arc<Datos>;
 
@@ -36,6 +38,8 @@ pub struct Fuentes<'a> {
     pub zonas: [&'a str; 3],
     /// `data/ndvi.json`: vegetación de los valles irrigados (Caso 2).
     pub ndvi: &'a str,
+    /// `data/cobertura_arboles.json`: cobertura de árboles de la selva.
+    pub cobertura: &'a str,
 }
 
 impl Fuentes<'static> {
@@ -45,6 +49,7 @@ impl Fuentes<'static> {
         variables: VARIABLES,
         zonas: [ZONAS_LLUVIA, ZONAS_TEMPERATURA, ZONAS_LLUVIA_IMERG],
         ndvi: NDVI,
+        cobertura: COBERTURA,
     };
 }
 
@@ -65,6 +70,8 @@ pub struct Datos {
     fichas: [Vec<Ficha>; 3],
     /// `data/ndvi.json` tal cual, ya validado.
     pub vegetacion: Vec<ZonaVegetacion>,
+    /// `data/cobertura_arboles.json` tal cual, ya validado.
+    pub cobertura: Vec<ZonaCobertura>,
 }
 
 fn error(msg: impl std::fmt::Display) -> serde_json::Error {
@@ -126,7 +133,8 @@ impl Datos {
             gpm,
             variables,
             fichas: Default::default(),
-            vegetacion: vegetacion(f.ndvi)?,
+            vegetacion: recuadros(f.ndvi)?,
+            cobertura: recuadros(f.cobertura)?,
         };
         d.fichas = [
             d.fichas_de(Variable::Lluvia, f.zonas[0])?,
@@ -205,53 +213,149 @@ impl Datos {
     }
 }
 
-/// Lee y valida `data/ndvi.json`. Si algo no cuadra, la API no arranca y el error dice qué zona falla.
-fn vegetacion(json: &str) -> Result<Vec<ZonaVegetacion>, serde_json::Error> {
-    let zonas: Vec<ZonaVegetacion> = serde_json::from_str(json)?;
+/// Una zona-recuadro con serie anual y tendencia (`ndvi.json`, `cobertura_arboles.json`):
+/// lo que se valida igual en los dos archivos.
+trait Recuadro: serde::de::DeserializeOwned {
+    const ARCHIVO: &'static str;
+    /// Campo de `anios` sobre el que se calcula `stats`.
+    const TENDENCIA_DE: &'static str;
+    fn id(&self) -> &str;
+    fn ubigeo(&self) -> &str;
+    fn departamento(&self) -> &str;
+    fn unidad_geografica(&self) -> &str;
+    fn bbox(&self) -> [f64; 4];
+    fn lat_lon(&self) -> (f64, f64);
+    fn tendencia_de(&self) -> &str;
+    fn stats(&self) -> &Stats;
+    /// Problema en los campos propios del archivo (umbral), si lo hay.
+    fn revisar(&self) -> Option<&'static str>;
+    /// Años de `serie`, en orden, cada uno con su problema de rango si lo tiene.
+    fn anios(&self) -> Vec<(u16, Option<&'static str>)>;
+}
+
+/// Los campos comunes de `Recuadro` (mismos nombres en los dos modelos).
+macro_rules! campos_recuadro {
+    () => {
+        fn id(&self) -> &str {
+            &self.id
+        }
+        fn ubigeo(&self) -> &str {
+            &self.ubigeo
+        }
+        fn departamento(&self) -> &str {
+            &self.departamento
+        }
+        fn unidad_geografica(&self) -> &str {
+            &self.unidad_geografica
+        }
+        fn bbox(&self) -> [f64; 4] {
+            self.bbox
+        }
+        fn lat_lon(&self) -> (f64, f64) {
+            (self.lat, self.lon)
+        }
+        fn tendencia_de(&self) -> &str {
+            &self.tendencia_de
+        }
+        fn stats(&self) -> &Stats {
+            &self.stats
+        }
+    };
+}
+
+impl Recuadro for ZonaVegetacion {
+    const ARCHIVO: &'static str = "ndvi.json";
+    const TENDENCIA_DE: &'static str = "ndvi_anual";
+    campos_recuadro!();
+    fn revisar(&self) -> Option<&'static str> {
+        (!(-1.0..=1.0).contains(&self.umbral_verde_ndvi))
+            .then_some("umbral_verde_ndvi fuera de −1 a 1")
+    }
+    fn anios(&self) -> Vec<(u16, Option<&'static str>)> {
+        self.serie
+            .iter()
+            .map(|m| {
+                let mal = !(-1.0..=1.0).contains(&m.ndvi_anual) || m.area_verde_km2 < 0.0;
+                (
+                    m.anio,
+                    mal.then_some("NDVI fuera de −1 a 1 o área verde negativa"),
+                )
+            })
+            .collect()
+    }
+}
+
+impl Recuadro for ZonaCobertura {
+    const ARCHIVO: &'static str = "cobertura_arboles.json";
+    const TENDENCIA_DE: &'static str = "arboles_pct";
+    campos_recuadro!();
+    fn revisar(&self) -> Option<&'static str> {
+        (!(0.0..=100.0).contains(&self.umbral_bosque_pct))
+            .then_some("umbral_bosque_pct fuera de 0 a 100")
+    }
+    fn anios(&self) -> Vec<(u16, Option<&'static str>)> {
+        self.serie
+            .iter()
+            .map(|m| {
+                let mal = !(0.0..=100.0).contains(&m.arboles_pct) || m.area_bosque_km2 < 0.0;
+                (
+                    m.anio,
+                    mal.then_some("cobertura de árboles fuera de 0 a 100 % o área negativa"),
+                )
+            })
+            .collect()
+    }
+}
+
+/// Lee y valida un archivo de recuadros. Si algo no cuadra, la API no arranca y el error dice qué
+/// zona falla.
+fn recuadros<Z: Recuadro>(json: &str) -> Result<Vec<Z>, serde_json::Error> {
+    let zonas: Vec<Z> = serde_json::from_str(json)?;
     if zonas.is_empty() {
-        return Err(error("ndvi.json: no tiene zonas"));
+        return Err(error(format_args!("{}: no tiene zonas", Z::ARCHIVO)));
     }
     let mut ids = BTreeSet::new();
     for z in &zonas {
-        let donde = || format!("ndvi.json, zona '{}'", z.id);
-        let mal = |msg: &str| Err(error(format_args!("{}: {msg}", donde())));
-        if !ids.insert(z.id.as_str()) {
+        let mal = |msg: &str| {
+            Err(error(format_args!(
+                "{}, zona '{}': {msg}",
+                Z::ARCHIVO,
+                z.id()
+            )))
+        };
+        if !ids.insert(z.id()) {
             return mal("id repetido");
         }
-        match UBIGEOS.iter().find(|(id, _)| *id == z.ubigeo) {
-            Some((_, nombre)) if clave(nombre) == clave(&z.departamento) => {}
+        match UBIGEOS.iter().find(|(id, _)| *id == z.ubigeo()) {
+            Some((_, nombre)) if clave(nombre) == clave(z.departamento()) => {}
             Some(_) => return mal("el departamento no es el de su ubigeo"),
             None => return mal("ubigeo inexistente"),
         }
-        if z.unidad_geografica.trim().is_empty() {
+        if z.unidad_geografica().trim().is_empty() {
             return mal("falta unidad_geografica");
         }
-        let [o, s, e, n] = z.bbox;
-        if !(o < e && s < n && (o..=e).contains(&z.lon) && (s..=n).contains(&z.lat)) {
+        let [o, s, e, n] = z.bbox();
+        let (lat, lon) = z.lat_lon();
+        if !(o < e && s < n && (o..=e).contains(&lon) && (s..=n).contains(&lat)) {
             return mal("bbox inválido o lat/lon fuera del recuadro");
         }
-        if !(-1.0..=1.0).contains(&z.umbral_verde_ndvi) {
-            return mal("umbral_verde_ndvi fuera de −1 a 1");
+        if let Some(problema) = z.revisar() {
+            return mal(problema);
         }
-        if z.tendencia_de != "ndvi_anual" {
-            return mal("tendencia_de debe ser 'ndvi_anual'");
+        if z.tendencia_de() != Z::TENDENCIA_DE {
+            return mal(&format!("tendencia_de debe ser '{}'", Z::TENDENCIA_DE));
         }
-        let anios: Vec<u16> = z.serie.iter().map(|p| p.anio).collect();
+        let mut anios = Vec::new();
+        for (a, problema) in z.anios() {
+            if let Some(p) = problema {
+                return mal(&format!("año {a} con {p}"));
+            }
+            anios.push(a);
+        }
         if !anios.windows(2).all(|w| w[0] < w[1]) {
             return mal("serie con años repetidos o desordenados");
         }
-        if let Some(p) = z
-            .serie
-            .iter()
-            .find(|p| !(-1.0..=1.0).contains(&p.ndvi_anual) || p.area_verde_km2 < 0.0)
-        {
-            return Err(error(format_args!(
-                "{}: año {} con NDVI fuera de −1 a 1 o área verde negativa",
-                donde(),
-                p.anio
-            )));
-        }
-        let st = &z.stats;
+        let st = z.stats();
         let en_periodo = anios
             .iter()
             .filter(|a| (st.year_start..=st.year_end).contains(a))
@@ -260,16 +364,15 @@ fn vegetacion(json: &str) -> Result<Vec<ZonaVegetacion>, serde_json::Error> {
             || anios.last() != Some(&st.year_end)
             || en_periodo != usize::from(st.n_years)
         {
-            return Err(error(format_args!(
-                "{}: stats dice {}–{} ({} años) pero serie va de {:?} a {:?} ({} años)",
-                donde(),
+            return mal(&format!(
+                "stats dice {}–{} ({} años) pero serie va de {:?} a {:?} ({} años)",
                 st.year_start,
                 st.year_end,
                 st.n_years,
                 anios.first(),
                 anios.last(),
                 anios.len()
-            )));
+            ));
         }
     }
     Ok(zonas)

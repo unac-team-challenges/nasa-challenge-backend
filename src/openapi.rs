@@ -1,6 +1,7 @@
 //! Contrato OpenAPI de `/api/*`. El frontend lo copia a `src/api/openapi.json` y genera sus tipos (`pnpm gen`).
 use crate::{
     models::{
+        cobertura::{AnioCobertura, ZonaCobertura},
         variable::{Variable, VariableInfo},
         vegetacion::{AnioVegetacion, ZonaVegetacion},
         zona::{Stats, Status, Zona},
@@ -16,7 +17,7 @@ use utoipa::OpenApi;
         title = "Detective del Perú",
         description = "API de solo lectura: sirve resultados ya calculados."
     ),
-    paths(api::variables, api::zonas, api::zona, api::vegetacion),
+    paths(api::variables, api::zonas, api::zona, api::vegetacion, api::cobertura),
     components(schemas(
         Variable,
         VariableInfo,
@@ -25,6 +26,8 @@ use utoipa::OpenApi;
         Status,
         ZonaVegetacion,
         AnioVegetacion,
+        ZonaCobertura,
+        AnioCobertura,
         schema::ZonaDetalle,
         schema::Punto,
         schema::ErrorRespuesta
