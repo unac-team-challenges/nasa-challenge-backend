@@ -52,6 +52,18 @@ class Clasificar(unittest.TestCase):
         ambos = t.clasificar(stats(lag1=0.6), 0.5, 10, imerg)["aviso"]
         self.assertTrue(ambos.startswith(imerg) and ambos.endswith(t.AVISO_LAG1))
 
+    def test_aviso_de_ucayali_sale_de_la_serie(self):
+        anios = np.arange(2001, 2025)
+        y = np.concatenate([np.full(22, 25.0) + 0.01 * np.arange(22), [28.2, 28.5]])
+        texto = t.aviso_ucayali(anios, y, {"slope_per_decade": 0.77})
+        self.assertIn("2023 y 2024", texto)
+        self.assertIn("28,2 y 28,5 °C", texto)
+        self.assertIn("de 0,77 a 0,", texto)
+        # con un año más, el aviso habla de los dos últimos años y no queda viejo
+        mas = t.aviso_ucayali(np.arange(2001, 2026), np.append(y, 27.0), {"slope_per_decade": 0.7})
+        self.assertIn("2024 y 2025", mas)
+        self.assertEqual(list(t.VARIABLES["temperatura"]["avisos_zona"]), ["25"])
+
     def test_aviso_explica_por_que_no_es_real(self):
         # lag1 negativo: baja el status y también avisa (antes solo avisaba con lag1 > 0.5)
         self.assertIn(t.AVISO_LAG1, t.clasificar(stats(lag1=-0.6), 0.013, 9)["aviso"])

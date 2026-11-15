@@ -99,6 +99,8 @@ Ucayali sube **0,77 °C/década** (2001–2024, Theil-Sen sobre `power.json`), e
 - **La comparación con «estudios andinos» (0,13–0,45) no es del todo justa:** Ucayali es selva baja y esos estudios
   miden estaciones andinas hasta 2014.
 
-**Decisión:** la tendencia se publica tal cual (`real`, sin cambiar el umbral). El aviso de lag1 no aplica
-(lag1 bajo). Si el equipo quiere un aviso propio para Ucayali, hoy no hay dónde ponerlo: `tendencias.py` solo
-admite un aviso por variable, no por zona. Habría que añadirlo y regenerar `data/zonas/temperatura.json`.
+**Decisión:** la tendencia se publica tal cual (`real`, sin cambiar el umbral), pero Ucayali lleva un aviso propio en
+`stats.aviso` (`avisos_zona` de `temperatura` en `pipeline/tendencias.py`, por ubigeo): dice que la subida depende de los
+dos últimos años, cuánto baja sin ellos (0,77 → 0,58) y que estos datos no separan calentamiento real, calor extremo y un
+cambio del reanálisis. Los números salen de la serie, así que el texto se actualiza solo al regenerar. Va delante del aviso
+de lag1 si algún día aplica. Los demás departamentos no cambian.

@@ -501,7 +501,8 @@
    "p_value": 0.001057,
    "lag1": 0.2191,
    "q_value": 0.010605,
-   "status": "real"
+   "status": "real",
+   "aviso": "La subida depende del final de la serie: 2023 y 2024 salieron mucho más calientes (28,2 y 28,5 °C, frente a 25,0–26,7 °C en los años anteriores). Sin esos dos años la subida baja de 0,77 a 0,58 °C por década. Con estos datos no se puede separar calentamiento real, calor extremo de esos años y un cambio en el reanálisis."
   }
  }
 ]

@@ -75,6 +75,7 @@ chk "GET /api/zonas/07 lleva nota"           bash -c "curl -sf '$URL/api/zonas/0
 chk "GET /api/zonas trae stats.status válido" bash -c "curl -sf '$URL/api/zonas?variable=lluvia' | jq -e 'length == 25 and all(.[].stats.status; IN(\"real\",\"posible_casualidad\",\"pocos_datos\"))'"
 chk "GET /api/zonas/15 lluvia_imerg: aviso 2014" bash -c "curl -sf '$URL/api/zonas/15?variable=lluvia_imerg' | jq -e '(.stats.aviso | test(\"2014\")) and (.stats.q_value | type == \"number\")'"
 chk "GET /api/zonas/15 temperatura sin aviso" bash -c "curl -sf '$URL/api/zonas/15?variable=temperatura' | jq -e '.stats.status and (.stats | has(\"aviso\") | not)'"
+chk "GET /api/zonas/25 temperatura: aviso propio de Ucayali" bash -c "curl -sf '$URL/api/zonas/25?variable=temperatura' | jq -e '.stats.status == \"real\" and (.stats.aviso | test(\"2023 y 2024\"))'"
 chk "GET /api/vegetacion (Caso 2)"         bash -c "curl -sf $URL/api/vegetacion | jq -e 'length >= 2 and all(.[]; (.unidad_geografica | type == \"string\") and (.stats.status | IN(\"real\",\"posible_casualidad\",\"pocos_datos\")))'"
 chk "GET /api/cobertura-arboles (selva)"   bash -c "curl -sf $URL/api/cobertura-arboles | jq -e 'length >= 2 and all(.[]; (.unidad_geografica | type == \"string\") and (.stats.status | IN(\"real\",\"posible_casualidad\",\"pocos_datos\")))'"
 chk "GET /api/celdas?variable=temperatura" bash -c "curl -sf '$URL/api/celdas?variable=temperatura' | jq -e '.celdas | length > 100'"
