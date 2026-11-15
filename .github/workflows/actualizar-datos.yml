@@ -7,10 +7,14 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
+
+concurrency: actualizar-datos
 
 jobs:
   datos:
     runs-on: ubuntu-latest
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v7
         with:
@@ -27,11 +31,22 @@ jobs:
           EARTHDATA_USERNAME: ${{ secrets.EARTHDATA_USERNAME }}
           EARTHDATA_PASSWORD: ${{ secrets.EARTHDATA_PASSWORD }}
       - run: python pipeline/tendencias.py
-      - name: Commit si cambió
+      # Un push con GITHUB_TOKEN no dispara el CI: el e2e corre aquí, antes de proponer nada.
+      - uses: Swatinem/rust-cache@v2
+      - run: bash tests/e2e.sh # si falla, no se abre PR
+      - name: Abrir PR si cambió
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           [ -z "$(git status --porcelain data/)" ] && exit 0  # también archivos nuevos
+          rama="datos/actualizacion-$(date +%F)"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$rama"
           git add data/
           git commit -m "chore: actualizar datos (POWER, GPM y tendencias)"
-          git push
+          git push --force origin "$rama"
+          gh pr create --base developer --head "$rama" \
+            --title "chore: actualizar datos ($(date +%F))" \
+            --body "Datos regenerados por el cron (POWER, GPM y tendencias). El \`e2e\` pasó en el job antes de abrir este PR, pero un PR del bot no dispara el CI: revisa el diff de \`data/\` antes de mezclar." \
+            || echo "::warning::No se pudo abrir el PR (¿falta Settings > Actions > Allow GitHub Actions to create pull requests?). La rama $rama ya está subida."
