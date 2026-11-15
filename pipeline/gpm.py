@@ -3,7 +3,12 @@
 Cada valor es el promedio de todas las celdas de IMERG (0,1°) del
 departamento (regla 3b de docs/reglas-datos.md), no el píxel de la capital.
 
-Uso: python pipeline/gpm.py [inicio] [fin]   (por defecto 2001 2024)
+Uso: python pipeline/gpm.py [inicio] [fin] [--todo]   (por defecto 2001 2024)
+
+Incremental: los años que ya están completos en las 25 regiones de
+data/gpm.json no se vuelven a pedir (IMERG v07 está congelado desde
+sep 2025: sin esto, el cron mensual bajaría todo para el mismo resultado).
+`--todo` vuelve a pedir todos los años (por ejemplo, con una versión nueva).
 
 Necesita una cuenta Earthdata con los términos de GES DISC aceptados:
 variables EARTHDATA_USERNAME y EARTHDATA_PASSWORD (en .env o en el
@@ -33,6 +38,16 @@ OPENDAP = "https://gpm1.gesdisc.eosdis.nasa.gov/opendap/GPM_L3/GPM_3IMERGM.07"
 # lon -81,45..-68,55 -> 985..1114 ; lat -18,45..0,05 -> 715..900
 RECORTE = "/precipitation[0:0][985:1114][715:900];/lat[715:900];/lon[985:1114]"
 HILOS = 4
+JSON = Path(__file__).parent.parent / "data" / "gpm.json"
+
+
+def guardados(filas):
+    """({anio: {region: valor}}, {region: celdas}) de los años completos en TODAS las regiones."""
+    if len(filas) != len(REGIONES):
+        return {}, {}
+    comunes = set.intersection(*(set(f["anios"]) for f in filas))
+    return ({a: {f["region"]: f["anios"][a]["lluvia_mm_dia"] for f in filas} for a in comunes},
+            {f["region"]: f["celdas"] for f in filas})
 
 
 def url_recorte(granulo):
@@ -75,6 +90,8 @@ def anio_promedio(anio, sesion):
     )
     if not granulos:
         return {}, {}
+    if len(granulos) != 12:
+        print(f"AVISO {anio}: {len(granulos)} archivos de IMERG (se esperaban 12)", file=sys.stderr)
     with ThreadPoolExecutor(HILOS) as hilos:
         contenidos = list(hilos.map(lambda g: pedir(sesion, url_recorte(g)), granulos))
     meses = [lluvia_mensual(c) for c in contenidos]
@@ -83,25 +100,39 @@ def anio_promedio(anio, sesion):
         valores = [m[reg][0] for m in meses if np.isfinite(m[reg][0])]
         if len(valores) == 12:
             anual[reg] = round(float(np.mean(valores)), 4)
+    faltan = [reg for reg in REGIONES if reg not in anual]
+    if len(granulos) == 12 and faltan:
+        print(f"AVISO {anio}: sin 12 meses válidos en {', '.join(faltan)}; ese año no entra", file=sys.stderr)
     return anual, {reg: v[1] for reg, v in meses[0].items()}
 
 
 if __name__ == "__main__":
-    inicio, fin = (sys.argv[1:3] + ["2001", "2024"][len(sys.argv[1:3]):])[:2]
+    todo = "--todo" in sys.argv
+    args = [a for a in sys.argv[1:] if a != "--todo"]
+    inicio, fin = (args[:2] + ["2001", "2024"][len(args[:2]):])[:2]
+    previos, celdas_previas = ({}, {}) if todo or not JSON.exists() else guardados(
+        json.loads(JSON.read_text(encoding="utf-8")))
     load_dotenv()
     earthaccess.login()  # .env/entorno, o ~/.netrc
     sesion = earthaccess.get_requests_https_session()
 
     datos = {reg: {} for reg in REGIONES}
-    celdas = {}
-    for anio in range(int(inicio), int(fin) + 1):
-        anual, celdas_anio = anio_promedio(anio, sesion)
-        celdas = celdas_anio or celdas
+    celdas = celdas_previas
+    rango = range(int(inicio), int(fin) + 1)
+    reusados = [a for a in rango if str(a) in previos]
+    if reusados:
+        print(f"{len(reusados)} años ya completos en data/gpm.json, no se piden (--todo para pedirlos)", flush=True)
+    for anio in rango:
+        if anio in reusados:
+            anual = previos[str(anio)]
+        else:
+            anual, celdas_anio = anio_promedio(anio, sesion)
+            celdas = celdas_anio or celdas
+            print(f"{anio} listo", flush=True)
         for reg, valor in anual.items():
             datos[reg][str(anio)] = {"lluvia_mm_dia": valor}
-        print(f"{anio} listo", flush=True)
 
-    Path(__file__).parent.parent.joinpath("data", "gpm.json").write_text(
+    JSON.write_text(
         json.dumps(a_json(datos, celdas), ensure_ascii=False, indent=1, allow_nan=False),
         encoding="utf-8",
     )

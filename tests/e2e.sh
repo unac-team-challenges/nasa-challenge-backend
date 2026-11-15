@@ -22,6 +22,7 @@ chk "gpm.json: todos los valores son números (sin null/NaN)" jq -e '[.[].anios[
 chk "pipeline/gpm.py compila" python3 -m py_compile pipeline/gpm.py
 chk "pipeline/tendencias.py compila" python3 -m py_compile pipeline/tendencias.py
 chk "tests/test_tendencias.py (semáforo, aviso, periodo)" python3 -m unittest -q tests/test_tendencias.py
+chk "tests/test_pipeline.py (avisos e IMERG incremental)" python3 -m unittest -q tests/test_pipeline.py
 chk "variables.json tiene lluvia y temperatura" jq -e '[.[].id] == ["lluvia","temperatura"]' data/variables.json
 chk "variables.json: periodo 2001–2024 y lluvia de IMERG" jq -e 'all(.anio_inicio == 2001 and .anio_fin == 2024) and (.[0].fuente | test("IMERG"))' data/variables.json
 chk "zonas/lluvia.json: aviso del cambio de satélites de 2014 en las 25" jq -e 'all(.[].stats.aviso; type == "string" and test("2014"))' data/zonas/lluvia.json
