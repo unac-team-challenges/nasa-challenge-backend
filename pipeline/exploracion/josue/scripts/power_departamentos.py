@@ -26,6 +26,7 @@ import requests
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from lab5_tendencias import analizar, bh  # noqa: E402  misma implementación validada en lab5
+from lab5_tendencias import estado as estado_tendencia  # noqa: E402  criterio único del semáforo
 
 RAIZ = Path(__file__).resolve().parent.parent
 URL = "https://power.larc.nasa.gov/api/temporal/monthly/regional"
@@ -33,7 +34,7 @@ RECUADROS = {"NO": (-9, 0, -81.5, -73), "NE": (-9, 0, -73, -68.5),
              "SO": (-18.5, -9, -81.5, -73), "SE": (-18.5, -9, -73, -68.5)}
 VARIABLES = ["T2M", "T2M_MAX", "T2M_MIN", "PRECTOTCORR"]
 PERIODOS = {"largo": (1981, 2024), "reciente": (2001, 2024)}
-MIN_CELDAS, MIN_AÑOS, MAX_LAG1, ALFA = 4, 20, 0.5, 0.05
+MIN_CELDAS, MIN_AÑOS = 4, 20  # ALFA y MAX_LAG1 viven en lab5_tendencias.estado()
 CACHE = RAIZ / "data" / "power_regional"
 
 
@@ -65,14 +66,7 @@ def a_tabla(datos, var):
 def estado(r, celdas):
     if celdas < MIN_CELDAS or r.get("n_years", 0) < MIN_AÑOS:
         return "pocos_datos", f"celdas={celdas}, años={r.get('n_years')}"
-    motivos = []
-    if r["q_value"] >= ALFA:
-        motivos.append(f"q={r['q_value']:.3f}")
-    if r["ci_low"] <= 0 <= r["ci_high"]:
-        motivos.append("IC95 incluye 0")
-    if abs(r["lag1"]) > MAX_LAG1:
-        motivos.append(f"lag1={r['lag1']:.2f}")
-    return ("real", "") if not motivos else ("posible_casualidad", "; ".join(motivos))
+    return estado_tendencia(r)
 
 
 def main():

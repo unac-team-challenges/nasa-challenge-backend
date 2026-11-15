@@ -15,6 +15,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 # Capital de cada región (lat, lon): punto del mapa y respaldo si no hay celdas
 REGIONES = {
@@ -39,12 +41,17 @@ URL = "https://power.larc.nasa.gov/api/temporal/monthly/regional"
 RECUADROS = [(-9, 0, -81.5, -73), (-9, 0, -73, -68.5),
              (-18.5, -9, -81.5, -73), (-18.5, -9, -73, -68.5)]
 
+# 16 llamadas seguidas a una API pública: un 503 pasajero no debe tumbar todo el script
+SESION = requests.Session()
+SESION.mount("https://", HTTPAdapter(max_retries=Retry(
+    total=4, backoff_factor=2, status_forcelist=[429, 500, 502, 503, 504], allowed_methods=["GET"])))
+
 
 def malla(var, inicio, fin):
     """DataFrame (lat, lon, anio, mes, valor) de POWER sobre Perú, sin -999 ni el 'mes 13'."""
     filas = []
     for lat_min, lat_max, lon_min, lon_max in RECUADROS:
-        r = requests.get(URL, params={
+        r = SESION.get(URL, params={
             "parameters": var, "community": "AG", "format": "JSON",
             "latitude-min": lat_min, "latitude-max": lat_max,
             "longitude-min": lon_min, "longitude-max": lon_max,
@@ -71,7 +78,7 @@ def por_departamento(df):
     df = df.assign(reg=[masc[i_lat[a], i_lon[o]] for a, o in zip(df["lat"], df["lon"])])
 
     nombres = list(REGIONES)
-    anual, celdas = {}, {}
+    anual, celdas, incompletos = {}, {}, {}
     for i, reg in enumerate(nombres):
         sub = df[df["reg"] == i]
         celdas[reg] = int(sub[["lat", "lon"]].drop_duplicates().shape[0])
@@ -82,8 +89,18 @@ def por_departamento(df):
         mensual = sub.groupby(["anio", "mes"])["valor"].mean()
         n_meses = mensual.groupby(level="anio").size()
         anios_ok = n_meses[n_meses == 12].index
+        for a in n_meses[n_meses != 12].index:
+            incompletos.setdefault(int(a), []).append(reg)
         anual[reg] = mensual[mensual.index.get_level_values("anio").isin(anios_ok)].groupby(level="anio").mean()
+    avisar_incompletos(incompletos)
     return anual, celdas
+
+
+def avisar_incompletos(incompletos, salida=sys.stderr):
+    """Una línea por año descartado: un año que falta cambia la pendiente y n_years."""
+    for anio, regs in sorted(incompletos.items()):
+        quien = f"{len(regs)} regiones" if len(regs) > 3 else ", ".join(regs)
+        print(f"AVISO {anio}: sin 12 meses en {quien}; ese año no entra", file=salida)
 
 
 if __name__ == "__main__":

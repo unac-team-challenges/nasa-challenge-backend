@@ -19,6 +19,7 @@ __pycache__/
 *.nc4
 *.tif
 *.tiff
+pipeline/cache/
 
 # Editor / sistema
 .vscode/
