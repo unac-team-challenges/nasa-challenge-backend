@@ -15,3 +15,7 @@ Pendiente que dejó Leandro al aprobar el #56 (Olmos en el Caso 2).
 ## Comprobado
 - El check `ndvi.json: unidad geográfica explícita` («no es el promedio del departamento») sigue pasando.
 - El segundo punto de Leandro (que `stats.aviso` se vea en la ficha) es del frontend: se verifica al integrar Olmos en el Caso 2.
+
+## Detalles de documentación (revisión del #58)
+- `pipeline/ndvi.py`: el docstring ya no dice «solo los valles irrigados»; nombra Chavimochic e Ica como valles y Olmos como tierras nuevas con aviso.
+- `docs/vegetacion.md`: «sobre el valle» queda acotado a Chavimochic e Ica.

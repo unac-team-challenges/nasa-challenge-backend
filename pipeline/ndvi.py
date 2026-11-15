@@ -1,4 +1,4 @@
-"""Vegetación (NDVI) de los valles irrigados de la costa -> data/ndvi.json.
+"""Vegetación (NDVI) de la costa (valles irrigados y tierras nuevas de Olmos) -> data/ndvi.json.
 
 Fuente: MODIS MOD13A3 v061 (NASA LP DAAC), NDVI mensual a 1 km, pedido a AppEEARS.
 Origen: Lab 3 de Favio (pipeline/exploracion/favio/scripts/lab3_analisis.py), con las
@@ -16,9 +16,9 @@ Refresco: a mano, una vez al año (enero), no en el cron: AppEEARS tarda ~3 h po
 Credenciales: EARTHDATA_USERNAME y EARTHDATA_PASSWORD del entorno (.env local o secrets
 de GitHub); si no están, ~/.netrc o ~/_netrc en Windows (el que crea earthaccess). Nunca se imprimen.
 
-Zonas: solo los valles irrigados confirmados (docs/vegetacion.md). Olmos entra con un recuadro
-nuevo (2026-11-15) y con aviso: el del Lab 3 cayó sobre bosque seco y se descartó tras ver su
-resultado; esa prueba descartada se cuenta en Benjamini-Hochberg (PRUEBAS_DESCARTADAS). Fuera: selva
+Zonas: los valles irrigados confirmados (Chavimochic e Ica, docs/vegetacion.md) y Olmos, que entra
+con un recuadro nuevo (2026-11-15) sobre las tierras nuevas (mezcla riego y bosque seco) y con
+aviso: el del Lab 3 cayó sobre bosque seco y se descartó tras ver su resultado; esa prueba descartada se cuenta en Benjamini-Hochberg (PRUEBAS_DESCARTADAS). Fuera: selva
 (NDVI saturado; ver pipeline/cobertura.py), Lima (garúa: años incompletos) y Mantaro (IC que incluye 0).
 
 Reproducir data/ndvi.json: el archivo publicado salió de dos solicitudes (44445de3: Chavimochic e
