@@ -152,7 +152,7 @@
    "lag1": 0.5799,
    "q_value": 1e-06,
    "status": "posible_casualidad",
-   "aviso": "Años muy parecidos entre sí (lag1 alto): la tendencia puede parecer más segura de lo que es"
+   "aviso": "La pérdida no fue pareja: de 2001 a 2008 la cobertura se mantuvo cerca del 75 % y desde 2009 baja casi cada año, hasta 46 % en 2024. La caída es grande y su rango probable no incluye 0, pero como empezó de golpe una recta la describe mal, y el criterio único no la marca como cambio real. Años muy parecidos entre sí (lag1 alto): la tendencia puede parecer más segura de lo que es"
   }
  },
  {
