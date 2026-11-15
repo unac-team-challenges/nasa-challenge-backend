@@ -21,9 +21,11 @@ impl Variable {
     ];
 
     pub fn parse(s: &str) -> Option<Self> {
+        // Los ids son ASCII: comparar sin mayúsculas evita un `String` por variable.
+        let s = s.trim();
         Self::TODAS
             .into_iter()
-            .find(|v| v.id() == s.trim().to_lowercase())
+            .find(|v| v.id().eq_ignore_ascii_case(s))
     }
     pub fn id(self) -> &'static str {
         match self {

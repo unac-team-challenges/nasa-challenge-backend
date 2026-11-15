@@ -34,6 +34,7 @@ from tendencia_comun import AVISO_LAG1, evaluar  # noqa: F401  AVISO_LAG1 lo usa
 
 DATA = Path(__file__).parent.parent / "data"
 PERIODO = (2001, 2024)  # decidido el 2026-11-14, el mismo para las dos variables
+P_MIN = 1e-6  # menor p/q que se publica; el front muestra «< 0,000001» cuando vale esto
 MIN_ANIOS = 20  # ALFA y MAX_LAG1 viven en tendencia_comun.py (criterio único)
 
 # unidad, fuente y descripcion: mismos textos que src/models/variable.rs
@@ -97,8 +98,9 @@ def estadisticas(anios, y, porcentaje):
 def clasificar(st, q, celdas, aviso=None, sin_real=False):
     """Añade p_value/q_value redondeados, status y aviso. El status se decide
     con los valores publicados, para que el JSON nunca se contradiga."""
-    st["p_value"] = round(st["p_value"], 6)
-    st["q_value"] = round(float(q), 6)
+    # Piso de 1e-6: un p o q que redondea a 0 se publica como 0.000001 («p ≤ 0,000001»), nunca como 0
+    st["p_value"] = max(round(st["p_value"], 6), P_MIN)
+    st["q_value"] = max(round(float(q), 6), P_MIN)
     es_real, avisos = evaluar(st["q_value"], st["ci_low"], st["ci_high"], st["lag1"])
     if st["n_years"] < MIN_ANIOS or celdas < MIN_CELDAS:
         st["status"] = "pocos_datos"

@@ -6,7 +6,7 @@ use axum::{
 use nasa_challenge_backend::{
     app,
     data::{Datos, Estado, Fuentes},
-    models::{power, zona::Status},
+    models::{power, variable::Variable, zona::Status},
 };
 use serde_json::Value;
 use std::sync::{Arc, LazyLock};
@@ -186,6 +186,22 @@ async fn api_variable_es_obligatoria_y_valida() {
 }
 
 #[tokio::test]
+async fn api_variable_ignora_mayusculas_y_espacios() {
+    for v in ["LLUVIA", "Lluvia", "%20lluvia%20"] {
+        let (s, _, b) = get(&format!("/api/zonas/15?variable={v}"), None).await;
+        assert_eq!(s, StatusCode::OK, "{v}");
+        assert_eq!(b["variable"], "lluvia", "{v}");
+    }
+}
+
+/// `Variable::parse` compara con `eq_ignore_ascii_case`: un id con tilde (p. ej. "vegetación")
+/// dejaría de ignorar mayúsculas en esa letra. Si este test falla, vuelve a `to_lowercase()`.
+#[test]
+fn ids_de_variable_son_ascii() {
+    assert!(Variable::TODAS.iter().all(|v| v.id().is_ascii()));
+}
+
+#[tokio::test]
 async fn api_zona_inexistente_da_404() {
     for id in ["00", "26", "99", "lima"] {
         assert_eq!(
@@ -325,7 +341,7 @@ fn openapi_json_esta_al_dia() {
 }
 
 #[tokio::test]
-async fn openapi_se_sirve_con_las_3_rutas() {
+async fn openapi_se_sirve_con_las_4_rutas() {
     let (s, _, b) = get("/api/openapi.json", None).await;
     assert_eq!(s, StatusCode::OK);
     let rutas = b["paths"].as_object().unwrap();
@@ -333,6 +349,7 @@ async fn openapi_se_sirve_con_las_3_rutas() {
         rutas.contains_key("/api/variables")
             && rutas.contains_key("/api/zonas")
             && rutas.contains_key("/api/zonas/{id}")
+            && rutas.contains_key("/api/vegetacion")
     );
 }
 
@@ -548,4 +565,99 @@ fn zonas_y_variables_mal_formadas_se_rechazan() {
         con_variables(|v| v[0]["nuevo"] = 1.into()).is_err(),
         "campo desconocido en variables.json"
     );
+}
+
+/// Valores de `data/ndvi.json` en 2001 y 2024: los mismos del Lab 3 de Favio
+/// (`pipeline/exploracion/favio/resultados/lab3_resumen.json`), servidos tal cual.
+#[tokio::test]
+async fn api_vegetacion_trae_las_2_zonas_del_caso_2() {
+    let (s, _, b) = get("/api/vegetacion", None).await;
+    assert_eq!(s, StatusCode::OK);
+    let zonas = b.as_array().unwrap();
+    let ids: Vec<_> = zonas.iter().map(|z| z["id"].as_str().unwrap()).collect();
+    assert_eq!(ids, ["chavimochic", "ica-villacuri"]);
+    // (ubigeo, NDVI 2001, km² 2001, NDVI 2024, km² 2024)
+    let esperado = [
+        ("13", 0.1906, 188.9, 0.3104, 355.5),
+        ("11", 0.1403, 117.6, 0.198, 221.5),
+    ];
+    for (z, (ubigeo, n01, a01, n24, a24)) in zonas.iter().zip(esperado) {
+        assert_eq!(z["ubigeo"], ubigeo);
+        assert!(z["unidad_geografica"]
+            .as_str()
+            .unwrap()
+            .contains("recuadro"));
+        assert!(status_valido(&z["stats"]["status"]));
+        assert_eq!(z["stats"]["status"], "real", "{}", z["id"]);
+        let serie = z["serie"].as_array().unwrap();
+        assert_eq!(serie.len(), 24);
+        assert_eq!(z["stats"]["n_years"], 24);
+        let (p01, p24) = (&serie[0], &serie[23]);
+        assert_eq!(
+            (p01["anio"].as_u64(), p24["anio"].as_u64()),
+            (Some(2001), Some(2024))
+        );
+        assert_eq!(p01["ndvi_anual"], n01);
+        assert_eq!(p01["area_verde_km2"], a01);
+        assert_eq!(p24["ndvi_anual"], n24);
+        assert_eq!(p24["area_verde_km2"], a24);
+        // p y q nunca se publican como 0: el piso es 0,000001
+        assert!(
+            z["stats"]["p_value"].as_f64().unwrap() > 0.0
+                && z["stats"]["q_value"].as_f64().unwrap() > 0.0
+        );
+    }
+}
+
+#[test]
+fn vegetacion_mal_formada_se_rechaza() {
+    let e = Fuentes::EMBEBIDAS;
+    let con_ndvi = |f: Cambio| {
+        let n = editar(e.ndvi, f);
+        Datos::desde(Fuentes { ndvi: &n, ..e })
+    };
+    assert!(con_ndvi(|_| {}).is_ok(), "ndvi.json sin cambios carga");
+    let malos: [(&str, Cambio); 13] = [
+        ("sin zonas", |z| z.as_array_mut().unwrap().clear()),
+        ("campo desconocido en la zona", |z| z[0]["nuevo"] = 1.into()),
+        ("campo desconocido en un año", |z| {
+            z[0]["serie"][0]["nuevo"] = 1.into()
+        }),
+        ("NDVI fuera de −1 a 1", |z| {
+            z[0]["serie"][0]["ndvi_anual"] = 1.5.into()
+        }),
+        ("área verde negativa", |z| {
+            z[0]["serie"][0]["area_verde_km2"] = (-1.0).into()
+        }),
+        ("ubigeo inexistente", |z| z[0]["ubigeo"] = "99".into()),
+        ("departamento que no es el del ubigeo", |z| {
+            z[0]["departamento"] = "Ica".into()
+        }),
+        ("sin unidad geográfica", |z| {
+            z[0]["unidad_geografica"] = " ".into()
+        }),
+        ("lat fuera del recuadro", |z| z[0]["lat"] = 0.into()),
+        ("años desordenados en la serie", |z| {
+            z[0]["serie"].as_array_mut().unwrap().swap(0, 1)
+        }),
+        ("n_years no cuadra con serie", |z| {
+            z[0]["stats"]["n_years"] = 23.into()
+        }),
+        ("id repetido", |z| {
+            let copia = z[0].clone();
+            z.as_array_mut().unwrap().push(copia);
+        }),
+        ("status inválido", |z| {
+            z[0]["stats"]["status"] = "quizas".into()
+        }),
+    ];
+    for (caso, f) in malos {
+        assert!(con_ndvi(f).is_err(), "{caso}");
+    }
+    // El error dice qué zona falla
+    let msg = con_ndvi(|z| z[1]["ubigeo"] = "99".into())
+        .err()
+        .unwrap()
+        .to_string();
+    assert!(msg.contains("ica-villacuri"), "{msg}");
 }

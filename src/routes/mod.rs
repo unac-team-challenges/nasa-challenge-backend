@@ -5,16 +5,21 @@ use axum::{
     Json, Router,
 };
 use serde_json::{json, Value};
+use std::sync::LazyLock;
 
 pub mod api;
 mod gpm;
 mod power;
 mod regiones;
 
-async fn openapi() -> ([(&'static str, &'static str); 1], String) {
+/// Se genera desde el código una sola vez (al montar el router): siempre cuadra con las rutas y
+/// structs del binario, aunque `openapi.json` de la raíz se haya quedado sin regenerar.
+static OPENAPI: LazyLock<String> = LazyLock::new(crate::openapi::json);
+
+async fn openapi() -> ([(header::HeaderName, &'static str); 1], &'static str) {
     (
-        [("content-type", "application/json")],
-        crate::openapi::json(),
+        [(header::CONTENT_TYPE, "application/json")],
+        OPENAPI.as_str(),
     )
 }
 
@@ -36,6 +41,8 @@ async fn no_existe(uri: Uri) -> (StatusCode, Json<Value>) {
 }
 
 pub fn router() -> Router<Estado> {
+    // Al arrancar, no en la primera petición: un fallo de utoipa se ve antes de servir nada.
+    LazyLock::force(&OPENAPI);
     Router::new()
         .route("/health", get(health))
         .route("/regiones", get(regiones::listar))
@@ -45,5 +52,6 @@ pub fn router() -> Router<Estado> {
         .route("/api/variables", get(api::variables))
         .route("/api/zonas", get(api::zonas))
         .route("/api/zonas/{id}", get(api::zona))
+        .route("/api/vegetacion", get(api::vegetacion))
         .fallback(no_existe)
 }

@@ -96,7 +96,7 @@ Campos por zona (`stats`, contrato del `07`):
 |---|---|---|
 | `slope_per_decade` | número | en la unidad de la variable por década |
 | `intercept` | número | para dibujar la línea de Sen |
-| `p_value`, `q_value` | número | antes y después de BH |
+| `p_value`, `q_value` | número | antes y después de BH. **Mínimo 0,000001**: lo que redondea a 0 se publica como `0.000001`; la ficha debe mostrar «< 0,000001», nunca «0» |
 | `ci_low`, `ci_high` | número | de `theilslopes`, por década |
 | `n_years` | entero | años con datos |
 | `lag1` | número | |
