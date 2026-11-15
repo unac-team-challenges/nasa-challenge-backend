@@ -25,6 +25,12 @@ cargo run                            # http://0.0.0.0:3000 (PORT para cambiarlo)
 bash tests/e2e.sh                    # verifica que todo corre
 ```
 
+**Dependencias de Python.** `pipeline/requirements.txt` lista solo las directas (versiones fijas). `pipeline/requirements.lock` fija **todas**, con hashes, para Python 3.12 en Linux; es lo que instalan el CI y el cron (`pip install --require-hashes -r pipeline/requirements.lock`). Si cambias `requirements.txt` (o dependabot lo cambia), regenera el lock:
+```bash
+pip install uv
+uv pip compile pipeline/requirements.txt --python-version 3.12 --python-platform linux --generate-hashes -o pipeline/requirements.lock
+```
+
 | Endpoint | Respuesta |
 |---|---|
 | `GET /health` | `{"status":"ok"}` |
