@@ -6,14 +6,9 @@
 
 ## 1. El cron de datos nunca se ejecuta
 
-**Qué pasa.** GitHub solo dispara `schedule` desde la **rama por defecto**, y la rama por defecto del repo es `main`. Hoy `main` tiene un solo commit ("Inicializa el repositorio con README") y está **44 commits detrás** de `developer`. El workflow `actualizar-datos.yml` no existe en `main`:
+**Qué pasa.** GitHub solo dispara `schedule` desde la **rama por defecto**, y la rama por defecto del repo es `main`. El workflow `actualizar-datos.yml` ya existe en `main`, pero `main` está 19 commits detrás de `developer` y el 2026-11-14 `gh run list --workflow "Actualizar datos"` no mostraba ninguna ejecución:
 
-```text
-$ gh run list --workflow "Actualizar datos"
-could not find any workflows named Actualizar datos
-```
-
-El comentario del YAML lo anticipa ("el cron solo corre si este archivo está en main"), pero la consecuencia práctica es que **los datos nunca se han actualizado solos** y tampoco se puede lanzar a mano (`workflow_dispatch` también necesita el archivo en la rama por defecto).
+Los datos nunca se han actualizado solos. Falta lanzarlo una vez a mano (`workflow_dispatch`) para comprobar que corre, con `EARTHDATA_USERNAME` y `EARTHDATA_PASSWORD` como *secrets*.
 
 **Cómo (elegir una).**
 
@@ -51,33 +46,11 @@ jobs:
 
 ---
 
-## 3. No hay forma de desplegar el binario en Vercel
-
-**Qué pasa.** El README dice "vista previa en Vercel", pero el repo no tiene `vercel.json`, ni `Dockerfile`, ni carpeta `api/`. `main.rs` abre un `TcpListener` y queda escuchando: es un **servidor de larga vida**. Las funciones de Vercel no funcionan así.
-
-Opciones reales:
-
-| Opción | Qué hace falta | Pros | Contras |
-|---|---|---|---|
-| **A. JSON estáticos en el CDN de Vercel** | Generar archivos desde la propia API (ver [04](04-flujos-y-tecnologias.md)) | Sin servidor, sin arranque en frío, gratis, nada que se caiga | No hay lógica en tiempo de petición (hoy tampoco se necesita) |
-| B. Runtime Rust de Vercel | Crate `vercel_runtime`, punto de entrada en `api/`, `vercel.json` | Todo en Vercel | En **beta** según la documentación de Vercel; cambia el `main.rs` |
-| C. Contenedor (Cloud Run, Fly.io, Render, o Docker en Vercel) | `Dockerfile` multi-etapa + apagado ordenado ([01 §4](01-api-rust.md#4-sin-apagado-ordenado)) | El código actual sirve tal cual | Otra plataforma, otra cuenta, arranque en frío |
-
-**Recomendación:** A como camino principal y el servidor Axum para desarrollo local. Es lo que ya insinúa el PR #21 ("el plan B estático la necesita en la ruta"): si el plan B sirve, que sea el plan A.
-
-> Recordatorio de la auditoría del stack: el plan Hobby de Vercel **no conecta repos de una organización de GitHub**. Con cualquier opción, decidir antes quién despliega (cuenta personal, plan Pro, o `vercel deploy` desde Actions con token).
-
----
-
 ## 4. CI: lo que falta y cuesta poco
 
 | Añadir | Por qué | Cómo |
 |---|---|---|
 | `cargo fmt --check` y `cargo clippy -- -D warnings` | Hoy el estilo depende de cada persona; clippy está limpio, así que activarlo no cuesta nada | Dos líneas antes de `bash tests/e2e.sh` |
-| `permissions: contents: read` en `ci.yml` | El token del CI tiene permisos de escritura por defecto | Bloque `permissions` arriba del YAML |
-| `concurrency` con `cancel-in-progress: true` | Varios *push* seguidos al mismo PR gastan minutos en paralelo | `concurrency: { group: ci-${{ github.ref }}, cancel-in-progress: true }` |
-| Versiones de acciones | `checkout@v4` y `setup-python@v5`; ya existen v7 de ambas | Subir y, si se quiere más seguridad, fijar por SHA |
-| Dependabot | Avisos de versiones nuevas y de seguridad para `cargo`, `pip` y `github-actions` | `.github/dependabot.yml`, frecuencia mensual para no hacer ruido |
 | `cargo-deny` (opcional) | Revisa licencias y avisos de seguridad de crates | `EmbarkStudios/cargo-deny-action@v2`. Opcional: con 5 dependencias el riesgo es bajo |
 
 ---
@@ -92,16 +65,6 @@ Opciones reales:
 - Al terminar el evento, **hacer público el repo**: en repos públicos la protección de ramas y el *required check* `e2e` son gratis. Antes, revisar que no haya secretos en el historial (no se encontró ninguno en esta revisión).
 
 **Además:** activar **"Automatically delete head branches"** (hoy `delete_branch_on_merge: false`; hay 20 ramas remotas, casi todas ya mezcladas). Ayuda también con el punto 6.
-
----
-
-## 6. PR #18 quedó huérfano
-
-**Qué pasa.** El PR #16 (`feat/api-gpm → developer`) se mezcló a las 19:04:13. El PR #18 (`feat/api-contrato-drive → feat/api-gpm`) se mezcló **77 segundos después**, sobre una rama que ya estaba mezclada. Sus commits (`419b1a8`, rutas `/api/variables` y `/api/zonas`) **no están en `developer`**. Hoy solo llegan a través del PR #21, que los incluye.
-
-**Por qué importa.** No se perdió trabajo, pero fue suerte. Con PR apilados (uno sobre otro) es fácil que algo se quede fuera sin que nadie lo note.
-
-**Cómo.** Con "Automatically delete head branches" activado, GitHub **cambia solo la base** de los PR que apuntaban a la rama borrada y los manda a `developer`. Es la forma nativa de evitar este caso, sin herramientas extra.
 
 ---
 

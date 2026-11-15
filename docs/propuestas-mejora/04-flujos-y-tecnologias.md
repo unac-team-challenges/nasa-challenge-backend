@@ -12,7 +12,7 @@ El problema de fondo es "**datos climáticos procesados una vez, consultados muc
 |---|---|---|
 | **Our World in Data — ETL** (`owid/etl`) | Pasos con nombre: `snapshot` (dato crudo guardado y con versión) → `meadow` (limpieza) → `garden` (armonizado, listo para análisis) → `grapher` (lo que se publica). Cada paso solo depende del anterior. | Separar **dato crudo** de **dato derivado**. Hoy `gpm.py` descarga, promedia y escribe en un solo paso: si cambia el método (píxel → departamento), hay que volver a bajar todo. |
 | **World Bank — Climate Change Knowledge Portal** | Estadísticas por país y región **precalculadas** (CMIP, ERA5) que el portal solo muestra | Lo mismo que hace este repo: confirma que "la API nunca calcula" es la decisión correcta |
-| **NASA POWER** | API sobre datos precalculados, con un endpoint de climatología y otro regional | Se puede reutilizar directamente (ver [02 §3](02-pipeline-y-datos.md#3-promedio-por-departamento-callao-no-tiene-celdas-power)) |
+| **NASA POWER** | API sobre datos precalculados, con un endpoint de climatología y otro regional | Se puede reutilizar directamente |
 | **Ecosistema Pangeo** (xarray, earthaccess, VirtualiZarr) | Leer datos de la nube sin descargarlos completos | Útil solo si se reprocesa a menudo (ver §3) |
 
 **Lección común:** ninguno de estos proyectos calcula en el momento de la petición, y casi todos sirven **archivos estáticos detrás de un CDN** para lo que no cambia.
@@ -100,12 +100,12 @@ Ordenadas de más a menos útiles **para este proyecto y este plazo**.
 
 | Tecnología | Para qué | Encaja porque | Cuándo adoptarla |
 |---|---|---|---|
-| **`uv`** (Astral) | Entorno y *lockfile* de Python | Un comando instala versiones exactas; mucho más rápido que `pip` | Ya ([02 §6](02-pipeline-y-datos.md#6-dependencias-sin-versión)) |
+| **`uv`** (Astral) | Entorno y *lockfile* de Python | Un comando instala versiones exactas; mucho más rápido que `pip` | Versiones fijas en `requirements.txt` (hecho); `uv` queda opcional |
 | **`regionmask.mask_3D_frac_approx`** | Promedio por departamento con celdas parciales | Resuelve Callao y Tumbes; `regionmask` ya está en la exploración | Con la tarea del promedio por departamento |
 | **`scipy.stats.false_discovery_control`** | Benjamini-Hochberg | Evita instalar `statsmodels` solo para BH (SciPy ≥ 1.11) | Con `pipeline/tendencias.py` |
 | **`scipy.stats.kendalltau` + `theilslopes`** | Mann-Kendall y pendiente de Sen | `pymannkendall` no publica versiones desde 2021. Para TFPW se puede seguir usándolo, pero con versión fijada y un test contra una serie conocida | Con `tendencias.py` |
 | **NASA Harmony** (`harmony-py`) | Bajar solo la caja de Perú de IMERG | Verificado: `GPM_3IMERGM` admite recorte espacial y por variable | Si se reprocesa IMERG varias veces |
-| **`tower-http`** (`SetResponseHeaderLayer`, `NormalizePathLayer`) | Caché y barra final | Ya es dependencia | Ya ([01](01-api-rust.md)) |
+| **`tower-http`** (`SetResponseHeaderLayer`, `NormalizePathLayer`) | Caché y barra final | Ya es dependencia | Ya (hecho) |
 | **`ruff`** | Lint y formato de Python | Un binario, sin configuración | Cuando haya más de 2 scripts |
 | **`utoipa` 6 + `openapi-typescript`** | Tipos del frontend desde Rust | Ya planeado en el stack | Con el PR #21 |
 | **VirtualiZarr / `earthaccess.virtualize`** | Leer HDF5 de la nube como si fuera Zarr, sin descargar | Muy potente para series largas | **No ahora**: 300 archivos mensuales no lo justifican |
