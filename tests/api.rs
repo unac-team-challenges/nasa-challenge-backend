@@ -810,9 +810,10 @@ fn celdas_mal_formadas_se_rechazan() {
         ("unidad que no es °C", |m| m["unidad"] = "K".into()),
         ("sin fuente", |m| m["fuente"] = " ".into()),
         ("celda sin ningún año", |m| {
-            for t in m["celdas"][0]["t2m"].as_array_mut().unwrap() {
-                *t = Value::Null;
-            }
+            m["celdas"][0]["t2m"]
+                .as_array_mut()
+                .unwrap()
+                .fill(Value::Null)
         }),
         ("fuera de Perú", |m| m["celdas"][0]["lat"] = 10.0.into()),
         ("año de más", |m| {
