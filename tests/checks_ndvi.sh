@@ -10,5 +10,7 @@ chk "ndvi.json: NDVI entre -1 y 1" '[.[].serie[].ndvi_anual] | all(. >= -1 and .
 chk "ndvi.json: solo años 2001–2024" '[.[].serie[].anio] | all(. >= 2001 and . <= 2024)'
 chk "ndvi.json: stats numéricos (sin null/NaN) y status válido" 'all(.[].stats; ([to_entries[] | select(.key != "status" and .key != "aviso") | .value] | all(type == "number" and (isnan | not))) and (.status | IN("real","posible_casualidad","pocos_datos")))'
 chk "ndvi.json: todo 'real' cumple el criterio único" 'all(.[].stats | select(.status == "real"); .q_value < 0.05 and (.ci_low > 0 or .ci_high < 0) and (.lag1 | fabs) <= 0.5)'
+chk "ndvi.json: las 3 zonas, con id único" '[.[].id] == ["chavimochic","ica-villacuri","olmos"]'
+chk "ndvi.json: lat/lon dentro de su recuadro" 'all(.[]; .bbox[0] <= .lon and .lon <= .bbox[2] and .bbox[1] <= .lat and .lat <= .bbox[3])'
 chk "ndvi.json: unidad geográfica explícita en cada zona" 'all(.[]; .unidad_geografica | test("no es el promedio del departamento"))'
 exit $fallos

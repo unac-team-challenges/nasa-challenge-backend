@@ -25,7 +25,8 @@ def ejemplo():
         a: {"ndvi_anual": float(0.2 + pendiente * (a - 2001) + azar.normal(0, 0.005)), "area_verde_km2": 100.0}
         for a in ndvi.ANIOS}
     return ndvi.con_estado([ndvi.zona_json(ndvi.ZONAS[0], 847, serie(0.005)),
-                            ndvi.zona_json(ndvi.ZONAS[1], 900, serie(0.0))])
+                            ndvi.zona_json(ndvi.ZONAS[1], 900, serie(0.0)),
+                            ndvi.zona_json(ndvi.ZONAS[2], 900, serie(0.005))])
 
 
 ROTURAS = {
@@ -36,6 +37,9 @@ ROTURAS = {
     "status inválido": lambda f: f[0]["stats"].update(status="tal_vez"),
     "'real' que no cumple el criterio": lambda f: f[1]["stats"].update(status="real", q_value=0.2),
     "sin unidad geográfica explícita": lambda f: f[0].update(unidad_geografica="departamento"),
+    "falta una zona": lambda f: f.pop(),
+    "id repetido": lambda f: f[2].update(id="chavimochic"),
+    "lat fuera de su recuadro": lambda f: f[0].update(lat=0.0),
 }
 
 
@@ -50,7 +54,7 @@ def pasan(filas):
 class ChecksNdvi(unittest.TestCase):
     def test_ejemplo_valido_pasa(self):
         filas = ejemplo()
-        self.assertEqual([f["stats"]["status"] for f in filas], ["real", "posible_casualidad"])
+        self.assertEqual([f["stats"]["status"] for f in filas], ["real", "posible_casualidad", "real"])
         self.assertTrue(pasan(filas))
 
     def test_cada_rotura_se_detecta(self):
