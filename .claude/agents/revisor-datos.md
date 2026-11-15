@@ -13,7 +13,7 @@ Verifica, en este orden:
 1. **Años completos:** solo años con 12 meses; ninguno fuera del periodo decidido.
 2. **Sin `NaN` ni `null`:** `json.dumps(..., allow_nan=False)` y ningún valor `None` en la salida.
 3. **Una fuente = un JSON:** no se mezclan ni promedian fuentes; unidad en el nombre del campo.
-4. **Criterio de tendencia:** `status = "real"` solo con `q < 0.05`, IC95 sin 0 y `|lag1| <= 0.5` (función `estado()` de `lab5_tendencias.py`). Señala cualquier regla que use solo `q` o solo `p`.
+4. **Criterio de tendencia:** el de `docs/tendencias.md` (§2b si existe). Señala cualquier código que decida `real` con otra regla o que copie los umbrales en vez de reutilizar la implementación única.
 5. **Unidad geográfica explícita** cuando no es el promedio del departamento.
 6. **Contrato:** si cambia la forma de un JSON existente, debe estar avisado en el changelog y en `docs/`.
 7. **Secretos:** ninguna credencial en código, logs ni `print`.

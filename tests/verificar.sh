@@ -8,6 +8,8 @@
 #      bash tests/verificar.sh rapido     # sin e2e (sin compilar ni levantar la API)
 set -uo pipefail
 cd "$(dirname "$0")/.."
+# Usa la .venv del repo si existe (pipeline/requirements.txt), igual que el CI que instala las dependencias.
+[ -x .venv/bin/python ] && export PATH="$PWD/.venv/bin:$PATH"
 rama=$(git rev-parse --abbrev-ref HEAD 2>/dev/null | tr '/' '-')
 LOG=${LOG:-/tmp/verificar-${rama:-local}.log}
 : >"$LOG"
@@ -21,14 +23,16 @@ paso() {
   else
     echo "FAIL $nombre"
     fallos=1
-    # Solo lo útil: líneas FAIL/error/warning/assert del último bloque, máx. 15
-    sed -n "/^### $nombre\$/,\$p" "$LOG" | grep -E 'FAIL|error|Error|warning:|panicked|assert|Traceback|^diff ' | head -15 | sed 's/^/     /'
+    # Solo lo útil del bloque que falló (máx. 15 líneas): FAIL del e2e, errores de Python y Rust, diffs
+    sed -n "/^### $nombre\$/,\$p" "$LOG" \
+      | grep -E '^(FAIL|Traceback|diff )|^[A-Za-z]*Error:|^error(\[E[0-9]+\])?:|^warning: |panicked at|^\s+assert' \
+      | head -15 | sed 's/^/     /'
   fi
 }
 
 paso "python: compilan los scripts del pipeline" bash -c 'for f in pipeline/*.py; do python3 -m py_compile "$f" || exit 1; done'
 paso "python: autoprueba lab5 (criterio de tendencia)" python3 -c "import sys; sys.path.insert(0, 'pipeline/exploracion/josue/scripts'); import lab5_tendencias as l; l.autoprueba()"
-[ -f pipeline/ndvi.py ] && paso "python: autoprueba ndvi" python3 pipeline/ndvi.py autoprueba
+if [ -f pipeline/ndvi.py ]; then paso "python: autoprueba ndvi" python3 pipeline/ndvi.py autoprueba; fi
 # Formato: solo aviso. developer aún no está formateado con rustfmt y el CI no lo exige;
 # reformatear el código del equipo en otro PR evita conflictos con las ramas abiertas.
 sin_formato=$(cargo fmt --check -- --color never -l 2>/dev/null | sort -u | sed "s|$PWD/||" | tr '\n' ' ')
