@@ -27,7 +27,7 @@ bash tests/e2e.sh                    # verifica que todo corre
 
 **Dependencias de Python.** `pipeline/requirements.txt` lista solo las directas (versiones fijas). `pipeline/requirements.lock` fija **todas**, con hashes, para Python 3.12 en Linux; es lo que instalan el CI y el cron (`pip install --require-hashes -r pipeline/requirements.lock`). Si cambias `requirements.txt` (o dependabot lo cambia), regenera el lock:
 ```bash
-pip install uv
+pip install uv==0.13.8  # la misma versión que el CI
 uv pip compile pipeline/requirements.txt --python-version 3.12 --python-platform linux --generate-hashes -o pipeline/requirements.lock
 ```
 

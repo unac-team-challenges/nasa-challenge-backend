@@ -6,7 +6,7 @@ use axum::{
 use nasa_challenge_backend::{
     app,
     data::{Datos, Estado, Fuentes},
-    models::{power, zona::Status},
+    models::{power, variable::Variable, zona::Status},
 };
 use serde_json::Value;
 use std::sync::{Arc, LazyLock};
@@ -188,6 +188,13 @@ async fn api_variable_ignora_mayusculas_y_espacios() {
         assert_eq!(s, StatusCode::OK, "{v}");
         assert_eq!(b["variable"], "lluvia", "{v}");
     }
+}
+
+/// `Variable::parse` compara con `eq_ignore_ascii_case`: un id con tilde (p. ej. "vegetación")
+/// dejaría de ignorar mayúsculas en esa letra. Si este test falla, vuelve a `to_lowercase()`.
+#[test]
+fn ids_de_variable_son_ascii() {
+    assert!(Variable::TODAS.iter().all(|v| v.id().is_ascii()));
 }
 
 #[tokio::test]

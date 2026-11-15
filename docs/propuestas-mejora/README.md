@@ -18,7 +18,7 @@ Este documento **no cambia código**: cada punto dice **por qué** importa y **c
 | 8 | Primer `developer → main` | Media | Decisión | [03 §7](03-ci-cd-y-repo.md#7-main-como-producción) |
 | 9 | Flujo «static-first» con espejo generado desde la API | Propuesta | 1-2 h | [04](04-flujos-y-tecnologias.md) |
 
-Menores de la API que siguen sin hacerse: edición Rust 2024, `rust-toolchain.toml`, `utoipa` 6 y logs de peticiones (`tracing`).
+Menores de la API que siguen sin hacerse: edición Rust 2024, `utoipa` 6 y logs de peticiones (`tracing`).
 
 **Severidad:** *Alta* = puede romper la demo o dejar datos malos sin aviso. *Media* = afecta calidad o costo. *Baja* = pulido.
 

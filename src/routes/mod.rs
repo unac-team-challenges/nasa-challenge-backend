@@ -12,7 +12,7 @@ mod gpm;
 mod power;
 mod regiones;
 
-/// Se genera desde el código una sola vez (primera petición): siempre cuadra con las rutas y
+/// Se genera desde el código una sola vez (al montar el router): siempre cuadra con las rutas y
 /// structs del binario, aunque `openapi.json` de la raíz se haya quedado sin regenerar.
 static OPENAPI: LazyLock<String> = LazyLock::new(crate::openapi::json);
 
@@ -41,6 +41,8 @@ async fn no_existe(uri: Uri) -> (StatusCode, Json<Value>) {
 }
 
 pub fn router() -> Router<Estado> {
+    // Al arrancar, no en la primera petición: un fallo de utoipa se ve antes de servir nada.
+    LazyLock::force(&OPENAPI);
     Router::new()
         .route("/health", get(health))
         .route("/regiones", get(regiones::listar))
