@@ -694,6 +694,11 @@ async fn api_cobertura_arboles_trae_la_pampa_e_iquitos() {
     assert!(zonas[0]["stats"]["slope_per_decade"].as_f64().unwrap() < -10.0);
     assert!(zonas[0]["stats"]["ci_high"].as_f64().unwrap() < 0.0);
     assert!(zonas[1]["stats"]["ci_low"].as_f64().unwrap() <= 0.0);
+    // La Pampa explica su quiebre de 2009 (el umbral no cambia: puede seguir posible_casualidad)
+    assert!(zonas[0]["stats"]["aviso"]
+        .as_str()
+        .unwrap()
+        .contains("desde 2009"));
     for (z, ubigeo) in zonas.iter().zip(["17", "16"]) {
         assert_eq!(z["ubigeo"], ubigeo);
         assert!(z["unidad_geografica"]
