@@ -14,6 +14,8 @@ pub enum ApiError {
     NoEncontrada(String),
     ZonaNoEncontrada(String),
     VariableInvalida(Option<String>),
+    /// La variable existe pero no tiene malla por celdas.
+    SinCeldas(&'static str),
 }
 
 impl IntoResponse for ApiError {
@@ -36,6 +38,13 @@ impl IntoResponse for ApiError {
                 };
                 (StatusCode::BAD_REQUEST, Json(json!({"error": msg}))).into_response()
             }
+            ApiError::SinCeldas(v) => (
+                StatusCode::BAD_REQUEST,
+                Json(
+                    json!({"error": format!("'{v}' no tiene malla por celdas; usa: temperatura")}),
+                ),
+            )
+                .into_response(),
             ApiError::NoEncontrada(r) => (
                 StatusCode::NOT_FOUND,
                 Json(json!({"error": format!("región '{}' no encontrada", corto(&r))})),
