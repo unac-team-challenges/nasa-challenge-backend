@@ -1,0 +1,50 @@
+{
+ "id": "12",
+ "nombre": "Junín",
+ "lat": -12.07,
+ "lon": -75.21,
+ "celdas": 60,
+ "variable": "vegetacion",
+ "unidad": "NDVI",
+ "fuente": "MODIS MOD13A3 v061 (NDVI) vía AppEEARS",
+ "serie": [
+  {
+   "anio": 2001,
+   "valor": 0.6556
+  },
+  {
+   "anio": 2002,
+   "valor": 0.6592
+  },
+  {
+   "anio": 2003,
+   "valor": 0.6464
+  },
+  {
+   "anio": 2004,
+   "valor": 0.6543
+  },
+  {
+   "anio": 2005,
+   "valor": 0.6392
+  },
+  {
+   "anio": 2006,
+   "valor": 0.6489
+  }
+ ],
+ "stats": {
+  "year_start": 2001,
+  "year_end": 2006,
+  "n_years": 6,
+  "slope_per_decade": -0.02575,
+  "intercept": 5.810612,
+  "ci_low": -0.128,
+  "ci_high": 0.079,
+  "p_value": 0.027486,
+  "lag1": -0.8408,
+  "q_value": 0.17179,
+  "status": "pocos_datos",
+  "aviso": "Años muy parecidos entre sí (lag1 alto): la tendencia puede parecer más segura de lo que es"
+ }
+}

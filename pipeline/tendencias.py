@@ -1,5 +1,6 @@
 """Tendencias por departamento: lee data/power.json (lluvia y temperatura, NASA POWER)
-y data/gpm.json (lluvia IMERG, segunda fuente para comparar) y escribe los archivos del
+y data/gpm.json (lluvia IMERG, segunda fuente para comparar) y data/ndvi_departamentos.json
+(vegetación, NDVI de MODIS; lo escribe pipeline/vegetacion_malla.py) y escribe los archivos del
 contrato del Drive (07-stack-decidido) en data/:
 
   data/variables.json                 -> GET /api/variables
@@ -54,6 +55,16 @@ def aviso_ucayali(anios, y, st):
             "calor extremo de esos años y un cambio en el reanálisis.")
 
 
+def aviso_saturado(anios, y, st):
+    """En la selva el NDVI ronda 0,8 casi siempre: no ve la pérdida de bosque (docs/vegetacion.md)."""
+    if y.mean() >= SATURADO:
+        return (f"El NDVI de este departamento ronda {_coma(y.mean(), 2)}, casi saturado: en la selva "
+                "apenas cambia aunque se pierda bosque. Para el bosque, mira la cobertura de árboles.")
+    return None
+
+
+SATURADO = 0.75  # NDVI medio desde el que se avisa saturación
+
 # unidad, fuente y descripcion: mismos textos que src/models/variable.rs
 # El orden es el de Variable::TODAS en src/models/variable.rs.
 VARIABLES = {
@@ -84,6 +95,14 @@ VARIABLES = {
         "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): "
                  "la tendencia de lluvia puede estar sesgada a la baja, por eso no se marca como real.",
         "sin_real": True,
+    },
+    # Vegetación: NDVI anual de MODIS por departamento, de la malla de 0,25° (pipeline/vegetacion_malla.py)
+    "vegetacion": {
+        "archivo": "ndvi_departamentos.json", "campo": "ndvi",
+        "unidad": "NDVI", "fuente": "MODIS MOD13A3 v061 (NDVI) vía AppEEARS",
+        "descripcion": "Vegetación (NDVI de MODIS): promedio de cada año",
+        "porcentaje": False,
+        "aviso_si": aviso_saturado,
     },
 }
 
@@ -162,7 +181,9 @@ def main():
         resumen = []
         for (fila, anios, y), st, q in zip(zonas, stats, qs):
             propio = cfg.get("avisos_zona", {}).get(UBIGEO[fila["region"]])
-            aviso = " ".join(filter(None, [cfg.get("aviso"), propio and propio(anios, y, st)]))
+            segun = cfg.get("aviso_si")
+            aviso = " ".join(filter(None, [cfg.get("aviso"), propio and propio(anios, y, st),
+                                           segun and segun(anios, y, st)]))
             clasificar(st, q, fila["celdas"], aviso or None, cfg.get("sin_real", False))
             zona = {"id": UBIGEO[fila["region"]], "nombre": fila["region"],
                     "lat": fila["lat"], "lon": fila["lon"], "celdas": fila["celdas"]}

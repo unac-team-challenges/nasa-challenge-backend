@@ -1,0 +1,49 @@
+{
+ "id": "06",
+ "nombre": "Cajamarca",
+ "lat": -7.16,
+ "lon": -78.51,
+ "celdas": 44,
+ "variable": "vegetacion",
+ "unidad": "NDVI",
+ "fuente": "MODIS MOD13A3 v061 (NDVI) vía AppEEARS",
+ "serie": [
+  {
+   "anio": 2001,
+   "valor": 0.6019
+  },
+  {
+   "anio": 2002,
+   "valor": 0.6011
+  },
+  {
+   "anio": 2003,
+   "valor": 0.5855
+  },
+  {
+   "anio": 2004,
+   "valor": 0.5789
+  },
+  {
+   "anio": 2005,
+   "valor": 0.5707
+  },
+  {
+   "anio": 2006,
+   "valor": 0.5888
+  }
+ ],
+ "stats": {
+  "year_start": 2001,
+  "year_end": 2006,
+  "n_years": 6,
+  "slope_per_decade": -0.074,
+  "intercept": 15.41305,
+  "ci_low": -0.111,
+  "ci_high": 0.0495,
+  "p_value": 0.462433,
+  "lag1": -0.1534,
+  "q_value": 0.525492,
+  "status": "pocos_datos"
+ }
+}

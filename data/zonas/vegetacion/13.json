@@ -1,0 +1,49 @@
+{
+ "id": "13",
+ "nombre": "La Libertad",
+ "lat": -8.11,
+ "lon": -79.03,
+ "celdas": 31,
+ "variable": "vegetacion",
+ "unidad": "NDVI",
+ "fuente": "MODIS MOD13A3 v061 (NDVI) vía AppEEARS",
+ "serie": [
+  {
+   "anio": 2001,
+   "valor": 0.3671
+  },
+  {
+   "anio": 2002,
+   "valor": 0.3671
+  },
+  {
+   "anio": 2003,
+   "valor": 0.3378
+  },
+  {
+   "anio": 2004,
+   "valor": 0.326
+  },
+  {
+   "anio": 2005,
+   "valor": 0.3172
+  },
+  {
+   "anio": 2006,
+   "valor": 0.3447
+  }
+ ],
+ "stats": {
+  "year_start": 2001,
+  "year_end": 2006,
+  "n_years": 6,
+  "slope_per_decade": -0.103,
+  "intercept": 20.9773,
+  "ci_low": -0.2055,
+  "ci_high": 0.0935,
+  "p_value": 0.462433,
+  "lag1": -0.114,
+  "q_value": 0.525492,
+  "status": "pocos_datos"
+ }
+}

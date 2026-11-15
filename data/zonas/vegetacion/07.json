@@ -1,0 +1,50 @@
+{
+ "id": "07",
+ "nombre": "Callao",
+ "lat": -12.06,
+ "lon": -77.13,
+ "celdas": 1,
+ "nota": "Promedio de solo 1 celda(s): dato poco confiable",
+ "variable": "vegetacion",
+ "unidad": "NDVI",
+ "fuente": "MODIS MOD13A3 v061 (NDVI) vía AppEEARS",
+ "serie": [
+  {
+   "anio": 2001,
+   "valor": 0.132
+  },
+  {
+   "anio": 2002,
+   "valor": 0.135
+  },
+  {
+   "anio": 2003,
+   "valor": 0.128
+  },
+  {
+   "anio": 2004,
+   "valor": 0.122
+  },
+  {
+   "anio": 2005,
+   "valor": 0.118
+  },
+  {
+   "anio": 2006,
+   "valor": 0.129
+  }
+ ],
+ "stats": {
+  "year_start": 2001,
+  "year_end": 2006,
+  "n_years": 6,
+  "slope_per_decade": -0.033333,
+  "intercept": 6.806833,
+  "ci_low": -0.065,
+  "ci_high": 0.035,
+  "p_value": 0.220671,
+  "lag1": -0.2355,
+  "q_value": 0.501526,
+  "status": "pocos_datos"
+ }
+}

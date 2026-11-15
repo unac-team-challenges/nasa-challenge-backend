@@ -1,0 +1,49 @@
+{
+ "id": "21",
+ "nombre": "Puno",
+ "lat": -15.84,
+ "lon": -70.02,
+ "celdas": 94,
+ "variable": "vegetacion",
+ "unidad": "NDVI",
+ "fuente": "MODIS MOD13A3 v061 (NDVI) vía AppEEARS",
+ "serie": [
+  {
+   "anio": 2001,
+   "valor": 0.4485
+  },
+  {
+   "anio": 2002,
+   "valor": 0.4629
+  },
+  {
+   "anio": 2003,
+   "valor": 0.4448
+  },
+  {
+   "anio": 2004,
+   "valor": 0.4448
+  },
+  {
+   "anio": 2005,
+   "valor": 0.4351
+  },
+  {
+   "anio": 2006,
+   "valor": 0.4438
+  }
+ ],
+ "stats": {
+  "year_start": 2001,
+  "year_end": 2006,
+  "n_years": 6,
+  "slope_per_decade": -0.0185,
+  "intercept": 4.151275,
+  "ci_low": -0.097,
+  "ci_high": 0.087,
+  "p_value": 0.086411,
+  "lag1": -0.2866,
+  "q_value": 0.270034,
+  "status": "pocos_datos"
+ }
+}

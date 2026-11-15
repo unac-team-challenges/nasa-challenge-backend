@@ -1,0 +1,50 @@
+{
+ "id": "10",
+ "nombre": "Huánuco",
+ "lat": -9.93,
+ "lon": -76.24,
+ "celdas": 47,
+ "variable": "vegetacion",
+ "unidad": "NDVI",
+ "fuente": "MODIS MOD13A3 v061 (NDVI) vía AppEEARS",
+ "serie": [
+  {
+   "anio": 2001,
+   "valor": 0.7008
+  },
+  {
+   "anio": 2002,
+   "valor": 0.7091
+  },
+  {
+   "anio": 2003,
+   "valor": 0.6941
+  },
+  {
+   "anio": 2004,
+   "valor": 0.6992
+  },
+  {
+   "anio": 2005,
+   "valor": 0.6852
+  },
+  {
+   "anio": 2006,
+   "valor": 0.692
+  }
+ ],
+ "stats": {
+  "year_start": 2001,
+  "year_end": 2006,
+  "n_years": 6,
+  "slope_per_decade": -0.036,
+  "intercept": 7.90925,
+  "ci_low": -0.14,
+  "ci_high": 0.068,
+  "p_value": 0.027486,
+  "lag1": -0.8196,
+  "q_value": 0.17179,
+  "status": "pocos_datos",
+  "aviso": "Años muy parecidos entre sí (lag1 alto): la tendencia puede parecer más segura de lo que es"
+ }
+}

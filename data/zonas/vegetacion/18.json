@@ -1,0 +1,49 @@
+{
+ "id": "18",
+ "nombre": "Moquegua",
+ "lat": -17.19,
+ "lon": -70.93,
+ "celdas": 19,
+ "variable": "vegetacion",
+ "unidad": "NDVI",
+ "fuente": "MODIS MOD13A3 v061 (NDVI) vía AppEEARS",
+ "serie": [
+  {
+   "anio": 2001,
+   "valor": 0.1221
+  },
+  {
+   "anio": 2002,
+   "valor": 0.1189
+  },
+  {
+   "anio": 2003,
+   "valor": 0.1086
+  },
+  {
+   "anio": 2004,
+   "valor": 0.1103
+  },
+  {
+   "anio": 2005,
+   "valor": 0.1082
+  },
+  {
+   "anio": 2006,
+   "valor": 0.1156
+  }
+ ],
+ "stats": {
+  "year_start": 2001,
+  "year_end": 2006,
+  "n_years": 6,
+  "slope_per_decade": -0.021,
+  "intercept": 4.3203,
+  "ci_low": -0.0675,
+  "ci_high": 0.0265,
+  "p_value": 0.806496,
+  "lag1": -0.0074,
+  "q_value": 0.8401,
+  "status": "pocos_datos"
+ }
+}

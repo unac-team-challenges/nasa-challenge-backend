@@ -1,0 +1,49 @@
+{
+ "id": "11",
+ "nombre": "Ica",
+ "lat": -14.07,
+ "lon": -75.73,
+ "celdas": 31,
+ "variable": "vegetacion",
+ "unidad": "NDVI",
+ "fuente": "MODIS MOD13A3 v061 (NDVI) vía AppEEARS",
+ "serie": [
+  {
+   "anio": 2001,
+   "valor": 0.107
+  },
+  {
+   "anio": 2002,
+   "valor": 0.1038
+  },
+  {
+   "anio": 2003,
+   "valor": 0.0976
+  },
+  {
+   "anio": 2004,
+   "valor": 0.0944
+  },
+  {
+   "anio": 2005,
+   "valor": 0.0946
+  },
+  {
+   "anio": 2006,
+   "valor": 0.1095
+  }
+ ],
+ "stats": {
+  "year_start": 2001,
+  "year_end": 2006,
+  "n_years": 6,
+  "slope_per_decade": -0.030667,
+  "intercept": 6.244767,
+  "ci_low": -0.047,
+  "ci_high": 0.0755,
+  "p_value": 1.0,
+  "lag1": 0.059,
+  "q_value": 1.0,
+  "status": "pocos_datos"
+ }
+}

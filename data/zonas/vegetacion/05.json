@@ -1,0 +1,49 @@
+{
+ "id": "05",
+ "nombre": "Ayacucho",
+ "lat": -13.16,
+ "lon": -74.22,
+ "celdas": 60,
+ "variable": "vegetacion",
+ "unidad": "NDVI",
+ "fuente": "MODIS MOD13A3 v061 (NDVI) vía AppEEARS",
+ "serie": [
+  {
+   "anio": 2001,
+   "valor": 0.3581
+  },
+  {
+   "anio": 2002,
+   "valor": 0.3597
+  },
+  {
+   "anio": 2003,
+   "valor": 0.342
+  },
+  {
+   "anio": 2004,
+   "valor": 0.3376
+  },
+  {
+   "anio": 2005,
+   "valor": 0.3232
+  },
+  {
+   "anio": 2006,
+   "valor": 0.3509
+  }
+ ],
+ "stats": {
+  "year_start": 2001,
+  "year_end": 2006,
+  "n_years": 6,
+  "slope_per_decade": -0.068333,
+  "intercept": 14.037033,
+  "ci_low": -0.144,
+  "ci_high": 0.0665,
+  "p_value": 0.462433,
+  "lag1": -0.3128,
+  "q_value": 0.525492,
+  "status": "pocos_datos"
+ }
+}

@@ -1,0 +1,513 @@
+[
+ {
+  "id": "01",
+  "nombre": "Amazonas",
+  "lat": -6.23,
+  "lon": -77.87,
+  "celdas": 52,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2006,
+   "n_years": 6,
+   "slope_per_decade": -0.003,
+   "intercept": 1.4041,
+   "ci_low": -0.0165,
+   "ci_high": 0.011,
+   "p_value": 0.220671,
+   "lag1": -0.0947,
+   "q_value": 0.501526,
+   "status": "pocos_datos",
+   "aviso": "El NDVI de este departamento ronda 0,80, casi saturado: en la selva apenas cambia aunque se pierda bosque. Para el bosque, mira la cobertura de árboles."
+  }
+ },
+ {
+  "id": "02",
+  "nombre": "Áncash",
+  "lat": -9.53,
+  "lon": -77.53,
+  "celdas": 47,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2006,
+   "n_years": 6,
+   "slope_per_decade": -0.089667,
+   "intercept": 18.291517,
+   "ci_low": -0.1595,
+   "ci_high": 0.0735,
+   "p_value": 0.462433,
+   "lag1": -0.2585,
+   "q_value": 0.525492,
+   "status": "pocos_datos"
+  }
+ },
+ {
+  "id": "03",
+  "nombre": "Apurímac",
+  "lat": -13.63,
+  "lon": -72.88,
+  "celdas": 28,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2006,
+   "n_years": 6,
+   "slope_per_decade": -0.039,
+   "intercept": 8.2327,
+   "ci_low": -0.235,
+   "ci_high": 0.157,
+   "p_value": 0.086411,
+   "lag1": -0.6321,
+   "q_value": 0.270034,
+   "status": "pocos_datos",
+   "aviso": "Años muy parecidos entre sí (lag1 alto): la tendencia puede parecer más segura de lo que es"
+  }
+ },
+ {
+  "id": "04",
+  "nombre": "Arequipa",
+  "lat": -16.4,
+  "lon": -71.54,
+  "celdas": 83,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2006,
+   "n_years": 6,
+   "slope_per_decade": -0.021,
+   "intercept": 4.34695,
+   "ci_low": -0.066,
+   "ci_high": 0.028,
+   "p_value": 0.462433,
+   "lag1": -0.1701,
+   "q_value": 0.525492,
+   "status": "pocos_datos"
+  }
+ },
+ {
+  "id": "05",
+  "nombre": "Ayacucho",
+  "lat": -13.16,
+  "lon": -74.22,
+  "celdas": 60,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2006,
+   "n_years": 6,
+   "slope_per_decade": -0.068333,
+   "intercept": 14.037033,
+   "ci_low": -0.144,
+   "ci_high": 0.0665,
+   "p_value": 0.462433,
+   "lag1": -0.3128,
+   "q_value": 0.525492,
+   "status": "pocos_datos"
+  }
+ },
+ {
+  "id": "06",
+  "nombre": "Cajamarca",
+  "lat": -7.16,
+  "lon": -78.51,
+  "celdas": 44,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2006,
+   "n_years": 6,
+   "slope_per_decade": -0.074,
+   "intercept": 15.41305,
+   "ci_low": -0.111,
+   "ci_high": 0.0495,
+   "p_value": 0.462433,
+   "lag1": -0.1534,
+   "q_value": 0.525492,
+   "status": "pocos_datos"
+  }
+ },
+ {
+  "id": "07",
+  "nombre": "Callao",
+  "lat": -12.06,
+  "lon": -77.13,
+  "celdas": 1,
+  "nota": "Promedio de solo 1 celda(s): dato poco confiable",
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2006,
+   "n_years": 6,
+   "slope_per_decade": -0.033333,
+   "intercept": 6.806833,
+   "ci_low": -0.065,
+   "ci_high": 0.035,
+   "p_value": 0.220671,
+   "lag1": -0.2355,
+   "q_value": 0.501526,
+   "status": "pocos_datos"
+  }
+ },
+ {
+  "id": "08",
+  "nombre": "Cusco",
+  "lat": -13.53,
+  "lon": -71.97,
+  "celdas": 97,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2006,
+   "n_years": 6,
+   "slope_per_decade": -0.0335,
+   "intercept": 7.331475,
+   "ci_low": -0.147,
+   "ci_high": 0.105,
+   "p_value": 0.086411,
+   "lag1": -0.8055,
+   "q_value": 0.270034,
+   "status": "pocos_datos",
+   "aviso": "Años muy parecidos entre sí (lag1 alto): la tendencia puede parecer más segura de lo que es"
+  }
+ },
+ {
+  "id": "09",
+  "nombre": "Huancavelica",
+  "lat": -12.79,
+  "lon": -74.98,
+  "celdas": 29,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2006,
+   "n_years": 6,
+   "slope_per_decade": -0.069333,
+   "intercept": 14.255733,
+   "ci_low": -0.176,
+   "ci_high": 0.0745,
+   "p_value": 0.462433,
+   "lag1": -0.3582,
+   "q_value": 0.525492,
+   "status": "pocos_datos"
+  }
+ },
+ {
+  "id": "10",
+  "nombre": "Huánuco",
+  "lat": -9.93,
+  "lon": -76.24,
+  "celdas": 47,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2006,
+   "n_years": 6,
+   "slope_per_decade": -0.036,
+   "intercept": 7.90925,
+   "ci_low": -0.14,
+   "ci_high": 0.068,
+   "p_value": 0.027486,
+   "lag1": -0.8196,
+   "q_value": 0.17179,
+   "status": "pocos_datos",
+   "aviso": "Años muy parecidos entre sí (lag1 alto): la tendencia puede parecer más segura de lo que es"
+  }
+ },
+ {
+  "id": "11",
+  "nombre": "Ica",
+  "lat": -14.07,
+  "lon": -75.73,
+  "celdas": 31,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2006,
+   "n_years": 6,
+   "slope_per_decade": -0.030667,
+   "intercept": 6.244767,
+   "ci_low": -0.047,
+   "ci_high": 0.0755,
+   "p_value": 1.0,
+   "lag1": 0.059,
+   "q_value": 1.0,
+   "status": "pocos_datos"
+  }
+ },
+ {
+  "id": "12",
+  "nombre": "Junín",
+  "lat": -12.07,
+  "lon": -75.21,
+  "celdas": 60,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2006,
+   "n_years": 6,
+   "slope_per_decade": -0.02575,
+   "intercept": 5.810612,
+   "ci_low": -0.128,
+   "ci_high": 0.079,
+   "p_value": 0.027486,
+   "lag1": -0.8408,
+   "q_value": 0.17179,
+   "status": "pocos_datos",
+   "aviso": "Años muy parecidos entre sí (lag1 alto): la tendencia puede parecer más segura de lo que es"
+  }
+ },
+ {
+  "id": "13",
+  "nombre": "La Libertad",
+  "lat": -8.11,
+  "lon": -79.03,
+  "celdas": 31,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2006,
+   "n_years": 6,
+   "slope_per_decade": -0.103,
+   "intercept": 20.9773,
+   "ci_low": -0.2055,
+   "ci_high": 0.0935,
+   "p_value": 0.462433,
+   "lag1": -0.114,
+   "q_value": 0.525492,
+   "status": "pocos_datos"
+  }
+ },
+ {
+  "id": "14",
+  "nombre": "Lambayeque",
+  "lat": -6.77,
+  "lon": -79.84,
+  "celdas": 18,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2006,
+   "n_years": 6,
+   "slope_per_decade": -0.174,
+   "intercept": 35.1215,
+   "ci_low": -0.502,
+   "ci_high": 0.154,
+   "p_value": 0.462433,
+   "lag1": 0.2393,
+   "q_value": 0.525492,
+   "status": "pocos_datos"
+  }
+ },
+ {
+  "id": "15",
+  "nombre": "Lima",
+  "lat": -12.05,
+  "lon": -77.04,
+  "celdas": 48,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2006,
+   "n_years": 6,
+   "slope_per_decade": -0.056,
+   "intercept": 11.45815,
+   "ci_low": -0.111,
+   "ci_high": 0.073,
+   "p_value": 0.462433,
+   "lag1": -0.2808,
+   "q_value": 0.525492,
+   "status": "pocos_datos"
+  }
+ },
+ {
+  "id": "16",
+  "nombre": "Loreto",
+  "lat": -3.75,
+  "lon": -73.25,
+  "celdas": 490,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2006,
+   "n_years": 6,
+   "slope_per_decade": -0.005,
+   "intercept": 1.83325,
+   "ci_low": -0.029,
+   "ci_high": 0.027,
+   "p_value": 0.220671,
+   "lag1": -0.5195,
+   "q_value": 0.501526,
+   "status": "pocos_datos",
+   "aviso": "El NDVI de este departamento ronda 0,83, casi saturado: en la selva apenas cambia aunque se pierda bosque. Para el bosque, mira la cobertura de árboles. Años muy parecidos entre sí (lag1 alto): la tendencia puede parecer más segura de lo que es"
+  }
+ },
+ {
+  "id": "17",
+  "nombre": "Madre de Dios",
+  "lat": -12.59,
+  "lon": -69.19,
+  "celdas": 112,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2006,
+   "n_years": 6,
+   "slope_per_decade": -0.0105,
+   "intercept": 2.949425,
+   "ci_low": -0.0235,
+   "ci_high": 0.0145,
+   "p_value": 0.462433,
+   "lag1": -0.1982,
+   "q_value": 0.525492,
+   "status": "pocos_datos",
+   "aviso": "El NDVI de este departamento ronda 0,85, casi saturado: en la selva apenas cambia aunque se pierda bosque. Para el bosque, mira la cobertura de árboles."
+  }
+ },
+ {
+  "id": "18",
+  "nombre": "Moquegua",
+  "lat": -17.19,
+  "lon": -70.93,
+  "celdas": 19,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2006,
+   "n_years": 6,
+   "slope_per_decade": -0.021,
+   "intercept": 4.3203,
+   "ci_low": -0.0675,
+   "ci_high": 0.0265,
+   "p_value": 0.806496,
+   "lag1": -0.0074,
+   "q_value": 0.8401,
+   "status": "pocos_datos"
+  }
+ },
+ {
+  "id": "19",
+  "nombre": "Pasco",
+  "lat": -10.68,
+  "lon": -76.26,
+  "celdas": 31,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2006,
+   "n_years": 6,
+   "slope_per_decade": -0.0285,
+   "intercept": 6.453975,
+   "ci_low": -0.091,
+   "ci_high": 0.054,
+   "p_value": 0.027486,
+   "lag1": -0.7218,
+   "q_value": 0.17179,
+   "status": "pocos_datos",
+   "aviso": "Años muy parecidos entre sí (lag1 alto): la tendencia puede parecer más segura de lo que es"
+  }
+ },
+ {
+  "id": "20",
+  "nombre": "Piura",
+  "lat": -5.19,
+  "lon": -80.63,
+  "celdas": 47,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2006,
+   "n_years": 6,
+   "slope_per_decade": -0.12725,
+   "intercept": 25.836888,
+   "ci_low": -0.4705,
+   "ci_high": 0.216,
+   "p_value": 0.806496,
+   "lag1": 0.2229,
+   "q_value": 0.8401,
+   "status": "pocos_datos"
+  }
+ },
+ {
+  "id": "21",
+  "nombre": "Puno",
+  "lat": -15.84,
+  "lon": -70.02,
+  "celdas": 94,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2006,
+   "n_years": 6,
+   "slope_per_decade": -0.0185,
+   "intercept": 4.151275,
+   "ci_low": -0.097,
+   "ci_high": 0.087,
+   "p_value": 0.086411,
+   "lag1": -0.2866,
+   "q_value": 0.270034,
+   "status": "pocos_datos"
+  }
+ },
+ {
+  "id": "22",
+  "nombre": "San Martín",
+  "lat": -6.03,
+  "lon": -76.97,
+  "celdas": 68,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2006,
+   "n_years": 6,
+   "slope_per_decade": -0.025333,
+   "intercept": 5.894483,
+   "ci_low": -0.0375,
+   "ci_high": -0.002,
+   "p_value": 0.027486,
+   "lag1": -0.288,
+   "q_value": 0.17179,
+   "status": "pocos_datos",
+   "aviso": "El NDVI de este departamento ronda 0,82, casi saturado: en la selva apenas cambia aunque se pierda bosque. Para el bosque, mira la cobertura de árboles."
+  }
+ },
+ {
+  "id": "23",
+  "nombre": "Tacna",
+  "lat": -18.01,
+  "lon": -70.25,
+  "celdas": 23,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2006,
+   "n_years": 6,
+   "slope_per_decade": -0.012,
+   "intercept": 2.51115,
+   "ci_low": -0.0345,
+   "ci_high": 0.0125,
+   "p_value": 0.462433,
+   "lag1": 0.1685,
+   "q_value": 0.525492,
+   "status": "pocos_datos"
+  }
+ },
+ {
+  "id": "24",
+  "nombre": "Tumbes",
+  "lat": -3.57,
+  "lon": -80.45,
+  "celdas": 5,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2006,
+   "n_years": 6,
+   "slope_per_decade": -0.420667,
+   "intercept": 84.750767,
+   "ci_low": -0.708,
+   "ci_high": 0.327,
+   "p_value": 0.462433,
+   "lag1": -0.2674,
+   "q_value": 0.525492,
+   "status": "pocos_datos"
+  }
+ },
+ {
+  "id": "25",
+  "nombre": "Ucayali",
+  "lat": -8.38,
+  "lon": -74.55,
+  "celdas": 137,
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2006,
+   "n_years": 6,
+   "slope_per_decade": -0.0065,
+   "intercept": 2.140625,
+   "ci_low": -0.043,
+   "ci_high": 0.03,
+   "p_value": 0.086411,
+   "lag1": -0.4123,
+   "q_value": 0.270034,
+   "status": "pocos_datos",
+   "aviso": "El NDVI de este departamento ronda 0,84, casi saturado: en la selva apenas cambia aunque se pierda bosque. Para el bosque, mira la cobertura de árboles."
+  }
+ }
+]

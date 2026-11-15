@@ -29,11 +29,11 @@ impl IntoResponse for ApiError {
             ApiError::VariableInvalida(v) => {
                 let msg = match v {
                     Some(v) => format!(
-                        "variable '{}' no existe; usa: lluvia | temperatura | lluvia_imerg",
+                        "variable '{}' no existe; usa: lluvia | temperatura | lluvia_imerg | vegetacion",
                         corto(&v)
                     ),
                     None => {
-                        "falta ?variable=; usa: lluvia | temperatura | lluvia_imerg".to_string()
+                        "falta ?variable=; usa: lluvia | temperatura | lluvia_imerg | vegetacion".to_string()
                     }
                 };
                 (StatusCode::BAD_REQUEST, Json(json!({"error": msg}))).into_response()
@@ -41,7 +41,7 @@ impl IntoResponse for ApiError {
             ApiError::SinCeldas(v) => (
                 StatusCode::BAD_REQUEST,
                 Json(
-                    json!({"error": format!("'{v}' no tiene malla por celdas; usa: temperatura")}),
+                    json!({"error": format!("'{v}' no tiene malla por celdas; usa: lluvia, temperatura o vegetacion")}),
                 ),
             )
                 .into_response(),

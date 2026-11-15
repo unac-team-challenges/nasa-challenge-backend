@@ -1,0 +1,49 @@
+{
+ "id": "20",
+ "nombre": "Piura",
+ "lat": -5.19,
+ "lon": -80.63,
+ "celdas": 47,
+ "variable": "vegetacion",
+ "unidad": "NDVI",
+ "fuente": "MODIS MOD13A3 v061 (NDVI) vía AppEEARS",
+ "serie": [
+  {
+   "anio": 2001,
+   "valor": 0.4046
+  },
+  {
+   "anio": 2002,
+   "valor": 0.3997
+  },
+  {
+   "anio": 2003,
+   "valor": 0.3359
+  },
+  {
+   "anio": 2004,
+   "valor": 0.3056
+  },
+  {
+   "anio": 2005,
+   "valor": 0.3105
+  },
+  {
+   "anio": 2006,
+   "valor": 0.3488
+  }
+ ],
+ "stats": {
+  "year_start": 2001,
+  "year_end": 2006,
+  "n_years": 6,
+  "slope_per_decade": -0.12725,
+  "intercept": 25.836888,
+  "ci_low": -0.4705,
+  "ci_high": 0.216,
+  "p_value": 0.806496,
+  "lag1": 0.2229,
+  "q_value": 0.8401,
+  "status": "pocos_datos"
+ }
+}
