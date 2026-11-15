@@ -2,9 +2,10 @@ use crate::{
     models::{
         cobertura::ZonaCobertura,
         gpm, power,
+        recuadro::Comunes,
         variable::{Variable, VariableInfo},
         vegetacion::ZonaVegetacion,
-        zona::{Stats, Zona},
+        zona::Zona,
         Region,
     },
     schema::Punto,
@@ -213,60 +214,21 @@ impl Datos {
     }
 }
 
-/// Una zona-recuadro con serie anual y tendencia (`ndvi.json`, `cobertura_arboles.json`):
-/// lo que se valida igual en los dos archivos.
-trait Recuadro: serde::de::DeserializeOwned {
+/// Una zona-recuadro con serie anual y tendencia (`ndvi.json`, `cobertura_arboles.json`): lo común
+/// (`comun()`) se valida igual en los dos archivos; lo propio de cada uno, aquí.
+trait Recuadro: Comunes + serde::de::DeserializeOwned {
     const ARCHIVO: &'static str;
     /// Campo de `anios` sobre el que se calcula `stats`.
     const TENDENCIA_DE: &'static str;
-    fn id(&self) -> &str;
-    fn ubigeo(&self) -> &str;
-    fn departamento(&self) -> &str;
-    fn unidad_geografica(&self) -> &str;
-    fn bbox(&self) -> [f64; 4];
-    fn lat_lon(&self) -> (f64, f64);
-    fn tendencia_de(&self) -> &str;
-    fn stats(&self) -> &Stats;
     /// Problema en los campos propios del archivo (umbral), si lo hay.
     fn revisar(&self) -> Option<&'static str>;
     /// Años de `serie`, en orden, cada uno con su problema de rango si lo tiene.
     fn anios(&self) -> Vec<(u16, Option<&'static str>)>;
 }
 
-/// Los campos comunes de `Recuadro` (mismos nombres en los dos modelos).
-macro_rules! campos_recuadro {
-    () => {
-        fn id(&self) -> &str {
-            &self.id
-        }
-        fn ubigeo(&self) -> &str {
-            &self.ubigeo
-        }
-        fn departamento(&self) -> &str {
-            &self.departamento
-        }
-        fn unidad_geografica(&self) -> &str {
-            &self.unidad_geografica
-        }
-        fn bbox(&self) -> [f64; 4] {
-            self.bbox
-        }
-        fn lat_lon(&self) -> (f64, f64) {
-            (self.lat, self.lon)
-        }
-        fn tendencia_de(&self) -> &str {
-            &self.tendencia_de
-        }
-        fn stats(&self) -> &Stats {
-            &self.stats
-        }
-    };
-}
-
 impl Recuadro for ZonaVegetacion {
     const ARCHIVO: &'static str = "ndvi.json";
     const TENDENCIA_DE: &'static str = "ndvi_anual";
-    campos_recuadro!();
     fn revisar(&self) -> Option<&'static str> {
         (!(-1.0..=1.0).contains(&self.umbral_verde_ndvi))
             .then_some("umbral_verde_ndvi fuera de −1 a 1")
@@ -288,7 +250,6 @@ impl Recuadro for ZonaVegetacion {
 impl Recuadro for ZonaCobertura {
     const ARCHIVO: &'static str = "cobertura_arboles.json";
     const TENDENCIA_DE: &'static str = "arboles_pct";
-    campos_recuadro!();
     fn revisar(&self) -> Option<&'static str> {
         (!(0.0..=100.0).contains(&self.umbral_bosque_pct))
             .then_some("umbral_bosque_pct fuera de 0 a 100")
@@ -316,33 +277,34 @@ fn recuadros<Z: Recuadro>(json: &str) -> Result<Vec<Z>, serde_json::Error> {
     }
     let mut ids = BTreeSet::new();
     for z in &zonas {
+        let c = z.comun();
         let mal = |msg: &str| {
             Err(error(format_args!(
                 "{}, zona '{}': {msg}",
                 Z::ARCHIVO,
-                z.id()
+                c.id
             )))
         };
-        if !ids.insert(z.id()) {
+        if !ids.insert(c.id) {
             return mal("id repetido");
         }
-        match UBIGEOS.iter().find(|(id, _)| *id == z.ubigeo()) {
-            Some((_, nombre)) if clave(nombre) == clave(z.departamento()) => {}
+        match UBIGEOS.iter().find(|(id, _)| *id == c.ubigeo) {
+            Some((_, nombre)) if clave(nombre) == clave(c.departamento) => {}
             Some(_) => return mal("el departamento no es el de su ubigeo"),
             None => return mal("ubigeo inexistente"),
         }
-        if z.unidad_geografica().trim().is_empty() {
+        if c.unidad_geografica.trim().is_empty() {
             return mal("falta unidad_geografica");
         }
-        let [o, s, e, n] = z.bbox();
-        let (lat, lon) = z.lat_lon();
+        let [o, s, e, n] = c.bbox;
+        let (lat, lon) = c.lat_lon;
         if !(o < e && s < n && (o..=e).contains(&lon) && (s..=n).contains(&lat)) {
             return mal("bbox inválido o lat/lon fuera del recuadro");
         }
         if let Some(problema) = z.revisar() {
             return mal(problema);
         }
-        if z.tendencia_de() != Z::TENDENCIA_DE {
+        if c.tendencia_de != Z::TENDENCIA_DE {
             return mal(&format!("tendencia_de debe ser '{}'", Z::TENDENCIA_DE));
         }
         let mut anios = Vec::new();
@@ -355,7 +317,7 @@ fn recuadros<Z: Recuadro>(json: &str) -> Result<Vec<Z>, serde_json::Error> {
         if !anios.windows(2).all(|w| w[0] < w[1]) {
             return mal("serie con años repetidos o desordenados");
         }
-        let st = z.stats();
+        let st = c.stats;
         let en_periodo = anios
             .iter()
             .filter(|a| (st.year_start..=st.year_end).contains(a))
