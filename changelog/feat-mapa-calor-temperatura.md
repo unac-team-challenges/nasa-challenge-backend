@@ -14,7 +14,7 @@ muestra el valor donde está (costa de Lima ~18 °C, altiplano de Puno ~8 °C, I
 - `data/celdas/temperatura.json`: 344 celdas, 2001–2024, sin huecos (59 KB).
 - `GET /api/celdas?variable=temperatura` (`src/routes/api.rs`, `src/models/celdas.rs`). Otra variable → 400
   (`ApiError::SinCeldas`). Se valida al arrancar (`Datos::validar_celdas`: no vacía, dentro de Perú, años
-  dentro de `variables.json`, valores en −40..50 °C) y se sirve como `Bytes` (sin volver a serializar).
+  dentro de `variables.json`, valores en −40..50 °C, `unidad` = °C, `fuente` no vacía y ninguna celda con todos los años en `null`) y se sirve como `Bytes` (sin volver a serializar).
 - Tests: `celdas_de_temperatura`, `celdas_solo_temperatura`, `celdas_mal_formadas_se_rechazan`; checks en
   `tests/e2e.sh`. `openapi.json` regenerado.
 - `docs/datos.md`: sección «Malla de temperatura» con límites y fuentes.

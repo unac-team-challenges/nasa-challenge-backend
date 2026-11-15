@@ -173,6 +173,9 @@ impl Datos {
                 m.anio_inicio, m.anio_fin
             ));
         }
+        if m.unidad != "°C" || m.fuente.trim().is_empty() {
+            return falla("falta la fuente o la unidad no es °C".into());
+        }
         if !(m.dlat > 0.0 && m.dlon > 0.0) {
             return falla("dlat y dlon deben ser > 0".into());
         }
@@ -187,6 +190,9 @@ impl Datos {
                     "{donde}: {} valores, se esperaban {anios}",
                     c.t2m.len()
                 ));
+            }
+            if c.t2m.iter().all(Option::is_none) {
+                return falla(format!("{donde}: sin ningún año con valor"));
             }
             if c.t2m.iter().flatten().any(|t| !(-40.0..=50.0).contains(t)) {
                 return falla(format!("{donde}: temperatura fuera de -40..50 °C"));
