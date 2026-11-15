@@ -39,7 +39,7 @@
    "pct_change_per_decade": 7.45,
    "q_value": 0.224232,
    "status": "posible_casualidad",
-   "aviso": "Años muy parecidos entre sí (lag1 alto): la tendencia puede parecer más segura de lo que es"
+   "aviso": "Años muy parecidos entre sí (lag1 alto): la tendencia puede parecer más segura de lo que es."
   }
  },
  {
@@ -145,7 +145,8 @@
    "lag1": 0.3223,
    "pct_change_per_decade": 43.85,
    "q_value": 0.005303,
-   "status": "pocos_datos"
+   "status": "pocos_datos",
+   "aviso": "Sin celdas propias de POWER: se usa la celda de la capital (compartida con Lima). No uses la pendiente."
   }
  },
  {
@@ -209,7 +210,7 @@
    "pct_change_per_decade": -13.61,
    "q_value": 0.224232,
    "status": "posible_casualidad",
-   "aviso": "Años muy parecidos entre sí (lag1 alto): la tendencia puede parecer más segura de lo que es"
+   "aviso": "Años muy parecidos entre sí (lag1 alto): la tendencia puede parecer más segura de lo que es."
   }
  },
  {
@@ -294,7 +295,8 @@
    "lag1": -0.1061,
    "pct_change_per_decade": 9.44,
    "q_value": 0.064247,
-   "status": "pocos_datos"
+   "status": "pocos_datos",
+   "aviso": "Promedio de solo 3 celda(s): dato poco confiable. No uses la pendiente."
   }
  },
  {
@@ -316,7 +318,7 @@
    "pct_change_per_decade": 28.66,
    "q_value": 0.001674,
    "status": "posible_casualidad",
-   "aviso": "Años muy parecidos entre sí (lag1 alto): la tendencia puede parecer más segura de lo que es"
+   "aviso": "Años muy parecidos entre sí (lag1 alto): la tendencia puede parecer más segura de lo que es."
   }
  },
  {
@@ -401,7 +403,7 @@
    "pct_change_per_decade": -13.8,
    "q_value": 0.181272,
    "status": "posible_casualidad",
-   "aviso": "Años muy parecidos entre sí (lag1 alto): la tendencia puede parecer más segura de lo que es"
+   "aviso": "Años muy parecidos entre sí (lag1 alto): la tendencia puede parecer más segura de lo que es."
   }
  },
  {
@@ -465,7 +467,7 @@
    "pct_change_per_decade": -0.58,
    "q_value": 0.957875,
    "status": "posible_casualidad",
-   "aviso": "Años muy parecidos entre sí (lag1 alto): la tendencia puede parecer más segura de lo que es"
+   "aviso": "Años muy parecidos entre sí (lag1 alto): la tendencia puede parecer más segura de lo que es."
   }
  },
  {
@@ -508,7 +510,8 @@
    "lag1": 0.037,
    "pct_change_per_decade": 8.68,
    "q_value": 0.485802,
-   "status": "pocos_datos"
+   "status": "pocos_datos",
+   "aviso": "Promedio de solo 1 celda(s): dato poco confiable. No uses la pendiente."
   }
  },
  {

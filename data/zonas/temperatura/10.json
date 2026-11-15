@@ -117,6 +117,6 @@
   "lag1": 0.5404,
   "q_value": 0.013028,
   "status": "posible_casualidad",
-  "aviso": "Años muy parecidos entre sí (lag1 alto): la tendencia puede parecer más segura de lo que es"
+  "aviso": "Años muy parecidos entre sí (lag1 alto): la tendencia puede parecer más segura de lo que es."
  }
 }

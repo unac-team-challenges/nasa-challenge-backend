@@ -182,8 +182,10 @@ def main():
         for (fila, anios, y), st, q in zip(zonas, stats, qs):
             propio = cfg.get("avisos_zona", {}).get(UBIGEO[fila["region"]])
             segun = cfg.get("aviso_si")
+            pocas = fila["celdas"] < MIN_CELDAS and fila.get("nota")  # p (Mann-Kendall) e IC (Sen) pueden discrepar
             aviso = " ".join(filter(None, [cfg.get("aviso"), propio and propio(anios, y, st),
-                                           segun and segun(anios, y, st)]))
+                                           segun and segun(anios, y, st),
+                                           pocas and f"{pocas}. No uses la pendiente."]))
             clasificar(st, q, fila["celdas"], aviso or None, cfg.get("sin_real", False))
             zona = {"id": UBIGEO[fila["region"]], "nombre": fila["region"],
                     "lat": fila["lat"], "lon": fila["lon"], "celdas": fila["celdas"]}
