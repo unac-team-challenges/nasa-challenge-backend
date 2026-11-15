@@ -11,7 +11,7 @@ ALFA, MAX_LAG1 = 0.05, 0.5
 
 AVISO_IC = ("El intervalo de la tendencia incluye 0: aunque la prueba sale significativa, "
             "no se puede asegurar si sube o baja.")
-AVISO_LAG1 = "Años muy parecidos entre sí (lag1 alto): la tendencia puede parecer más segura de lo que es"
+AVISO_LAG1 = "Años muy parecidos entre sí (lag1 alto): la tendencia puede parecer más segura de lo que es."
 
 
 def evaluar(q, ci_low, ci_high, lag1):

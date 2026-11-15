@@ -118,6 +118,6 @@
   "pct_change_per_decade": 7.45,
   "q_value": 0.224232,
   "status": "posible_casualidad",
-  "aviso": "Años muy parecidos entre sí (lag1 alto): la tendencia puede parecer más segura de lo que es"
+  "aviso": "Años muy parecidos entre sí (lag1 alto): la tendencia puede parecer más segura de lo que es."
  }
 }

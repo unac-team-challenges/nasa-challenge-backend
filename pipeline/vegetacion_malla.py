@@ -87,21 +87,18 @@ def a_celdas(anual, con_dato, lat, lon, paso=PASO, min_frac=MIN_FRAC_PIXELES):
 
     `con_dato`: píxeles que alguna vez tienen dato (fuera del mar y del recorte); la fracción
     mínima se mide sobre ellos, así una celda de costa no queda vacía por el mar."""
-    i = np.floor(lat / paso).astype(int)
-    j = np.floor(lon / paso).astype(int)
-    ii, jj = np.meshgrid(i, j, indexing="ij")
+    ui, fi = np.unique(np.floor(lat / paso).astype(int), return_inverse=True)
+    uj, fj = np.unique(np.floor(lon / paso).astype(int), return_inverse=True)
+    celda = fi[:, None] * len(uj) + fj[None, :]  # índice de celda de cada píxel
+    n = len(ui) * len(uj)
+    total = np.bincount(celda[con_dato], minlength=n)
+    bueno = con_dato & np.isfinite(anual)
+    cuenta = np.bincount(celda[bueno], minlength=n)
+    suma = np.bincount(celda[bueno], weights=anual[bueno], minlength=n)
     salida = {}
-    for ci in np.unique(i):
-        fil = ii == ci
-        for cj in np.unique(j):
-            sel = fil & (jj == cj) & con_dato
-            total = int(sel.sum())
-            if not total:
-                continue
-            vals = anual[sel]
-            vals = vals[np.isfinite(vals)]
-            if vals.size >= min_frac * total:
-                salida[(round(float(ci + 0.5) * paso, 4), round(float(cj + 0.5) * paso, 4))] = float(vals.mean())
+    for k in np.flatnonzero((total > 0) & (cuenta > 0) & (cuenta >= min_frac * total)):
+        ci, cj = ui[k // len(uj)], uj[k % len(uj)]
+        salida[(round(float(ci + 0.5) * paso, 4), round(float(cj + 0.5) * paso, 4))] = float(suma[k] / cuenta[k])
     return salida
 
 

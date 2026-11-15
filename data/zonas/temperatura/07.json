@@ -117,6 +117,7 @@
   "p_value": 0.030337,
   "lag1": 0.1837,
   "q_value": 0.054174,
-  "status": "pocos_datos"
+  "status": "pocos_datos",
+  "aviso": "Sin celdas propias de POWER: se usa la celda de la capital (compartida con Lima). No uses la pendiente."
  }
 }

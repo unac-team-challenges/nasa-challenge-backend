@@ -40,6 +40,15 @@ impl Variable {
     }
 }
 
+// `v as usize` indexa los arrays de `Datos` y `Fuentes`: si alguien reordena el enum o `TODAS`, no compila.
+const _: () = {
+    let mut i = 0;
+    while i < Variable::TODAS.len() {
+        assert!(Variable::TODAS[i] as usize == i);
+        i += 1;
+    }
+};
+
 /// `GET /api/variables`: una entrada de `data/variables.json`, tal cual.
 #[derive(Clone, Debug, Deserialize, Serialize, ToSchema)]
 #[serde(deny_unknown_fields)]

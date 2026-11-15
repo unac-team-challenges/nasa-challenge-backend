@@ -142,6 +142,7 @@ y `data/ndvi_departamentos.json` (NDVI anual por departamento, fuente de `zonas/
   −40..50 °C (temperatura), 0..12 000 mm/año (lluvia).
 - **Refresco:** a mano, una vez al año: `enviar` → `estado` → `bajar` → `calcular` y luego `python pipeline/tendencias.py`.
   Si falta algún bloque, `calcular` lo avisa y la malla llega hasta el último año leído (nunca se inventan años).
-- **Serie corta = `pocos_datos` con `nota`:** con menos de 20 años no se mide tendencia; cada departamento lleva una
-  `nota` con los años que tiene («Serie de solo 12 años (2001–2012)…»), para no confundirlo con «pocas celdas».
-  `tests/e2e.sh` exige que `variables.json` y `zonas/vegetacion.json` acaben en el mismo año que la malla.
+- **Serie corta = `pocos_datos` con `nota`:** si en un refresco falta algún bloque y quedan menos de 20 años, no se mide
+  tendencia y cada departamento lleva una `nota` con los años que tiene («Serie de solo 12 años (2001–2012)…»), para no
+  confundirlo con «pocas celdas». Con la serie completa (2001–2024) no aparece. `tests/e2e.sh` exige 2001–2024.
+- **Resultado 2001–2024:** 14 departamentos con cambio real, 10 posible casualidad y Callao con pocos datos (1 celda).
