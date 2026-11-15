@@ -43,7 +43,6 @@ APPEEARS = ndvi.APPEEARS
 FUENTE = "MODIS MOD44B v061 (NASA LP DAAC) vía AppEEARS"
 ANIOS = range(2001, 2025)  # mismo periodo que el resto del producto
 BOSQUE = 30  # % de cobertura de árboles desde el que un píxel cuenta como bosque
-KM_POR_GRADO = 111.32  # km por grado de latitud (y de longitud en el ecuador)
 MIN_FRAC_PIXELES = 0.5  # un año vale si tiene dato al menos la mitad del área de tierra
 CAPA = "Percent_Tree_Cover"  # 0–100 %; 200 = agua; 253 = sin dato
 
@@ -63,13 +62,26 @@ def unidad_geo(caja):
 
 # ---------- lógica (sin red ni NetCDF: se prueba en autoprueba) ----------
 
+def km_por_grado(lats):
+    """(km por grado de latitud, km por grado de longitud) en cada latitud, en el elipsoide WGS84.
+
+    Cerca del ecuador un grado de latitud mide ~110,6 km (no 111,32, que es el de longitud en el
+    ecuador); usar el mismo valor para los dos inflaba el área ~0,7 %.
+    """
+    f = np.radians(lats)
+    lat = 111.13295 - 0.55982 * np.cos(2 * f) + 0.00117 * np.cos(4 * f)
+    lon = 111.41284 * np.cos(f) - 0.09350 * np.cos(3 * f) + 0.00012 * np.cos(5 * f)
+    return lat, lon
+
+
 def km2_pixeles(lats, dlat, dlon):
     """Área (km²) de un píxel en cada fila de latitud de una malla en grados.
 
-    AppEEARS entrega el ráster en proyección geográfica: el lado este-oeste del píxel mide
-    dlon × 111,32 × cos(lat) km, así que un área constante inflaría los km² lejos del ecuador.
+    AppEEARS entrega el ráster en proyección geográfica: el píxel se encoge con la latitud, así que
+    un área constante inflaría los km². Se usa el largo real de cada grado (km_por_grado).
     """
-    return (abs(dlat) * KM_POR_GRADO) * (abs(dlon) * KM_POR_GRADO * np.cos(np.radians(lats)))
+    km_lat, km_lon = km_por_grado(lats)
+    return (abs(dlat) * km_lat) * (abs(dlon) * km_lon)
 
 
 def resumen_anio(valores, tierra, area):
@@ -182,6 +194,7 @@ def bajar():
     # Se baja todo a .part y solo al final se reemplazan los .nc: si la descarga se corta,
     # la copia buena anterior sigue ahí (repetir la solicitud a AppEEARS cuesta horas).
     nuevos = []
+    parcial = None  # el .part que se está escribiendo (se limpia también si falla a medias)
     try:
         for f in r.json()["files"]:
             if not f["file_name"].endswith(".nc"):
@@ -195,11 +208,16 @@ def bajar():
                     for trozo in d.iter_content(1 << 20):
                         fh.write(trozo)
             nuevos.append((parcial, destino))
-            print(destino.name, f"{parcial.stat().st_size / 1e6:.1f} MB")
+            parcial = None
+            print(destino.name, f"{nuevos[-1][0].stat().st_size / 1e6:.1f} MB")
     except BaseException:
-        for parcial, _ in nuevos:
-            parcial.unlink(missing_ok=True)
+        for p in [*(p for p, _ in nuevos), parcial]:
+            if p is not None:
+                p.unlink(missing_ok=True)
         raise
+    if not nuevos:
+        # Sin ningún .nc en el bundle no se toca la caché: la copia buena anterior sigue
+        sys.exit("El bundle de AppEEARS no trae ningún .nc; se conserva la copia anterior.")
     finales = {d for _, d in nuevos}
     for viejo in CACHE.glob("*.nc"):
         if viejo not in finales:
@@ -282,10 +300,14 @@ def autoprueba():
         except ValueError:
             pass
 
-    # Área: el recuadro de Iquitos (0,2° × 0,2°, lat −4,1) suma ~22,26 × 22,21 km, no más
+    # Área: el recuadro de Iquitos (0,2° × 0,2°) contra una fórmula independiente, la de la zona
+    # esférica con el radio de igual área de la Tierra: R² · Δλ · (sen φ2 − sen φ1) ≈ 491 km²
     lats = np.arange(-4.199, -4.0, 0.002)
     caja = km2_pixeles(lats, 0.002, 0.002).sum() * 100
-    assert abs(caja - 22.264 * 22.264 * np.cos(np.radians(4.1))) < 1, caja
+    esfera = 6371.0072 ** 2 * np.radians(0.2) * (np.sin(np.radians(-4.0)) - np.sin(np.radians(-4.2)))
+    assert abs(caja / esfera - 1) < 0.005, (caja, esfera)
+    km_lat, km_lon = km_por_grado(np.array([0.0]))
+    assert abs(km_lat[0] - 110.57) < 0.01 and abs(km_lon[0] - 111.32) < 0.01, (km_lat, km_lon)
     # Un año con la mitad de la tierra sin dato da el mismo bosque (extrapolado), sin escalón
     area = np.ones((4, 4))
     tierra = np.ones((4, 4), bool)

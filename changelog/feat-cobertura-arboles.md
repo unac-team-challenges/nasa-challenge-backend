@@ -22,7 +22,7 @@ PR: base `developer` (#42 y #50 ya mezclados; reutiliza el modelo de recuadros d
 - Frontend: `pnpm gen` y decidir dónde se muestra la selva (¿ficha de Madre de Dios y Loreto, como el Caso 2?).
 
 ## Ajustes tras la revisión de Leandro
-- **Actualizado con `developer`** (ya entraron #53, la lluvia de POWER con `lluvia_imerg`, y #56, Olmos). Se resolvió el conflicto de `CLAUDE.md`, con la coma que faltaba en la lista de archivos embebidos.
+- **Actualizado con `developer`** (ya entró #53, la lluvia de POWER con `lluvia_imerg`; #56, Olmos, seguía abierto al mezclar este PR). Se resolvió el conflicto de `CLAUDE.md`, con la coma que faltaba en la lista de archivos embebidos.
 - **`pipeline/cobertura.py`:**
   - el área de bosque ya no usa un píxel constante: se calcula por fila de latitud (× cos(lat), con `km2_pixeles()`), porque el ráster está en grados. Antes salía inflada: Iquitos tenía más bosque que área de recuadro. La Pampa pasa de 746 → 475 a **729 → 464 km²**, con la misma caída de −36 %;
   - con menos de 3 años, `zona_json` falla con el motivo, en vez de escribir un `stats` incompleto que haría caer la API. La autoprueba cubre 0 y 2 años y comprueba que todos los `status` tengan el esquema completo de `Stats`;
