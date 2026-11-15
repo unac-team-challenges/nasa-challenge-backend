@@ -13,7 +13,7 @@ Uso (desde la raíz del repo):
   python pipeline/cobertura.py autoprueba  prueba la lógica sin red ni NetCDF (la corre tests/e2e.sh)
 
 Refresco: a mano, una vez al año, como ndvi.py (no va en el cron).
-Credenciales: las mismas de ndvi.py (EARTHDATA_* del entorno o ~/.netrc / ~/_netrc). Nunca se imprimen.
+AppEEARS (credenciales, solicitud, descarga): pipeline/appeears.py, compartido con ndvi.py.
 
 Zonas (recuadros de 0,25°, no el departamento):
 - La Pampa (Madre de Dios): epicentro de la deforestación por minería de oro aluvial en 2014–2018,
@@ -31,14 +31,15 @@ from pathlib import Path
 import numpy as np
 from statsmodels.stats.multitest import multipletests
 
-import ndvi  # reutiliza la sesión de AppEEARS (credenciales y token)
+import appeears
+import tendencias
 from tendencias import clasificar, estadisticas
 
 RAIZ = Path(__file__).resolve().parent.parent
 CACHE = RAIZ / "pipeline" / "cache" / "cobertura"  # pipeline/cache/ está en .gitignore
 TASK = CACHE / "task.json"
 SALIDA = RAIZ / "data" / "cobertura_arboles.json"
-APPEEARS = ndvi.APPEEARS
+PRODUCTO = "MOD44B.061"
 
 FUENTE = "MODIS MOD44B v061 (NASA LP DAAC) vía AppEEARS"
 ANIOS = range(2001, 2025)  # mismo periodo que el resto del producto
@@ -149,83 +150,21 @@ def con_estado(filas):
 
 
 def escribir(filas, ruta=SALIDA):
-    ruta.write_text(json.dumps(filas, ensure_ascii=False, indent=1, allow_nan=False) + "\n", encoding="utf-8")
+    tendencias.escribir(ruta, filas, salto_final=True)
 
 
-# ---------- AppEEARS (red) ----------
+# ---------- AppEEARS (red): pipeline/appeears.py ----------
 
 def enviar():
-    import requests
-    feats = [{"type": "Feature", "properties": {"id": z[0]},
-              "geometry": {"type": "Polygon", "coordinates": [[[o, s], [e, s], [e, n], [o, n], [o, s]]]}}
-             for z in ZONAS for (o, s, e, n) in [z[5]]]
-    tarea = {"task_type": "area", "task_name": "detective-peru-cobertura-arboles",
-             "params": {"dates": [{"startDate": f"01-01-{ANIOS[0]}", "endDate": f"12-31-{ANIOS[-1]}"}],
-                        "layers": [{"product": "MOD44B.061", "layer": CAPA}],
-                        "geo": {"type": "FeatureCollection", "features": feats},
-                        "output": {"format": {"type": "netcdf4"}, "projection": "geographic"}}}
-    r = requests.post(f"{APPEEARS}/task", json=tarea, headers=ndvi._token(), timeout=120)
-    r.raise_for_status()
-    CACHE.mkdir(parents=True, exist_ok=True)
-    TASK.write_text(json.dumps(r.json()))
-    print("solicitud creada:", r.json()["task_id"])
-
-
-def _estado(h):
-    import requests
-    tid = json.loads(TASK.read_text())["task_id"]
-    r = requests.get(f"{APPEEARS}/task/{tid}", headers=h, timeout=60)
-    r.raise_for_status()
-    return tid, r.json().get("status")
+    appeears.enviar(ZONAS, PRODUCTO, [CAPA], ANIOS, TASK, "detective-peru-cobertura-arboles")
 
 
 def consultar():
-    print(_estado(ndvi._token())[1])
+    appeears.consultar(TASK)
 
 
 def bajar():
-    import requests
-    h = ndvi._token()
-    tid, estado = _estado(h)
-    if estado != "done":
-        sys.exit(f"La solicitud aún no termina (estado: {estado}). Prueba más tarde con `estado`.")
-    r = requests.get(f"{APPEEARS}/bundle/{tid}", headers=h, timeout=60)
-    r.raise_for_status()
-    # Se baja todo a .part y solo al final se reemplazan los .nc: si la descarga se corta,
-    # la copia buena anterior sigue ahí (repetir la solicitud a AppEEARS cuesta horas).
-    for viejo in CACHE.glob("*.part"):  # restos de una corrida que murió sin poder limpiar
-        viejo.unlink()
-    nuevos = []
-    parcial = None  # el .part que se está escribiendo (se limpia también si falla a medias)
-    try:
-        for f in r.json()["files"]:
-            if not f["file_name"].endswith(".nc"):
-                continue
-            destino = CACHE / Path(f["file_name"]).name
-            parcial = destino.with_name(destino.name + ".part")
-            with requests.get(f"{APPEEARS}/bundle/{tid}/{f['file_id']}", headers=h, stream=True,
-                              timeout=600) as d:
-                d.raise_for_status()
-                with open(parcial, "wb") as fh:
-                    for trozo in d.iter_content(1 << 20):
-                        fh.write(trozo)
-            nuevos.append((parcial, destino))
-            print(destino.name, f"{parcial.stat().st_size / 1e6:.1f} MB")
-            parcial = None
-    except BaseException:
-        for p in [*(p for p, _ in nuevos), parcial]:
-            if p is not None:
-                p.unlink(missing_ok=True)
-        raise
-    if not nuevos:
-        # Sin ningún .nc en el bundle no se toca la caché: la copia buena anterior sigue
-        sys.exit("El bundle de AppEEARS no trae ningún .nc; se conserva la copia anterior.")
-    finales = {d for _, d in nuevos}
-    for viejo in CACHE.glob("*.nc"):
-        if viejo not in finales:
-            viejo.unlink()
-    for parcial, destino in nuevos:
-        parcial.replace(destino)
+    appeears.bajar(TASK, CACHE)
 
 
 # ---------- NetCDF -> data/cobertura_arboles.json ----------
@@ -233,15 +172,7 @@ def bajar():
 def _leer_zona(zona):
     """NetCDF cuyo centro cae en la caja de la zona -> (pixeles_de_tierra, {anio: (frac, pct, km2)})."""
     import xarray as xr
-    o, s, e, n = zona[5]
-    candidatos = []
-    for ruta in sorted(CACHE.glob("*.nc")):
-        with xr.open_dataset(ruta) as ds:
-            if o <= float(ds.lon.mean()) <= e and s <= float(ds.lat.mean()) <= n:
-                candidatos.append(ruta)
-    if len(candidatos) != 1:
-        sys.exit(f"{zona[1]}: {len(candidatos)} NetCDF en {CACHE} (se espera 1). Corre `bajar` de nuevo.")
-    with xr.open_dataset(candidatos[0], mask_and_scale=False) as ds:
+    with xr.open_dataset(appeears.nc_de_zona(CACHE, zona), mask_and_scale=False) as ds:
         v = ds[CAPA].values.astype(float)  # (tiempo, lat, lon)
         anios = [int(a) for a in ds["time"].dt.year.values]  # .dt sirve con datetime64 y cftime
         lats, lons = ds["lat"].values, ds["lon"].values

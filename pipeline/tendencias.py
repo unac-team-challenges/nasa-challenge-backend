@@ -125,9 +125,12 @@ def zonas_de(cfg):
     return salida
 
 
-def escribir(ruta, contenido):
+def escribir(ruta, contenido, salto_final=False):
+    """Único escritor de data/*.json (también lo usan ndvi.py y cobertura.py, que terminan en salto de
+    línea). allow_nan=False: un NaN rompe aquí, no en la API."""
     ruta.parent.mkdir(parents=True, exist_ok=True)
-    ruta.write_text(json.dumps(contenido, ensure_ascii=False, indent=1, allow_nan=False), encoding="utf-8")
+    texto = json.dumps(contenido, ensure_ascii=False, indent=1, allow_nan=False)
+    ruta.write_text(texto + ("\n" if salto_final else ""), encoding="utf-8")
 
 
 def main():

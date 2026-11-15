@@ -39,6 +39,7 @@ for v in lluvia temperatura lluvia_imerg; do
   chk "zonas/$v.json: status válido" jq -e 'all(.[].stats.status; IN("real","posible_casualidad","pocos_datos"))' data/zonas/$v.json
   chk "zonas/$v/: 25 fichas con serie numérica" bash -c "ls data/zonas/$v/*.json | wc -l | grep -qx 25 && jq -s -e 'all(.[].serie[]; (.anio|type==\"number\") and (.valor|type==\"number\"))' data/zonas/$v/*.json"
 done
+chk "pipeline/appeears.py compila" "$PY" -m py_compile pipeline/appeears.py
 chk "pipeline/ndvi.py compila" "$PY" -m py_compile pipeline/ndvi.py
 chk "ndvi: autoprueba (años completos, BH, criterio único, sin NaN)" "$PY" pipeline/ndvi.py autoprueba
 chk "tests/test_ndvi_checks.py (los checks de ndvi.json detectan 10 roturas)" "$PY" -m unittest -q tests/test_ndvi_checks.py
