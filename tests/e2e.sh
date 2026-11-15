@@ -12,13 +12,13 @@ chk() { local d=$1; shift; if "$@" >/dev/null 2>&1; then ok "$d"; else mal "$d";
 
 echo "== datos"
 chk "power.json es JSON válido con 25 regiones" jq -e 'length == 25' data/power.json
-chk "todos los valores son números (sin null/NaN)" jq -e '[.[].anios[][]] | length > 0 and all(type == "number")' data/power.json
+chk "todos los valores son números (sin null/NaN)" jq -e '[.[].anios[][]] | length > 0 and all(type == "number" and (isnan | not))' data/power.json
 chk "gpm.json: lluvia entre 0 y 30 mm/día (detecta unidades mal)" jq -e '[.[].anios[].lluvia_mm_dia] | all(. >= 0 and . <= 30)' data/gpm.json
 chk "power.json: T2M entre -15 y 35 °C"                           jq -e '[.[].anios[].T2M] | all(. >= -15 and . <= 35)' data/power.json
 chk "power.json: PRECTOTCORR entre 0 y 30 mm/día"                 jq -e '[.[].anios[].PRECTOTCORR] | all(. >= 0 and . <= 30)' data/power.json
 chk "pipeline/power.py compila" python3 -m py_compile pipeline/power.py
 chk "gpm.json es JSON válido con 25 regiones" jq -e 'length == 25' data/gpm.json
-chk "gpm.json: todos los valores son números (sin null/NaN)" jq -e '[.[].anios[][]] | length > 0 and all(type == "number")' data/gpm.json
+chk "gpm.json: todos los valores son números (sin null/NaN)" jq -e '[.[].anios[][]] | length > 0 and all(type == "number" and (isnan | not))' data/gpm.json
 chk "pipeline/gpm.py compila" python3 -m py_compile pipeline/gpm.py
 chk "pipeline/tendencias.py compila" python3 -m py_compile pipeline/tendencias.py
 chk "tests/test_tendencias.py (semáforo, aviso, periodo)" python3 -m unittest -q tests/test_tendencias.py
@@ -30,21 +30,17 @@ chk "zonas/lluvia.json: ninguna zona 'real' (solo IMERG, salto de 2014)" jq -e '
 for v in lluvia temperatura; do
   chk "zonas/$v.json: todo 'real' cumple el criterio único (q<0.05, IC sin 0, |lag1|<=0.5)" jq -e 'all(.[].stats | select(.status == "real"); .q_value < 0.05 and (.ci_low > 0 or .ci_high < 0) and (.lag1 | fabs) <= 0.5)' data/zonas/$v.json
   chk "zonas/$v.json: 25 zonas con id 01–25" jq -e '[.[].id] == ([range(1;26)] | map(tostring | if length == 1 then "0" + . else . end))' data/zonas/$v.json
-  chk "zonas/$v.json: stats numéricos (sin null/NaN)" jq -e '[.[].stats | to_entries[] | select(.key != "status" and .key != "aviso") | .value] | all(type == "number")' data/zonas/$v.json
+  chk "zonas/$v.json: stats numéricos (sin null/NaN)" jq -e '[.[].stats | to_entries[] | select(.key != "status" and .key != "aviso") | .value] | all(type == "number" and (isnan | not))' data/zonas/$v.json
   chk "zonas/$v.json: periodo 2001–2024" jq -e 'all(.[].stats; .year_start == 2001 and .year_end == 2024)' data/zonas/$v.json
   chk "zonas/$v.json: status válido" jq -e 'all(.[].stats.status; IN("real","posible_casualidad","pocos_datos"))' data/zonas/$v.json
   chk "zonas/$v/: 25 fichas con serie numérica" bash -c "ls data/zonas/$v/*.json | wc -l | grep -qx 25 && jq -s -e 'all(.[].serie[]; (.anio|type==\"number\") and (.valor|type==\"number\"))' data/zonas/$v/*.json"
 done
 chk "pipeline/ndvi.py compila" python3 -m py_compile pipeline/ndvi.py
 chk "ndvi: autoprueba (años completos, BH, criterio único, sin NaN)" python3 pipeline/ndvi.py autoprueba
+chk "tests/test_ndvi_checks.py (los checks de ndvi.json detectan 7 roturas)" python3 -m unittest -q tests/test_ndvi_checks.py
 chk "lab5: autoprueba del criterio de tendencia" python3 -c "import sys; sys.path.insert(0, 'pipeline/exploracion/josue/scripts'); import lab5_tendencias as l; l.autoprueba()"
 if [ -f data/ndvi.json ]; then
-  chk "ndvi.json: series numéricas (sin null/NaN)" jq -e '[.[].anios[][]] | length > 0 and all(type == "number")' data/ndvi.json
-  chk "ndvi.json: NDVI entre -1 y 1" jq -e '[.[].anios[].ndvi_anual] | all(. >= -1 and . <= 1)' data/ndvi.json
-  chk "ndvi.json: solo años 2001–2024" jq -e '[.[].anios | keys[] | tonumber] | all(. >= 2001 and . <= 2024)' data/ndvi.json
-  chk "ndvi.json: stats numéricos (sin null/NaN) y status válido" jq -e 'all(.[].stats; ([to_entries[] | select(.key != "status" and .key != "aviso") | .value] | all(type == "number")) and (.status | IN("real","posible_casualidad","pocos_datos")))' data/ndvi.json
-  chk "ndvi.json: todo 'real' cumple el criterio único" jq -e 'all(.[].stats | select(.status == "real"); .q_value < 0.05 and (.ci_low > 0 or .ci_high < 0) and (.lag1 | fabs) <= 0.5)' data/ndvi.json
-  chk "ndvi.json: unidad geográfica explícita en cada zona" jq -e 'all(.[]; .unidad_geografica | test("no es el promedio del departamento"))' data/ndvi.json
+  bash tests/checks_ndvi.sh data/ndvi.json || fallos=1
 else
   echo "aviso data/ndvi.json no existe todavía: falta generarlo (python pipeline/ndvi.py enviar|bajar|calcular)"
 fi
