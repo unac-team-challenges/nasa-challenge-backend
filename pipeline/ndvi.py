@@ -199,9 +199,8 @@ def _leer_zona(zona):
         sys.exit(f"{zona[1]}: {len(candidatos)} NetCDF en {CACHE} (se espera 1). Corre `bajar` de nuevo.")
     with xr.open_dataset(candidatos[0]) as ds:
         ndvi, fiable = ds[CAPAS[0]].values, ds[CAPAS[1]].values  # (tiempo, lat, lon), NDVI ya escalado
-        fechas = ds["time"].values
-    anios = np.array([t.year for t in fechas])
-    mes = np.array([t.month for t in fechas])
+        # .dt sirve con datetime64 y con cftime (calendario juliano de AppEEARS); t.year solo con cftime
+        anios, mes = ds["time"].dt.year.values, ds["time"].dt.month.values
     pixeles = int((~np.isnan(ndvi).all(axis=0)).sum())
     bueno = np.isin(fiable, [0, 1]) & ~np.isnan(ndvi)
     limpio = np.where(bueno, ndvi, np.nan)
