@@ -69,6 +69,38 @@ para el cambio no importa mezclar alturas.
   Fuente: respuesta del equipo POWER en el [foro de Earthdata](https://forum.earthdata.nasa.gov/viewtopic.php?p=16275).
 - Las tendencias 2001–2024 (0,14–0,77 °C/década) son coherentes con estudios andinos (0,13–0,45 °C/década,
   p. ej. [SENAMHI, 1964–2014](https://www.sidalc.net/search/Record/dig-senamhi-pe-20.500.12542-142)).
-  Ucayali (0,77) es atípico: pendiente revisar si es deforestación real o un artefacto del reanálisis.
+  Ucayali (0,77) es el más alto de todos: revisado abajo, en «Ucayali: la tendencia más alta».
 - Mejora futura: [PISCOt v1.2](https://link.springer.com/article/10.1038/s41597-023-02777-w) de SENAMHI
   (~1 km, corrige por topografía, MAE ~1,3 °C), pero solo llega a 2020.
+
+### Ucayali: la tendencia más alta (revisado 2026-11-15)
+
+Ucayali sube **0,77 °C/década** (2001–2024, Theil-Sen sobre `power.json`), el máximo de los 25 departamentos y
+`real` con el criterio único. Qué muestran los datos del repo:
+
+| °C/década | 2001–2024 | 2001–2022 | 2001–2019 |
+|---|---|---|---|
+| **Ucayali** | **0,77** | **0,58** | **0,45** |
+| Huánuco | 0,55 | 0,36 | 0,16 |
+| Pasco | 0,46 | 0,26 | 0,06 |
+| Loreto | 0,26 | 0,13 | 0,02 |
+| San Martín | 0,25 | 0,08 | −0,11 |
+| Madre de Dios | 0,14 | 0,05 | −0,01 |
+
+- **No es una celda mala:** de las 31 celdas de Ucayali, 27 suben más de 0,5 °C/década (entre 0,34 y 1,18; mediana 0,84).
+- **Pesa mucho el final de la serie:** de 2001 a 2022 el promedio anual está entre 25,0 y 26,7 °C; en 2023 y 2024 sale
+  28,2 y 28,5 °C. Quitar esos dos años baja la pendiente a 0,58. Sigue siendo la más alta de la selva baja
+  (Loreto 0,13, Madre de Dios 0,05 en el mismo periodo), y con el periodo 2001–2019 todavía da 0,45.
+- **Hay coherencia espacial:** Huánuco y Pasco, vecinos de Ucayali en la selva central, también están entre los más altos.
+  Un artefacto de una sola región sería menos probable que un patrón que cruza tres departamentos.
+- **Lo que no se puede decir con estos datos:** si la causa es calentamiento real (incluida la deforestación de
+  Ucayali), el calor extremo de 2023–2024, o un cambio en las observaciones que alimentan el reanálisis MERRA-2.
+  Distinguirlo exige una fuente independiente (estaciones de SENAMHI, ERA5-Land o temperatura de superficie de MODIS).
+- **La comparación con «estudios andinos» (0,13–0,45) no es del todo justa:** Ucayali es selva baja y esos estudios
+  miden estaciones andinas hasta 2014.
+
+**Decisión:** la tendencia se publica tal cual (`real`, sin cambiar el umbral), pero Ucayali lleva un aviso propio en
+`stats.aviso` (`avisos_zona` de `temperatura` en `pipeline/tendencias.py`, por ubigeo): dice que la subida depende de los
+dos últimos años, cuánto baja sin ellos (0,77 → 0,58) y que estos datos no separan calentamiento real, calor extremo y un
+cambio del reanálisis. Los números salen de la serie, así que el texto se actualiza solo al regenerar. Va delante del aviso
+de lag1 si algún día aplica. Los demás departamentos no cambian.

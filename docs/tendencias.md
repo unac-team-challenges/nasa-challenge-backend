@@ -134,7 +134,7 @@ Además llevan `year_start`, `year_end` (el periodo de la tendencia), `pct_chang
 - **Periodo = 2001–2024 para las dos variables** (POWER y GPM). Si hace falta un periodo largo (1981) o lluvia de largo plazo (GPCP), es otra decisión y otra columna de salida.
 
 - **Semáforo (umbrales de Josue, Sebastian 14 nov):** `pocos_datos` si `n_years < 20` o `celdas < 4`; `real` solo con el criterio único de la sección 2b (`q_value < 0.05`, IC95 sin 0 y `|lag1| <= 0.5`); si no, `posible_casualidad`. **`lluvia_imerg`: nunca `real`**; con `q < 0.05` sale `posible_casualidad`, por el salto de 2014. La lluvia principal (POWER) sigue el criterio normal. `pct_change_per_decade` en las dos lluvias.
-- **`aviso`** (texto): en todas las zonas de `lluvia_imerg`, por el cambio de constelación de IMERG en 2014 (TRMM → GPM: la tendencia puede estar sesgada a la baja); en cualquier zona si `|lag1| > 0.5`; y si la prueba es significativa pero el IC incluye 0 (sección 2b). Si hay varios, van en el mismo texto.
+- **`aviso`** (texto): en todas las zonas de `lluvia_imerg`, por el cambio de constelación de IMERG en 2014 (TRMM → GPM: la tendencia puede estar sesgada a la baja); en cualquier zona si `|lag1| > 0.5`; y si la prueba es significativa pero el IC incluye 0 (sección 2b); además, Ucayali en temperatura lleva un aviso propio (`avisos_zona` en `tendencias.py`, [`datos.md`](datos.md)). Si hay varios, van en el mismo texto.
 - **Archivos:** uno por ruta: `data/variables.json`, `data/zonas/{variable}.json` (sin serie) y `data/zonas/{variable}/{id}.json` (serie + `stats`), generados por `pipeline/tendencias.py`.
 
 **Pendientes:**

@@ -374,6 +374,19 @@ async fn api_zonas_traen_stats() {
 }
 
 #[tokio::test]
+async fn ucayali_lleva_aviso_propio_en_temperatura_y_el_resto_no() {
+    let (_, _, u) = get("/api/zonas/25?variable=temperatura", None).await;
+    let aviso = u["stats"]["aviso"].as_str().unwrap();
+    assert!(aviso.contains("2023 y 2024"), "{aviso}");
+    assert_eq!(u["stats"]["status"], "real", "el aviso no cambia el status");
+    let (_, _, z) = get("/api/zonas?variable=temperatura", None).await;
+    for z in z.as_array().unwrap().iter().filter(|z| z["id"] != "25") {
+        let a = z["stats"]["aviso"].as_str().unwrap_or("");
+        assert!(!a.contains("2023 y 2024"), "temperatura/{}", z["id"]);
+    }
+}
+
+#[tokio::test]
 async fn imerg_trae_aviso_2014_y_power_no() {
     let (_, _, l) = get("/api/zonas/15?variable=lluvia_imerg", None).await;
     let st = &l["stats"];

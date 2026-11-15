@@ -19,7 +19,8 @@ años a los JSON de entrada. Método (docs/tendencias.md), sobre la serie anual:
   posible_casualidad. La lluvia de IMERG (lluvia_imerg) nunca sale real: el salto
   de 2014 puede fingir la tendencia.
 - aviso (texto): siempre en lluvia_imerg (salto de 2014), si |lag1| > 0.5 y si
-  la prueba es significativa pero el IC incluye 0 (explica por qué no es real).
+  la prueba es significativa pero el IC incluye 0 (explica por qué no es real), y el de
+  Ucayali en temperatura (AVISOS_ZONA: su subida depende de 2023–2024).
 """
 import json
 from pathlib import Path
@@ -36,6 +37,22 @@ DATA = Path(__file__).parent.parent / "data"
 PERIODO = (2001, 2024)  # decidido el 2026-11-14, el mismo para las dos variables
 P_MIN = 1e-6  # menor p/q que se publica; el front muestra «< 0,000001» cuando vale esto
 MIN_ANIOS = 20  # ALFA y MAX_LAG1 viven en tendencia_comun.py (criterio único)
+
+def _coma(x, decimales=1):
+    return f"{x:.{decimales}f}".replace(".", ",")
+
+
+def aviso_ucayali(anios, y, st):
+    """Ucayali sube más que ningún otro departamento y pesa el final de la serie (docs/datos.md,
+    «Ucayali: la tendencia más alta»). Los números salen de la serie: no quedan viejos al regenerar."""
+    antes = y[:-2]
+    sin_final = theilslopes(antes, anios[:-2])[0] * 10
+    return (f"La subida depende del final de la serie: {anios[-2]} y {anios[-1]} salieron mucho más "
+            f"calientes ({_coma(y[-2])} y {_coma(y[-1])} °C, frente a {_coma(antes.min())}–{_coma(antes.max())} °C "
+            f"en los años anteriores). Sin esos dos años la subida baja de {_coma(st['slope_per_decade'], 2)} a "
+            f"{_coma(sin_final, 2)} °C por década. Con estos datos no se puede separar calentamiento real, "
+            "calor extremo de esos años y un cambio en el reanálisis.")
+
 
 # unidad, fuente y descripcion: mismos textos que src/models/variable.rs
 # El orden es el de Variable::TODAS en src/models/variable.rs.
@@ -54,6 +71,8 @@ VARIABLES = {
         "unidad": "°C", "fuente": "MERRA-2 vía NASA POWER (T2M)",
         "descripcion": "Temperatura del aire a 2 m: promedio de cada año",
         "porcentaje": False,
+        # Aviso propio de una zona (ubigeo → función(anios, y, stats) → texto); va delante del de lag1
+        "avisos_zona": {"25": aviso_ucayali},
     },
     # Segunda fuente de lluvia, solo para «¿Coinciden dos fuentes de NASA?»: no va en el selector.
     "lluvia_imerg": {
@@ -142,7 +161,9 @@ def main():
 
         resumen = []
         for (fila, anios, y), st, q in zip(zonas, stats, qs):
-            clasificar(st, q, fila["celdas"], cfg.get("aviso"), cfg.get("sin_real", False))
+            propio = cfg.get("avisos_zona", {}).get(UBIGEO[fila["region"]])
+            aviso = " ".join(filter(None, [cfg.get("aviso"), propio and propio(anios, y, st)]))
+            clasificar(st, q, fila["celdas"], aviso or None, cfg.get("sin_real", False))
             zona = {"id": UBIGEO[fila["region"]], "nombre": fila["region"],
                     "lat": fila["lat"], "lon": fila["lon"], "celdas": fila["celdas"]}
             if "nota" in fila:
