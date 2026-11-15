@@ -56,39 +56,6 @@ y corregir los dos documentos.
 
 ---
 
-## 3. Promedio por departamento: Callao no tiene celdas POWER
-
-**Qué pasa.** El equipo decidió usar el **promedio del departamento** en vez del píxel de la capital (`docs/reglas-datos.md` §3b). El laboratorio 4 ya contó las celdas (`pipeline/exploracion/josue/resultados/lab4_celdas_departamento.csv`):
-
-| Departamento | Celdas IMERG (0,1°) | Celdas POWER (0,5° × 0,625°) |
-|---|---|---|
-| Callao | 1 | **0** |
-| Tumbes | 37 | 1 |
-| Lambayeque | 118 | 3 |
-| Loreto | 3054 | 97 |
-
-Con una máscara de "centro de celda dentro del polígono", **Callao no tiene temperatura** y Tumbes queda con un solo valor.
-
-Otro dato: la celda POWER que hoy representa "Lima" tiene una **altitud de 1195 m** (lo devuelve la propia API de POWER en `geometry.coordinates`). La celda mezcla costa y sierra, así que la `T2M` de "Lima" no es la de la ciudad.
-
-**Por qué importa.** Sin un plan, el pipeline de departamento o deja a Callao fuera (rompe las 25 zonas que la API y los tests asumen) o produce `NaN`.
-
-**Cómo.**
-
-- Usar **máscara fraccional**: `regionmask.Regions.mask_3D_frac_approx` (regionmask ≥ 0.12). Da la fracción de cada celda dentro del polígono; con eso, Callao recibe una parte de la celda que lo toca. El ponderado recomendado por la documentación de regionmask es fracción × `cos(lat)`:
-
-  ```python
-  frac = regiones.mask_3D_frac_approx(ds)               # region × lat × lon, valores 0..1
-  pesos = frac * np.cos(np.deg2rad(ds.lat))
-  por_depto = ds["precipitation"].weighted(pesos.fillna(0)).mean(("lat", "lon"))
-  ```
-
-  Precisión ≈ 5 % según la documentación: suficiente para promedios.
-- Si la fracción sigue siendo 0, usar la celda más cercana y añadir `"nota"` a la región (ya previsto en `reglas-datos.md` §4).
-- Para POWER, en vez de 97 llamadas de punto para Loreto, probar el endpoint **regional** de POWER (`/api/temporal/monthly/regional`), que devuelve una malla dentro de una caja. ⚠️ No verificado aquí: confirmar límites de tamaño de la caja.
-
----
-
 ## 4. `power.py` no reintenta
 
 **Qué pasa.** `gpm.py` tiene reintentos; `power.py` no. Son 25 llamadas seguidas a una API pública. Si una falla con un 503 pasajero, el script entero se cae.
@@ -128,24 +95,6 @@ Y quitar `-W ignore` del workflow para no ocultar otros avisos.
 
 ---
 
-## 6. Dependencias sin versión
-
-**Qué pasa.** `pipeline/requirements.txt` lista `numpy`, `pandas`, `earthaccess`, etc. **sin versión** y no hay *lockfile*. Cada `pip install` puede traer una versión mayor nueva (pandas 3, numpy 2.x, earthaccess con cambios de API).
-
-**Por qué importa.** El mismo script puede dar otro resultado, o fallar, en la máquina de cada persona y en el CI. Para un análisis de tendencias eso es un problema de reproducibilidad.
-
-**Cómo (opción moderna).** [`uv`](https://docs.astral.sh/uv/) con `pyproject.toml` + `uv.lock`:
-
-```bash
-uv init --bare --python 3.12
-uv add numpy pandas requests earthaccess python-dotenv xarray h5netcdf h5py
-uv run pipeline/power.py 2000 2025
-```
-
-En el workflow: `astral-sh/setup-uv` y `uv sync --locked`. Si se prefiere no cambiar de herramienta: `pip freeze > pipeline/requirements.txt` desde un entorno que funcione ya es mucho mejor que nada.
-
----
-
 ## 7. Se baja el planeta para leer 25 píxeles
 
 **Qué pasa.** Cada mes de IMERG es un archivo **global** de ~18 MB. Se descarga entero para leer 25 valores (o ≈ 9 000 celdas cuando se haga el promedio por departamento).
@@ -159,25 +108,10 @@ En el workflow: `astral-sh/setup-uv` y `uv sync --locked`. Si se prefiere no cam
 
 ---
 
-## 8. Validar rangos físicos, no solo tipos
-
-**Qué pasa.** `tests/e2e.sh` comprueba que hay 25 regiones y que todo es número. No detecta un error de unidad: olvidar el `× 24` de IMERG (mm/h → mm/día) produce números válidos pero 24 veces más chicos. `docs/guia-pipeline.md` §8 ya avisa de este error.
-
-**Cómo.** Una línea `jq` por archivo:
-
-```bash
-chk "gpm.json: lluvia entre 0 y 30 mm/día" \
-  jq -e '[.[].anios[].lluvia_mm_dia] | all(. >= 0 and . <= 30)' data/gpm.json
-chk "power.json: T2M entre -15 y 35 °C" \
-  jq -e '[.[].anios[].T2M] | all(. >= -15 and . <= 35)' data/power.json
-```
-
----
-
 ## 9. Menores
 
 | Punto | Por qué | Cómo |
 |---|---|---|
 | `inicio, fin = (sys.argv[1:3] + [...])[:2]` | Difícil de leer; acepta `"abc"` sin error claro | `argparse` con `type=int`, o dejarlo |
 | Lógica de escribir el JSON duplicada en los 2 scripts | `guia-pipeline.md` §7 ya propone `common.py` | Hacerlo **cuando llegue la 3.ª fuente**, no antes |
-| `pipeline/exploracion/` (≈ 480 KB de PNG/CSV, usa `geopandas` que no está en `requirements.txt`) | Mezcla exploración con producción | Aceptable en hackathon. Si crece, mover a otro repo o a un *release* |
+| `pipeline/exploracion/` (≈ 480 KB de PNG/CSV) | Mezcla exploración con producción | Aceptable en hackathon. Si crece, mover a otro repo o a un *release* |
