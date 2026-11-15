@@ -27,10 +27,12 @@ impl IntoResponse for ApiError {
             ApiError::VariableInvalida(v) => {
                 let msg = match v {
                     Some(v) => format!(
-                        "variable '{}' no existe; usa: lluvia | temperatura",
+                        "variable '{}' no existe; usa: lluvia | temperatura | lluvia_imerg",
                         corto(&v)
                     ),
-                    None => "falta ?variable=; usa: lluvia | temperatura".to_string(),
+                    None => {
+                        "falta ?variable=; usa: lluvia | temperatura | lluvia_imerg".to_string()
+                    }
                 };
                 (StatusCode::BAD_REQUEST, Json(json!({"error": msg}))).into_response()
             }

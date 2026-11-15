@@ -32,7 +32,7 @@ python pipeline/tendencias.py        # regenera data/variables.json y data/zonas
 ## Lo esencial de la arquitectura
 
 - `pipeline/` (Python) escribe `data/*.json`; `src/` (Rust) los sirve. Solo comparten esos JSON y la API **nunca calcula en vivo**.
-- `data/power.json`, `data/gpm.json`, `data/variables.json` y `data/zonas/{lluvia,temperatura}.json` se embeben con `include_str!` **al compilar**: cambiar datos exige recompilar. Un JSON inválido (p. ej. `NaN`) o que no cuadre entre archivos impide que la API arranque (`src/data.rs`): tras regenerar `power.json`/`gpm.json`, corre también `python pipeline/tendencias.py`.
+- `data/power.json`, `data/gpm.json`, `data/variables.json` y `data/zonas/{lluvia,temperatura,lluvia_imerg}.json` se embeben con `include_str!` **al compilar**: cambiar datos exige recompilar. Un JSON inválido (p. ej. `NaN`) o que no cuadre entre archivos impide que la API arranque (`src/data.rs`): tras regenerar `power.json`/`gpm.json`, corre también `python pipeline/tendencias.py`.
 - Endpoint nuevo = handler en `src/routes/` + modelo en `src/models/` + test en `tests/api.rs`.
 - Flujo: PR a `developer` (nunca directo a `main`), rama `tipo/descripcion`, `changelog/<rama>.md`, CI `e2e` en verde (regla de equipo: GitHub no lo bloquea).
 - Secretos solo en `.env` local (plantilla `.env.example`) o *secrets* de GitHub; nunca en el repo.

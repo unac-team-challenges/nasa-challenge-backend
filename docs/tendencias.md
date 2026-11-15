@@ -16,7 +16,8 @@ Dos JSON en `data/`, generados por `pipeline/` (la API nunca calcula en vivo). M
 
 | Variable del producto | Archivo | Campo | Unidad | Fuente | Periodo |
 |---|---|---|---|---|---|
-| **Lluvia** | `data/gpm.json` | `lluvia_mm_dia` | mm/día | GPM IMERG v07 (NASA, ~10 km) | **2001–2024** (IMERG v07 existe de 1998 a sep 2025: el 2025 nunca estará completo; ver `reglas-datos.md` §3b) |
+| **Lluvia** (`lluvia`) | `data/power.json` | `PRECTOTCORR` | mm/día | MERRA-2 vía NASA POWER | **2001–2024** (desde el 2026-11-15, opción C) |
+| **Lluvia por satélite** (`lluvia_imerg`, segunda fuente) | `data/gpm.json` | `lluvia_mm_dia` | mm/día | GPM IMERG v07 (NASA, ~10 km) | **2001–2024** (IMERG v07 existe de 1998 a sep 2025: el 2025 nunca estará completo; ver `reglas-datos.md` §3b) |
 | **Temperatura** | `data/power.json` | `T2M` (+ `T2M_MAX`, `T2M_MIN`) | °C | MERRA-2 vía POWER (~50 km) | **2001–2024** (mismo periodo que la lluvia; POWER llega a 1981 pero se decidió usar 2001) |
 | Lluvia POWER | `data/power.json` | `PRECTOTCORR` | mm/día | POWER | solo referencia, **no** va a la ficha |
 
@@ -132,8 +133,8 @@ Además llevan `year_start`, `year_end` (el periodo de la tendencia), `pct_chang
 - Temperatura de la primera versión = `T2M`.
 - **Periodo = 2001–2024 para las dos variables** (POWER y GPM). Si hace falta un periodo largo (1981) o lluvia de largo plazo (GPCP), es otra decisión y otra columna de salida.
 
-- **Semáforo (umbrales de Josue, Sebastian 14 nov):** `pocos_datos` si `n_years < 20` o `celdas < 4`; `real` solo con el criterio único de la sección 2b (`q_value < 0.05`, IC95 sin 0 y `|lag1| <= 0.5`); si no, `posible_casualidad`. **Lluvia (solo IMERG): nunca `real`**; con `q < 0.05` sale `posible_casualidad`, por el salto de 2014. `pct_change_per_decade` solo en lluvia.
-- **`aviso`** (texto): en todas las zonas de lluvia, por el cambio de constelación de IMERG en 2014 (TRMM → GPM: la tendencia puede estar sesgada a la baja); en cualquier zona si `|lag1| > 0.5`; y si la prueba es significativa pero el IC incluye 0 (sección 2b). Si hay varios, van en el mismo texto.
+- **Semáforo (umbrales de Josue, Sebastian 14 nov):** `pocos_datos` si `n_years < 20` o `celdas < 4`; `real` solo con el criterio único de la sección 2b (`q_value < 0.05`, IC95 sin 0 y `|lag1| <= 0.5`); si no, `posible_casualidad`. **`lluvia_imerg`: nunca `real`**; con `q < 0.05` sale `posible_casualidad`, por el salto de 2014. La lluvia principal (POWER) sigue el criterio normal. `pct_change_per_decade` en las dos lluvias.
+- **`aviso`** (texto): en todas las zonas de `lluvia_imerg`, por el cambio de constelación de IMERG en 2014 (TRMM → GPM: la tendencia puede estar sesgada a la baja); en cualquier zona si `|lag1| > 0.5`; y si la prueba es significativa pero el IC incluye 0 (sección 2b). Si hay varios, van en el mismo texto.
 - **Archivos:** uno por ruta: `data/variables.json`, `data/zonas/{variable}.json` (sin serie) y `data/zonas/{variable}/{id}.json` (serie + `stats`), generados por `pipeline/tendencias.py`.
 
 **Pendientes:**

@@ -1,0 +1,123 @@
+{
+ "id": "22",
+ "nombre": "San Martín",
+ "lat": -6.03,
+ "lon": -76.97,
+ "celdas": 420,
+ "variable": "lluvia_imerg",
+ "unidad": "mm/día",
+ "fuente": "GPM IMERG v07 (NASA)",
+ "serie": [
+  {
+   "anio": 2001,
+   "valor": 4.9549
+  },
+  {
+   "anio": 2002,
+   "valor": 4.2671
+  },
+  {
+   "anio": 2003,
+   "valor": 5.4487
+  },
+  {
+   "anio": 2004,
+   "valor": 4.4164
+  },
+  {
+   "anio": 2005,
+   "valor": 4.5837
+  },
+  {
+   "anio": 2006,
+   "valor": 4.5818
+  },
+  {
+   "anio": 2007,
+   "valor": 4.8822
+  },
+  {
+   "anio": 2008,
+   "valor": 5.0649
+  },
+  {
+   "anio": 2009,
+   "valor": 4.6353
+  },
+  {
+   "anio": 2010,
+   "valor": 4.3223
+  },
+  {
+   "anio": 2011,
+   "valor": 4.9543
+  },
+  {
+   "anio": 2012,
+   "valor": 4.7373
+  },
+  {
+   "anio": 2013,
+   "valor": 4.8909
+  },
+  {
+   "anio": 2014,
+   "valor": 5.0307
+  },
+  {
+   "anio": 2015,
+   "valor": 4.6081
+  },
+  {
+   "anio": 2016,
+   "valor": 4.1343
+  },
+  {
+   "anio": 2017,
+   "valor": 4.9469
+  },
+  {
+   "anio": 2018,
+   "valor": 4.5998
+  },
+  {
+   "anio": 2019,
+   "valor": 4.2783
+  },
+  {
+   "anio": 2020,
+   "valor": 3.1872
+  },
+  {
+   "anio": 2021,
+   "valor": 3.6288
+  },
+  {
+   "anio": 2022,
+   "valor": 3.6413
+  },
+  {
+   "anio": 2023,
+   "valor": 3.0992
+  },
+  {
+   "anio": 2024,
+   "valor": 3.1786
+  }
+ ],
+ "stats": {
+  "year_start": 2001,
+  "year_end": 2024,
+  "n_years": 24,
+  "slope_per_decade": -0.585006,
+  "intercept": 122.324258,
+  "ci_low": -0.9304,
+  "ci_high": -0.1568,
+  "p_value": 0.003097,
+  "lag1": 0.3082,
+  "pct_change_per_decade": -13.24,
+  "q_value": 0.01085,
+  "status": "posible_casualidad",
+  "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja, por eso no se marca como real."
+ }
+}

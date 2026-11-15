@@ -35,7 +35,7 @@ uv pip compile pipeline/requirements.txt --python-version 3.12 --python-platform
 |---|---|
 | `GET /health` | `{"status":"ok"}` |
 | `GET /regiones` | Lista de regiones con lat/lon |
-| `GET /api/variables` | Variables del producto (`lluvia`, `temperatura`) con unidad, fuente y rango de años (`data/variables.json`) |
+| `GET /api/variables` | Variables (`lluvia` y `temperatura` de NASA POWER; `lluvia_imerg`, segunda fuente para comparar) con unidad, fuente y rango de años (`data/variables.json`) |
 | `GET /api/zonas?variable=` | Las 25 zonas con ubigeo como texto (`"01"`–`"25"`), `celdas`, `nota?` y `stats` (tendencia y semáforo `status`), sin series. `variable` obligatoria (400 si falta o no existe) |
 | `GET /api/openapi.json` | Contrato OpenAPI (también en `openapi.json`; se regenera con `UPDATE_OPENAPI=1 cargo test openapi`) |
 | `GET /api/zonas/{id}?variable=` | Serie anual de la zona (`serie: [{anio, valor}]`) y su `stats` del mismo periodo (`aviso` siempre en lluvia); 404 si el ubigeo no existe |

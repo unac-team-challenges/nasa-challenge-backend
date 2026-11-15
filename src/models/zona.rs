@@ -36,7 +36,7 @@ pub struct Stats {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub pct_change_per_decade: Option<f64>,
     pub status: Status,
-    /// Cuidado al interpretar la tendencia: siempre en lluvia (IMERG 2014) y si `lag1 > 0.5`.
+    /// Cuidado al interpretar la tendencia: siempre en `lluvia_imerg` (salto de 2014) y si `lag1 > 0.5`.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub aviso: Option<String>,
 }

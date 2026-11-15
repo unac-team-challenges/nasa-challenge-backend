@@ -4,14 +4,21 @@ use utoipa::ToSchema;
 
 // El orden es el de `data/variables.json` y `TODAS`: `v as usize` es su índice en `Datos`.
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, ToSchema)]
-#[serde(rename_all = "lowercase")]
+#[serde(rename_all = "snake_case")]
 pub enum Variable {
+    /// Lluvia principal (NASA POWER).
     Lluvia,
     Temperatura,
+    /// Lluvia de IMERG: segunda fuente, para comparar con `lluvia`. No va en el selector.
+    LluviaImerg,
 }
 
 impl Variable {
-    pub const TODAS: [Variable; 2] = [Variable::Lluvia, Variable::Temperatura];
+    pub const TODAS: [Variable; 3] = [
+        Variable::Lluvia,
+        Variable::Temperatura,
+        Variable::LluviaImerg,
+    ];
 
     pub fn parse(s: &str) -> Option<Self> {
         Self::TODAS
@@ -22,6 +29,7 @@ impl Variable {
         match self {
             Variable::Lluvia => "lluvia",
             Variable::Temperatura => "temperatura",
+            Variable::LluviaImerg => "lluvia_imerg",
         }
     }
 }
