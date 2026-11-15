@@ -9,6 +9,7 @@ PR: base `developer`. Autor: Favio. Pendientes que dejó Leandro al mezclar el #
 - `data/cobertura_arboles.json` regenerado. La tendencia no cambia (Sen e IC iguales):
   - **La Pampa:** bosque de 729 → 464 a **724 → 462 km²** (−36 %);
   - **Iquitos:** 491 km², igual al tamaño de su recuadro.
+- **`bajar()`:** al empezar borra los `.part` que dejó una corrida anterior que murió sin limpiar (p. ej. `kill -9`).
 
 ## Otros
 - `tests/e2e.sh`: los checks de `cobertura.py` usan `$PY` (la `.venv` si existe), como los de `ndvi.py`.

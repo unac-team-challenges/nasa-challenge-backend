@@ -193,6 +193,8 @@ def bajar():
     r.raise_for_status()
     # Se baja todo a .part y solo al final se reemplazan los .nc: si la descarga se corta,
     # la copia buena anterior sigue ahí (repetir la solicitud a AppEEARS cuesta horas).
+    for viejo in CACHE.glob("*.part"):  # restos de una corrida que murió sin poder limpiar
+        viejo.unlink()
     nuevos = []
     parcial = None  # el .part que se está escribiendo (se limpia también si falla a medias)
     try:
@@ -208,8 +210,8 @@ def bajar():
                     for trozo in d.iter_content(1 << 20):
                         fh.write(trozo)
             nuevos.append((parcial, destino))
+            print(destino.name, f"{parcial.stat().st_size / 1e6:.1f} MB")
             parcial = None
-            print(destino.name, f"{nuevos[-1][0].stat().st_size / 1e6:.1f} MB")
     except BaseException:
         for p in [*(p for p, _ in nuevos), parcial]:
             if p is not None:
