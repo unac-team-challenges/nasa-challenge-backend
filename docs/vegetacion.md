@@ -62,3 +62,10 @@ Resultado del Lab 3 de Favio (MODIS MOD13A3, 2001–2024, 6 zonas exploradas) y 
 - La serie va como en `/api/zonas/{id}`: `serie: [{anio, ndvi_anual, area_verde_km2}]`, de menor a mayor año. `p_value` y `q_value` valen como mínimo `0.000001` (la ficha muestra «< 0,000001»).
 - Las fechas de los NetCDF de AppEEARS usan calendario juliano: hace falta `cftime` (ya está en `pipeline/requirements.txt` y en el lock).
 - Credencial: `ndvi.py` acepta `~/_netrc`, que es como lo guarda earthaccess en Windows. Ese pudo ser el `401`/«faltan credenciales» del 14-nov.
+
+## Malla de las 25 regiones (`pipeline/vegetacion_malla.py`)
+
+Además de los valles del Caso 2, el NDVI de MODIS se agrega a celdas de 0,25° en todo el Perú para pintar el mapa
+(`/api/celdas?variable=vegetacion`) y para la tendencia por departamento (`/api/zonas?variable=vegetacion`). Método y
+límites en [`datos.md`](datos.md#malla-de-vegetación). Los valles irrigados se diluyen en el promedio del departamento:
+el Caso 2 sigue usando sus recuadros (`/api/vegetacion`).

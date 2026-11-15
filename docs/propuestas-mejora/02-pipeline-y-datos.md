@@ -17,7 +17,7 @@ curl -s "https://cmr.earthdata.nasa.gov/search/collections.json?short_name=GPM_3
 **Por qué importa.**
 
 - 2025 **nunca** tendrá 12 meses en V07, así que `gpm.json` se queda en 2024 para siempre. La regla "el año nuevo entra en enero siguiente" (`docs/reglas-datos.md` §1) no se cumple para la lluvia.
-- El cron mensual (si llegara a correr, ver [03](03-ci-cd-y-repo.md#1-el-cron-de-datos-nunca-se-ejecuta)) bajaría **≈ 27 años × 12 meses × 18 MB ≈ 5,8 GB** cada mes para obtener exactamente el mismo resultado.
+- El cron mensual bajaría **≈ 27 años × 12 meses × 18 MB ≈ 5,8 GB** cada mes para obtener exactamente el mismo resultado.
 - Cuando salga una versión nueva (V08), **no se puede mezclar** con V07 en la misma serie: cambia el algoritmo y eso rompe una tendencia.
 
 **Cómo.**
@@ -53,45 +53,6 @@ python pipeline/gpm.py 1998 2024
 y corregir los dos documentos.
 
 > **Cuidado (por confirmar con Josue):** antes de 2014 IMERG se apoya en la constelación TRMM, que tiene otros sensores. Revisar las *release notes* de V07 por posibles saltos de homogeneidad antes de usar 1998–2013 para tendencias. Si hay duda, calcular la tendencia con y sin esos años y mostrar ambas.
-
----
-
-## 4. `power.py` no reintenta
-
-**Qué pasa.** `gpm.py` tiene reintentos; `power.py` no. Son 25 llamadas seguidas a una API pública. Si una falla con un 503 pasajero, el script entero se cae.
-
-**Cómo.** Sin dependencias nuevas, con el `Retry` de `urllib3` (ya viene con `requests`):
-
-```python
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
-
-sesion = requests.Session()
-sesion.mount("https://", HTTPAdapter(max_retries=Retry(
-    total=4, backoff_factor=2, status_forcelist=[429, 500, 502, 503, 504])))
-# y usar sesion.get(...) en anual()
-```
-
----
-
-## 5. Años descartados sin aviso
-
-**Qué pasa.** Los dos scripts descartan años incompletos (correcto), pero **no dicen cuáles**. En `gpm.py`, si la búsqueda devolviera 13 archivos (un duplicado), `len(valores) == 12` falla y el año desaparece en silencio para las 25 regiones.
-
-**Por qué importa.** Un año que falta cambia la pendiente de Sen y el `n_years`. Debe verse en el log del CI, no descubrirse en la demo.
-
-**Cómo.**
-
-```python
-if len(granulos) != 12:
-    print(f"AVISO {anio}: {len(granulos)} archivos (se esperaban 12)", file=sys.stderr)
-...
-faltan = [r for r in REGIONES if r not in promedios]
-if faltan:
-    print(f"AVISO {anio}: sin año completo en {faltan}", file=sys.stderr)
-```
-
-Y quitar `-W ignore` del workflow para no ocultar otros avisos.
 
 ---
 

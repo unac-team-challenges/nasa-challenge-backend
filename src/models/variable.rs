@@ -11,13 +11,16 @@ pub enum Variable {
     Temperatura,
     /// Lluvia de IMERG: segunda fuente, para comparar con `lluvia`. No va en el selector.
     LluviaImerg,
+    /// Vegetación: NDVI anual de MODIS, promedio de las celdas de 0,25° del departamento.
+    Vegetacion,
 }
 
 impl Variable {
-    pub const TODAS: [Variable; 3] = [
+    pub const TODAS: [Variable; 4] = [
         Variable::Lluvia,
         Variable::Temperatura,
         Variable::LluviaImerg,
+        Variable::Vegetacion,
     ];
 
     pub fn parse(s: &str) -> Option<Self> {
@@ -32,6 +35,7 @@ impl Variable {
             Variable::Lluvia => "lluvia",
             Variable::Temperatura => "temperatura",
             Variable::LluviaImerg => "lluvia_imerg",
+            Variable::Vegetacion => "vegetacion",
         }
     }
 }

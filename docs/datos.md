@@ -104,3 +104,44 @@ Ucayali sube **0,77 °C/década** (2001–2024, Theil-Sen sobre `power.json`), e
 dos últimos años, cuánto baja sin ellos (0,77 → 0,58) y que estos datos no separan calentamiento real, calor extremo y un
 cambio del reanálisis. Los números salen de la serie, así que el texto se actualiza solo al regenerar. Va delante del aviso
 de lag1 si algún día aplica. Los demás departamentos no cambian.
+
+## Malla de lluvia
+
+`pipeline/power.py` escribe también `data/celdas/lluvia.json`: la `PRECTOTCORR` de cada celda de POWER (las mismas
+344 celdas que la temperatura), como **media diaria del año × 365 = mm/año**, en enteros, con el campo `valor`
+(la temperatura conserva `t2m` para no romper el contrato). La sirve `GET /api/celdas?variable=lluvia`. Coincide
+celda por celda con la copia del frontend (`nasa-challenge-frontend/src/data/celdas_lluvia.json`): 0 diferencias.
+
+**La unidad la manda cada respuesta.** `/api/variables` y `/api/zonas` dan la lluvia en **mm/día** (promedio diario,
+como POWER e IMERG); `/api/celdas?variable=lluvia` la da en **mm/año**, que se lee mejor en un mapa. No se unificó para
+no romper el contrato de las tendencias. Cada respuesta de `/api/celdas` trae su campo `unidad`: el frontend lee la
+unidad de la malla de ahí, nunca de `/api/variables`.
+
+Solo las mallas, sin tocar `power.json` (8 llamadas a POWER): `python pipeline/power.py celdas`.
+
+## Malla de vegetación
+
+`pipeline/vegetacion_malla.py` escribe `data/celdas/vegetacion.json` (NDVI anual por celda, `GET /api/celdas?variable=vegetacion`)
+y `data/ndvi_departamentos.json` (NDVI anual por departamento, fuente de `zonas/vegetacion.json`, que escribe
+`pipeline/tendencias.py`).
+
+- **Fuente:** MODIS MOD13A3 v061 (NASA LP DAAC), NDVI mensual a 1 km, pedido a AppEEARS (el mismo producto del Caso 2,
+  `pipeline/ndvi.py`). Se pide en 4 solicitudes de 6 años sobre el recuadro del Perú (−81,5, −18,5, −68,5, 0,1).
+- **Método, por píxel de 1 km:** un mes vale si `pixel_reliability` es 0 o 1 (quita nubes, nieve y agua, como `ndvi.py`);
+  el NDVI del año es la media de sus meses válidos si tiene **al menos 6**. La celda de 0,25° (~27 km) es la media de sus
+  píxeles con año válido, si son al menos la mitad de los que alguna vez tienen dato (el mar no cuenta); si no, `null`.
+- **Por qué 6 meses y no 12:** en la selva y los Andes casi siempre hay nubes en algún mes; con 12 de 12 por píxel la selva
+  quedaría vacía. Va escrito en la `nota` del archivo.
+- **Departamento:** media de sus celdas (centro dentro del polígono, como `celdas_json()` de `power.py`), solo los años en
+  que al menos la mitad de sus celdas tiene dato. Sin celdas propias se usa la más cercana a la capital, con `nota`.
+- **Límite conocido:** en la selva el NDVI se satura (~0,8–0,9): muestra dónde hay vegetación, no cuánto bosque se pierde
+  (para eso, `/api/cobertura-arboles`). `zonas/vegetacion.json` lleva un `aviso` cuando el NDVI medio del departamento es
+  0,75 o más (`aviso_saturado` en `tendencias.py`).
+- **Validación al arrancar** (`Datos::validar_celdas`): no vacía, dentro de Perú, años dentro de `variables.json`,
+  unidad `NDVI`, solo el campo `valor`, valores en −0,2..1 y ninguna celda con todo `null`. Los límites van por variable:
+  −40..50 °C (temperatura), 0..12 000 mm/año (lluvia).
+- **Refresco:** a mano, una vez al año: `enviar` → `estado` → `bajar` → `calcular` y luego `python pipeline/tendencias.py`.
+  Si falta algún bloque, `calcular` lo avisa y la malla llega hasta el último año leído (nunca se inventan años).
+- **Serie corta = `pocos_datos` con `nota`:** con menos de 20 años no se mide tendencia; cada departamento lleva una
+  `nota` con los años que tiene («Serie de solo 12 años (2001–2012)…»), para no confundirlo con «pocas celdas».
+  `tests/e2e.sh` exige que `variables.json` y `zonas/vegetacion.json` acaben en el mismo año que la malla.

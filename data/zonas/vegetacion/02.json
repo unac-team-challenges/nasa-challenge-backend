@@ -1,0 +1,74 @@
+{
+ "id": "02",
+ "nombre": "Áncash",
+ "lat": -9.53,
+ "lon": -77.53,
+ "celdas": 47,
+ "nota": "Serie de solo 12 años (2001–2012): hacen falta 20 para medir una tendencia",
+ "variable": "vegetacion",
+ "unidad": "NDVI",
+ "fuente": "MODIS MOD13A3 v061 (NDVI) vía AppEEARS",
+ "serie": [
+  {
+   "anio": 2001,
+   "valor": 0.3432
+  },
+  {
+   "anio": 2002,
+   "valor": 0.3482
+  },
+  {
+   "anio": 2003,
+   "valor": 0.3226
+  },
+  {
+   "anio": 2004,
+   "valor": 0.3163
+  },
+  {
+   "anio": 2005,
+   "valor": 0.3032
+  },
+  {
+   "anio": 2006,
+   "valor": 0.331
+  },
+  {
+   "anio": 2007,
+   "valor": 0.3322
+  },
+  {
+   "anio": 2008,
+   "valor": 0.3476
+  },
+  {
+   "anio": 2009,
+   "valor": 0.3567
+  },
+  {
+   "anio": 2010,
+   "valor": 0.3289
+  },
+  {
+   "anio": 2011,
+   "valor": 0.3289
+  },
+  {
+   "anio": 2012,
+   "valor": 0.3458
+  }
+ ],
+ "stats": {
+  "year_start": 2001,
+  "year_end": 2012,
+  "n_years": 12,
+  "slope_per_decade": 0.008438,
+  "intercept": -1.361384,
+  "ci_low": -0.0214,
+  "ci_high": 0.05,
+  "p_value": 0.212912,
+  "lag1": 0.3352,
+  "q_value": 0.53228,
+  "status": "pocos_datos"
+ }
+}

@@ -1,0 +1,75 @@
+{
+ "id": "16",
+ "nombre": "Loreto",
+ "lat": -3.75,
+ "lon": -73.25,
+ "celdas": 490,
+ "nota": "Serie de solo 12 años (2001–2012): hacen falta 20 para medir una tendencia",
+ "variable": "vegetacion",
+ "unidad": "NDVI",
+ "fuente": "MODIS MOD13A3 v061 (NDVI) vía AppEEARS",
+ "serie": [
+  {
+   "anio": 2001,
+   "valor": 0.832
+  },
+  {
+   "anio": 2002,
+   "valor": 0.8347
+  },
+  {
+   "anio": 2003,
+   "valor": 0.831
+  },
+  {
+   "anio": 2004,
+   "valor": 0.83
+  },
+  {
+   "anio": 2005,
+   "valor": 0.8329
+  },
+  {
+   "anio": 2006,
+   "valor": 0.83
+  },
+  {
+   "anio": 2007,
+   "valor": 0.8298
+  },
+  {
+   "anio": 2008,
+   "valor": 0.8258
+  },
+  {
+   "anio": 2009,
+   "valor": 0.8285
+  },
+  {
+   "anio": 2010,
+   "valor": 0.8312
+  },
+  {
+   "anio": 2011,
+   "valor": 0.8343
+  },
+  {
+   "anio": 2012,
+   "valor": 0.8324
+  }
+ ],
+ "stats": {
+  "year_start": 2001,
+  "year_end": 2012,
+  "n_years": 12,
+  "slope_per_decade": -0.001444,
+  "intercept": 1.120928,
+  "ci_low": -0.0065,
+  "ci_high": 0.004,
+  "p_value": 0.755497,
+  "lag1": 0.3462,
+  "q_value": 0.952467,
+  "status": "pocos_datos",
+  "aviso": "El NDVI de este departamento ronda 0,83, casi saturado: en la selva apenas cambia aunque se pierda bosque. Para el bosque, mira la cobertura de árboles."
+ }
+}
