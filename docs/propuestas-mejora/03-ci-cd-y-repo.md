@@ -4,30 +4,13 @@
 
 ---
 
-## 2. El bot sube datos sin validarlos
+## 2. El PR del bot no dispara el CI
 
-**Qué pasa.** El job hace `git push` directo a `developer` usando el `GITHUB_TOKEN`. GitHub **no dispara otros workflows** con eventos creados por ese token (lo hace a propósito para evitar bucles). Resultado: el commit de datos **no pasa por `e2e`**.
+**Qué pasa.** `actualizar-datos.yml` corre `bash tests/e2e.sh` en el mismo job y abre un PR a `developer`; ya no hace `git push` directo. Pero GitHub **no dispara otros workflows** con eventos creados por `GITHUB_TOKEN` (a propósito, para evitar bucles), así que el PR del bot no pasa por el `e2e` del CI.
 
-**Por qué importa.** Choca con dos reglas del propio repo: "PR a `developer`" y "nadie mezcla con `e2e` en rojo". Si un día POWER devuelve algo raro, `data/*.json` cambia sin revisión y la API puede no arrancar en el siguiente despliegue.
+**Por qué importa.** El `e2e` del job ya cubre lo esencial, pero el PR no queda con el check requerido y una persona tiene que revisar el diff de `data/` antes de mezclar.
 
-**Cómo (lo mínimo).** Correr el `e2e` **en el mismo job, antes de hacer commit**:
-
-```yaml
-jobs:
-  datos:
-    runs-on: ubuntu-latest
-    timeout-minutes: 90          # hoy hereda 360 min
-    concurrency: actualizar-datos
-    steps:
-      # ...checkout, python, pipeline...
-      - uses: Swatinem/rust-cache@v2
-      - run: bash tests/e2e.sh   # si falla, no hay commit
-      - name: Commit si cambió
-        run: |
-          # igual que hoy
-```
-
-**Cómo (mejor).** En vez de `git push`, abrir un PR con `gh pr create --base developer`. Así una persona ve el diff de datos antes de mezclar. Como ese PR tampoco dispara CI (mismo token), el `e2e` del paso anterior sigue siendo necesario. Si se quiere que el PR sí dispare CI, hace falta un token de GitHub App o un PAT guardado como *secret*.
+**Cómo (si se quiere que el PR sí dispare CI).** Usar un token de GitHub App o un PAT guardado como *secret* en vez de `GITHUB_TOKEN`.
 
 ---
 
@@ -49,4 +32,4 @@ jobs:
 - Seguir con la regla de equipo (lo actual). Es razonable durante el hackathon.
 - Al terminar el evento, **hacer público el repo**: en repos públicos la protección de ramas y el *required check* `e2e` son gratis. Antes, revisar que no haya secretos en el historial (no se encontró ninguno en esta revisión).
 
-**Además:** activar **"Automatically delete head branches"** (hoy `delete_branch_on_merge: false`; hay 20 ramas remotas, casi todas ya mezcladas). Ayuda también con el punto 6.
+**Además:** activar **"Automatically delete head branches"** (hoy `delete_branch_on_merge: false`; hay 20 ramas remotas, casi todas ya mezcladas).
