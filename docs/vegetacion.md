@@ -32,7 +32,7 @@ Resultado del Lab 3 de Favio (MODIS MOD13A3, 2001–2024, 6 zonas exploradas) y 
 ## La variable en el pipeline (`pipeline/ndvi.py` → `data/ndvi.json`)
 
 - **Zonas:** Chavimochic (ubigeo 13) e Ica-Villacurí (11), con las mismas cajas del Lab 3, y Olmos (14), con la caja nueva y su aviso.
-- **Unidad geográfica:** recuadro de 0,25° × 0,25° (~27 × 27 km) sobre el valle, **no** el promedio del departamento. Va escrito en cada zona (`unidad_geografica`) y la ficha debe mostrarlo.
+- **Unidad geográfica:** recuadro de 0,25° × 0,25° (~27 × 27 km) sobre el valle (Chavimochic e Ica), **no** el promedio del departamento. Va escrito en cada zona (`unidad_geografica`) y la ficha debe mostrarlo. En Olmos dice que la caja cae sobre las tierras nuevas y mezcla riego y bosque seco (`tipo`: «riego nuevo y bosque seco»), lo mismo que su aviso.
 - **Campos por año:** `ndvi_anual` (0–1) y `area_verde_km2` (píxeles con NDVI medio del año > 0,3; el promedio del píxel usa sus meses con dato confiable, como en el Lab 3). La tendencia (`stats`, con `tendencia_de: "ndvi_anual"`) se calcula sobre `ndvi_anual`; `area_verde_km2` es para el antes y después del Caso 2.
 - **Años:** 2001–2024, solo con los 12 meses distintos válidos (un mes vale si al menos el 50 % de los píxeles tiene dato confiable).
 - **Tendencia:** el mismo método que la temperatura: `estadisticas()`, Benjamini-Hochberg entre las zonas del archivo (más las pruebas descartadas) y `clasificar()` de `pipeline/tendencias.py` (`scipy`, `pymannkendall` y el criterio único de [`tendencias.md`](tendencias.md) §2b, con mínimo de 20 años).

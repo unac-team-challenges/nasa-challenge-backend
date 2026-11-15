@@ -688,7 +688,7 @@
           },
           "tipo": {
             "type": "string",
-            "description": "P. ej. \"valle irrigado\"."
+            "description": "P. ej. \"valle irrigado\" o, en Olmos, \"riego nuevo y bosque seco\"."
           },
           "ubigeo": {
             "type": "string",
