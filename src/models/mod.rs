@@ -1,6 +1,7 @@
 pub mod gpm;
 pub mod power;
 pub mod variable;
+pub mod vegetacion;
 pub mod zona;
 
 use serde::{Deserialize, Serialize};

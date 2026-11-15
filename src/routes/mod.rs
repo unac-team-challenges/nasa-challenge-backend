@@ -52,5 +52,6 @@ pub fn router() -> Router<Estado> {
         .route("/api/variables", get(api::variables))
         .route("/api/zonas", get(api::zonas))
         .route("/api/zonas/{id}", get(api::zona))
+        .route("/api/vegetacion", get(api::vegetacion))
         .fallback(no_existe)
 }

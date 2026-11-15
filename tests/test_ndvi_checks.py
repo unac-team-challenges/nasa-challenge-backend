@@ -29,10 +29,10 @@ def ejemplo():
 
 
 ROTURAS = {
-    "null en la serie": lambda f: f[0]["anios"]["2005"].update(ndvi_anual=None),
+    "null en la serie": lambda f: f[0]["serie"][4].update(ndvi_anual=None),
     "NaN en stats": lambda f: f[0]["stats"].update(q_value=float("nan")),
-    "NDVI fuera de [-1, 1]": lambda f: f[0]["anios"]["2005"].update(ndvi_anual=1.4),
-    "año fuera de 2001–2024": lambda f: f[0]["anios"].update({"2025": dict(f[0]["anios"]["2024"])}),
+    "NDVI fuera de [-1, 1]": lambda f: f[0]["serie"][4].update(ndvi_anual=1.4),
+    "año fuera de 2001–2024": lambda f: f[0]["serie"].append({**f[0]["serie"][-1], "anio": 2025}),
     "status inválido": lambda f: f[0]["stats"].update(status="tal_vez"),
     "'real' que no cumple el criterio": lambda f: f[1]["stats"].update(status="real", q_value=0.2),
     "sin unidad geográfica explícita": lambda f: f[0].update(unidad_geografica="departamento"),

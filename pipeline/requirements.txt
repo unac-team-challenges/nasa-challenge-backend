@@ -12,3 +12,4 @@ regionmask==0.13.0
 scipy==1.18.1
 pymannkendall==1.4.3
 statsmodels==0.15.0
+cftime==1.6.6.1  # fechas de AppEEARS (calendario juliano) en pipeline/ndvi.py

@@ -1,0 +1,312 @@
+[
+ {
+  "id": "chavimochic",
+  "nombre": "Chavimochic (Virú-Chao)",
+  "departamento": "La Libertad",
+  "ubigeo": "13",
+  "tipo": "valle irrigado",
+  "unidad_geografica": "recuadro de 0,25° × 0,25° (~27 × 27 km) sobre el valle irrigado; no es el promedio del departamento",
+  "bbox": [
+   -78.85,
+   -8.6,
+   -78.6,
+   -8.35
+  ],
+  "lat": -8.475,
+  "lon": -78.725,
+  "pixeles": 847,
+  "fuente": "MODIS MOD13A3 v061 (NASA LP DAAC) vía AppEEARS",
+  "umbral_verde_ndvi": 0.3,
+  "tendencia_de": "ndvi_anual",
+  "serie": [
+   {
+    "anio": 2001,
+    "ndvi_anual": 0.1906,
+    "area_verde_km2": 188.9
+   },
+   {
+    "anio": 2002,
+    "ndvi_anual": 0.2031,
+    "area_verde_km2": 203.5
+   },
+   {
+    "anio": 2003,
+    "ndvi_anual": 0.1918,
+    "area_verde_km2": 200.1
+   },
+   {
+    "anio": 2004,
+    "ndvi_anual": 0.1937,
+    "area_verde_km2": 206.1
+   },
+   {
+    "anio": 2005,
+    "ndvi_anual": 0.2003,
+    "area_verde_km2": 216.4
+   },
+   {
+    "anio": 2006,
+    "ndvi_anual": 0.2145,
+    "area_verde_km2": 236.1
+   },
+   {
+    "anio": 2007,
+    "ndvi_anual": 0.2179,
+    "area_verde_km2": 242.1
+   },
+   {
+    "anio": 2008,
+    "ndvi_anual": 0.2363,
+    "area_verde_km2": 261.0
+   },
+   {
+    "anio": 2009,
+    "ndvi_anual": 0.2352,
+    "area_verde_km2": 253.3
+   },
+   {
+    "anio": 2010,
+    "ndvi_anual": 0.2394,
+    "area_verde_km2": 252.4
+   },
+   {
+    "anio": 2011,
+    "ndvi_anual": 0.2468,
+    "area_verde_km2": 280.8
+   },
+   {
+    "anio": 2012,
+    "ndvi_anual": 0.259,
+    "area_verde_km2": 287.6
+   },
+   {
+    "anio": 2013,
+    "ndvi_anual": 0.264,
+    "area_verde_km2": 296.2
+   },
+   {
+    "anio": 2014,
+    "ndvi_anual": 0.2664,
+    "area_verde_km2": 300.5
+   },
+   {
+    "anio": 2015,
+    "ndvi_anual": 0.2788,
+    "area_verde_km2": 312.5
+   },
+   {
+    "anio": 2016,
+    "ndvi_anual": 0.2679,
+    "area_verde_km2": 300.5
+   },
+   {
+    "anio": 2017,
+    "ndvi_anual": 0.2885,
+    "area_verde_km2": 328.8
+   },
+   {
+    "anio": 2018,
+    "ndvi_anual": 0.2722,
+    "area_verde_km2": 300.5
+   },
+   {
+    "anio": 2019,
+    "ndvi_anual": 0.2763,
+    "area_verde_km2": 316.8
+   },
+   {
+    "anio": 2020,
+    "ndvi_anual": 0.276,
+    "area_verde_km2": 322.8
+   },
+   {
+    "anio": 2021,
+    "ndvi_anual": 0.2941,
+    "area_verde_km2": 341.7
+   },
+   {
+    "anio": 2022,
+    "ndvi_anual": 0.288,
+    "area_verde_km2": 337.4
+   },
+   {
+    "anio": 2023,
+    "ndvi_anual": 0.316,
+    "area_verde_km2": 370.1
+   },
+   {
+    "anio": 2024,
+    "ndvi_anual": 0.3104,
+    "area_verde_km2": 355.5
+   }
+  ],
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2024,
+   "n_years": 24,
+   "slope_per_decade": 0.0535,
+   "intercept": -10.505375,
+   "ci_low": 0.0467,
+   "ci_high": 0.0612,
+   "p_value": 1e-06,
+   "lag1": 0.2776,
+   "q_value": 1e-06,
+   "status": "real"
+  }
+ },
+ {
+  "id": "ica-villacuri",
+  "nombre": "Ica (valle y Villacurí)",
+  "departamento": "Ica",
+  "ubigeo": "11",
+  "tipo": "valle irrigado",
+  "unidad_geografica": "recuadro de 0,25° × 0,25° (~27 × 27 km) sobre el valle irrigado; no es el promedio del departamento",
+  "bbox": [
+   -75.9,
+   -14.15,
+   -75.65,
+   -13.9
+  ],
+  "lat": -14.025,
+  "lon": -75.775,
+  "pixeles": 900,
+  "fuente": "MODIS MOD13A3 v061 (NASA LP DAAC) vía AppEEARS",
+  "umbral_verde_ndvi": 0.3,
+  "tendencia_de": "ndvi_anual",
+  "serie": [
+   {
+    "anio": 2001,
+    "ndvi_anual": 0.1403,
+    "area_verde_km2": 117.6
+   },
+   {
+    "anio": 2002,
+    "ndvi_anual": 0.1451,
+    "area_verde_km2": 124.5
+   },
+   {
+    "anio": 2003,
+    "ndvi_anual": 0.1457,
+    "area_verde_km2": 125.4
+   },
+   {
+    "anio": 2004,
+    "ndvi_anual": 0.1473,
+    "area_verde_km2": 134.8
+   },
+   {
+    "anio": 2005,
+    "ndvi_anual": 0.1493,
+    "area_verde_km2": 138.2
+   },
+   {
+    "anio": 2006,
+    "ndvi_anual": 0.1587,
+    "area_verde_km2": 154.5
+   },
+   {
+    "anio": 2007,
+    "ndvi_anual": 0.1562,
+    "area_verde_km2": 148.5
+   },
+   {
+    "anio": 2008,
+    "ndvi_anual": 0.1664,
+    "area_verde_km2": 166.6
+   },
+   {
+    "anio": 2009,
+    "ndvi_anual": 0.1634,
+    "area_verde_km2": 160.6
+   },
+   {
+    "anio": 2010,
+    "ndvi_anual": 0.1634,
+    "area_verde_km2": 153.7
+   },
+   {
+    "anio": 2011,
+    "ndvi_anual": 0.1737,
+    "area_verde_km2": 187.2
+   },
+   {
+    "anio": 2012,
+    "ndvi_anual": 0.1781,
+    "area_verde_km2": 192.3
+   },
+   {
+    "anio": 2013,
+    "ndvi_anual": 0.1742,
+    "area_verde_km2": 176.0
+   },
+   {
+    "anio": 2014,
+    "ndvi_anual": 0.1757,
+    "area_verde_km2": 180.3
+   },
+   {
+    "anio": 2015,
+    "ndvi_anual": 0.1806,
+    "area_verde_km2": 189.7
+   },
+   {
+    "anio": 2016,
+    "ndvi_anual": 0.1777,
+    "area_verde_km2": 181.2
+   },
+   {
+    "anio": 2017,
+    "ndvi_anual": 0.1887,
+    "area_verde_km2": 206.1
+   },
+   {
+    "anio": 2018,
+    "ndvi_anual": 0.1898,
+    "area_verde_km2": 214.6
+   },
+   {
+    "anio": 2019,
+    "ndvi_anual": 0.1898,
+    "area_verde_km2": 210.4
+   },
+   {
+    "anio": 2020,
+    "ndvi_anual": 0.1936,
+    "area_verde_km2": 212.1
+   },
+   {
+    "anio": 2021,
+    "ndvi_anual": 0.198,
+    "area_verde_km2": 225.8
+   },
+   {
+    "anio": 2022,
+    "ndvi_anual": 0.1928,
+    "area_verde_km2": 216.4
+   },
+   {
+    "anio": 2023,
+    "ndvi_anual": 0.2046,
+    "area_verde_km2": 236.1
+   },
+   {
+    "anio": 2024,
+    "ndvi_anual": 0.198,
+    "area_verde_km2": 221.5
+   }
+  ],
+  "stats": {
+   "year_start": 2001,
+   "year_end": 2024,
+   "n_years": 24,
+   "slope_per_decade": 0.027252,
+   "intercept": -5.309464,
+   "ci_low": 0.0247,
+   "ci_high": 0.0294,
+   "p_value": 1e-06,
+   "lag1": -0.2422,
+   "q_value": 1e-06,
+   "status": "real"
+  }
+ }
+]

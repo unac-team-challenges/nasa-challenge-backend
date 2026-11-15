@@ -39,6 +39,7 @@ uv pip compile pipeline/requirements.txt --python-version 3.12 --python-platform
 | `GET /api/zonas?variable=` | Las 25 zonas con ubigeo como texto (`"01"`–`"25"`), `celdas`, `nota?` y `stats` (tendencia y semáforo `status`), sin series. `variable` obligatoria (400 si falta o no existe) |
 | `GET /api/openapi.json` | Contrato OpenAPI (también en `openapi.json`; se regenera con `UPDATE_OPENAPI=1 cargo test openapi`) |
 | `GET /api/zonas/{id}?variable=` | Serie anual de la zona (`serie: [{anio, valor}]`) y su `stats` del mismo periodo (`aviso` siempre en lluvia); 404 si el ubigeo no existe |
+| `GET /api/vegetacion` | Vegetación del Caso 2 (`data/ndvi.json`, MODIS MOD13A3): Chavimochic e Ica-Villacurí, cada una con `unidad_geografica` (recuadro sobre el valle, **no** el departamento), `serie: [{anio, ndvi_anual, area_verde_km2}]` y `stats` con su `status` |
 | `GET /gpm/{region}` | Lluvia anual GPM IMERG de la región (`lluvia_mm_dia` por año; mismas reglas de búsqueda y 404 que `/power`) |
 | `GET /power/{region}` | Promedios anuales de la región (404 JSON si no existe; ignora mayúsculas y tildes: `/power/ancash`) |
 
