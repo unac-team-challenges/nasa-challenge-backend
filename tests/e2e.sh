@@ -48,8 +48,8 @@ if [ -f data/ndvi.json ]; then
 else
   echo "aviso data/ndvi.json no existe todavía: falta generarlo (python pipeline/ndvi.py enviar|bajar|calcular)"
 fi
-chk "pipeline/cobertura.py compila" python3 -m py_compile pipeline/cobertura.py
-chk "cobertura: autoprueba (años válidos, BH, criterio único, sin NaN)" python3 pipeline/cobertura.py autoprueba
+chk "pipeline/cobertura.py compila" "$PY" -m py_compile pipeline/cobertura.py
+chk "cobertura: autoprueba (años válidos, BH, criterio único, sin NaN, área)" "$PY" pipeline/cobertura.py autoprueba
 bash tests/checks_cobertura.sh data/cobertura_arboles.json || fallos=1
 
 echo "== tests de integración (cargo test)"

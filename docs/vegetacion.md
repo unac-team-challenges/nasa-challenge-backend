@@ -43,11 +43,11 @@ Resultado del Lab 3 de Favio (MODIS MOD13A3, 2001–2024, 6 zonas exploradas) y 
 
 | Zona | Árboles 2001 → 2024 | Bosque 2001 → 2024 | Tendencia |
 |---|---|---|---|
-| **La Pampa** (Madre de Dios, minería de oro) | 74,1 % → 45,9 % | 729 → 464 km² (−36 %) | −15,3 puntos por década, IC [−17,5; −12,5], q < 0,001, pero **lag1 = 0,58**: queda `posible_casualidad` con aviso |
-| **Selva cerca de Iquitos** (contraste) | 76,7 % → 79,7 % | casi todo el recuadro (494 de 494 km²) | +1,3 puntos por década, p = 0,064, IC [−0,2; +2,9]: **no distinguible de 0**, `posible_casualidad` |
+| **La Pampa** (Madre de Dios, minería de oro) | 74,1 % → 45,9 % | 724 → 462 km² (−36 %) | −15,3 puntos por década, IC [−17,5; −12,5], q < 0,001, pero **lag1 = 0,58**: queda `posible_casualidad` con aviso |
+| **Selva cerca de Iquitos** (contraste) | 76,7 % → 79,7 % | casi todo el recuadro (491 de 491 km²) | +1,3 puntos por década, p = 0,064, IC [−0,2; +2,9]: **no distinguible de 0**, `posible_casualidad` |
 
 - **Recuadros:** La Pampa se centró en el poblado (OpenStreetMap: −12,962, −70,001), el foco de minería 2014–2018 que reporta MAAP. Iquitos es el mismo recuadro del Lab 3.
-- **Área:** el ráster de AppEEARS está en grados, así que el área de cada píxel se calcula por fila de latitud (× cos(lat)). Un año con huecos extrapola el bosque a toda la tierra según la fracción con dato, para no meter escalones falsos en la serie de km².
+- **Área:** el ráster de AppEEARS está en grados, así que el área de cada píxel se calcula por fila de latitud, con el largo real de un grado de latitud y de longitud en el elipsoide WGS84 (`km_por_grado`). Un año con huecos extrapola el bosque a toda la tierra según la fracción con dato, para no meter escalones falsos en la serie de km².
 - **Iquitos no sirve como contraste de área:** casi todo su recuadro supera el 30 % de árboles en todos los años, así que el área queda en el tope. El contraste es la tendencia: La Pampa baja con claridad e Iquitos no muestra un cambio distinguible de 0.
 - **Ojo con La Pampa:** la caída es clara y empieza hacia 2010, con la Interoceánica y la minería. Pero no es lineal: estable hasta 2009 y luego baja fuerte. Por eso los residuos quedan autocorrelacionados (lag1 0,58) y el criterio único la deja en `posible_casualidad`. No se cambió el umbral; si el equipo quiere tratar los quiebres de otra forma (por ejemplo, desde 2009), es una decisión de `tendencias.md`.
 
