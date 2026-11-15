@@ -1,0 +1,123 @@
+{
+ "id": "10",
+ "nombre": "Huánuco",
+ "lat": -9.93,
+ "lon": -76.24,
+ "celdas": 306,
+ "variable": "lluvia_imerg",
+ "unidad": "mm/día",
+ "fuente": "GPM IMERG v07 (NASA)",
+ "serie": [
+  {
+   "anio": 2001,
+   "valor": 5.3715
+  },
+  {
+   "anio": 2002,
+   "valor": 5.8881
+  },
+  {
+   "anio": 2003,
+   "valor": 5.5588
+  },
+  {
+   "anio": 2004,
+   "valor": 4.9225
+  },
+  {
+   "anio": 2005,
+   "valor": 4.8335
+  },
+  {
+   "anio": 2006,
+   "valor": 5.6394
+  },
+  {
+   "anio": 2007,
+   "valor": 4.2262
+  },
+  {
+   "anio": 2008,
+   "valor": 5.0678
+  },
+  {
+   "anio": 2009,
+   "valor": 4.7095
+  },
+  {
+   "anio": 2010,
+   "valor": 4.2938
+  },
+  {
+   "anio": 2011,
+   "valor": 5.3211
+  },
+  {
+   "anio": 2012,
+   "valor": 4.4071
+  },
+  {
+   "anio": 2013,
+   "valor": 4.8166
+  },
+  {
+   "anio": 2014,
+   "valor": 5.4314
+  },
+  {
+   "anio": 2015,
+   "valor": 4.8794
+  },
+  {
+   "anio": 2016,
+   "valor": 5.0131
+  },
+  {
+   "anio": 2017,
+   "valor": 6.5643
+  },
+  {
+   "anio": 2018,
+   "valor": 5.839
+  },
+  {
+   "anio": 2019,
+   "valor": 4.3081
+  },
+  {
+   "anio": 2020,
+   "valor": 3.1366
+  },
+  {
+   "anio": 2021,
+   "valor": 3.1497
+  },
+  {
+   "anio": 2022,
+   "valor": 3.3544
+  },
+  {
+   "anio": 2023,
+   "valor": 3.0905
+  },
+  {
+   "anio": 2024,
+   "valor": 3.1177
+  }
+ ],
+ "stats": {
+  "year_start": 2001,
+  "year_end": 2024,
+  "n_years": 24,
+  "slope_per_decade": -0.883364,
+  "intercept": 182.633382,
+  "ci_low": -1.2663,
+  "ci_high": -0.2691,
+  "p_value": 0.001273,
+  "lag1": 0.5015,
+  "pct_change_per_decade": -18.77,
+  "q_value": 0.01085,
+  "status": "posible_casualidad",
+  "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja, por eso no se marca como real. Años muy parecidos entre sí (lag1 alto): la tendencia puede parecer más segura de lo que es"
+ }
+}

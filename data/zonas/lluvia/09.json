@@ -3,121 +3,120 @@
  "nombre": "Huancavelica",
  "lat": -12.79,
  "lon": -74.98,
- "celdas": 186,
+ "celdas": 5,
  "variable": "lluvia",
  "unidad": "mm/día",
- "fuente": "GPM IMERG v07 (NASA)",
+ "fuente": "MERRA-2 vía NASA POWER (PRECTOTCORR)",
  "serie": [
   {
    "anio": 2001,
-   "valor": 1.9422
+   "valor": 0.895
   },
   {
    "anio": 2002,
-   "valor": 2.0547
+   "valor": 0.9888
   },
   {
    "anio": 2003,
-   "valor": 1.7757
+   "valor": 0.9043
   },
   {
    "anio": 2004,
-   "valor": 1.7309
+   "valor": 0.886
   },
   {
    "anio": 2005,
-   "valor": 1.5188
+   "valor": 0.8812
   },
   {
    "anio": 2006,
-   "valor": 1.8386
+   "valor": 1.0818
   },
   {
    "anio": 2007,
-   "valor": 1.4914
+   "valor": 1.4448
   },
   {
    "anio": 2008,
-   "valor": 1.4635
+   "valor": 1.189
   },
   {
    "anio": 2009,
-   "valor": 1.4823
+   "valor": 1.0687
   },
   {
    "anio": 2010,
-   "valor": 1.2883
+   "valor": 0.832
   },
   {
    "anio": 2011,
-   "valor": 1.9561
+   "valor": 1.65
   },
   {
    "anio": 2012,
-   "valor": 1.6114
+   "valor": 1.5767
   },
   {
    "anio": 2013,
-   "valor": 1.5601
+   "valor": 0.986
   },
   {
    "anio": 2014,
-   "valor": 1.515
+   "valor": 1.0047
   },
   {
    "anio": 2015,
-   "valor": 1.7051
+   "valor": 1.0335
   },
   {
    "anio": 2016,
-   "valor": 1.3176
+   "valor": 0.6717
   },
   {
    "anio": 2017,
-   "valor": 1.7134
+   "valor": 1.0065
   },
   {
    "anio": 2018,
-   "valor": 1.5668
+   "valor": 0.8512
   },
   {
    "anio": 2019,
-   "valor": 1.6311
+   "valor": 0.8858
   },
   {
    "anio": 2020,
-   "valor": 1.2048
+   "valor": 0.7502
   },
   {
    "anio": 2021,
-   "valor": 1.3673
+   "valor": 0.9662
   },
   {
    "anio": 2022,
-   "valor": 1.2276
+   "valor": 0.8197
   },
   {
    "anio": 2023,
-   "valor": 1.2282
+   "valor": 0.8297
   },
   {
    "anio": 2024,
-   "valor": 1.3828
+   "valor": 1.0705
   }
  ],
  "stats": {
   "year_start": 2001,
   "year_end": 2024,
   "n_years": 24,
-  "slope_per_decade": -0.218181,
-  "intercept": 45.44833,
-  "ci_low": -0.3618,
-  "ci_high": -0.0958,
-  "p_value": 0.00434,
-  "lag1": -0.0693,
-  "pct_change_per_decade": -13.94,
-  "q_value": 0.01085,
-  "status": "posible_casualidad",
-  "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja, por eso no se marca como real."
+  "slope_per_decade": -0.050833,
+  "intercept": 11.206308,
+  "ci_low": -0.1789,
+  "ci_high": 0.0531,
+  "p_value": 0.290777,
+  "lag1": 0.3004,
+  "pct_change_per_decade": -5.03,
+  "q_value": 0.403857,
+  "status": "posible_casualidad"
  }
 }

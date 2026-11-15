@@ -3,121 +3,120 @@
  "nombre": "Moquegua",
  "lat": -17.19,
  "lon": -70.93,
- "celdas": 131,
+ "celdas": 5,
  "variable": "lluvia",
  "unidad": "mm/día",
- "fuente": "GPM IMERG v07 (NASA)",
+ "fuente": "MERRA-2 vía NASA POWER (PRECTOTCORR)",
  "serie": [
   {
    "anio": 2001,
-   "valor": 1.0061
+   "valor": 0.7112
   },
   {
    "anio": 2002,
-   "valor": 0.9476
+   "valor": 0.734
   },
   {
    "anio": 2003,
-   "valor": 0.6006
+   "valor": 0.4358
   },
   {
    "anio": 2004,
-   "valor": 0.6625
+   "valor": 0.4512
   },
   {
    "anio": 2005,
-   "valor": 0.6567
+   "valor": 0.4382
   },
   {
    "anio": 2006,
-   "valor": 0.7144
+   "valor": 0.378
   },
   {
    "anio": 2007,
-   "valor": 0.5111
+   "valor": 0.18
   },
   {
    "anio": 2008,
-   "valor": 0.6729
+   "valor": 0.4265
   },
   {
    "anio": 2009,
-   "valor": 0.6084
+   "valor": 0.3037
   },
   {
    "anio": 2010,
-   "valor": 0.5119
+   "valor": 0.2325
   },
   {
    "anio": 2011,
-   "valor": 0.7961
+   "valor": 0.4678
   },
   {
    "anio": 2012,
-   "valor": 0.8029
+   "valor": 0.701
   },
   {
    "anio": 2013,
-   "valor": 0.7619
+   "valor": 0.5288
   },
   {
    "anio": 2014,
-   "valor": 0.6637
+   "valor": 0.4205
   },
   {
    "anio": 2015,
-   "valor": 0.7733
+   "valor": 0.5602
   },
   {
    "anio": 2016,
-   "valor": 0.6145
+   "valor": 0.4343
   },
   {
    "anio": 2017,
-   "valor": 0.7842
+   "valor": 0.6652
   },
   {
    "anio": 2018,
-   "valor": 0.6999
+   "valor": 0.6453
   },
   {
    "anio": 2019,
-   "valor": 0.7536
+   "valor": 0.4715
   },
   {
    "anio": 2020,
-   "valor": 0.9578
+   "valor": 0.6827
   },
   {
    "anio": 2021,
-   "valor": 0.5745
+   "valor": 0.4505
   },
   {
    "anio": 2022,
-   "valor": 0.4309
+   "valor": 0.903
   },
   {
    "anio": 2023,
-   "valor": 0.5743
+   "valor": 0.6733
   },
   {
    "anio": 2024,
-   "valor": 0.5892
+   "valor": 0.4162
   }
  ],
  "stats": {
   "year_start": 2001,
   "year_end": 2024,
   "n_years": 24,
-  "slope_per_decade": -0.050312,
-  "intercept": 10.793691,
-  "ci_low": -0.157,
-  "ci_high": 0.0552,
-  "p_value": 0.56122,
-  "lag1": 0.2371,
-  "pct_change_per_decade": -7.24,
-  "q_value": 0.63775,
-  "status": "posible_casualidad",
-  "aviso": "IMERG cambia de constelación de satélites en 2014 (TRMM → GPM): la tendencia de lluvia puede estar sesgada a la baja, por eso no se marca como real."
+  "slope_per_decade": 0.05615,
+  "intercept": -10.840688,
+  "ci_low": -0.0285,
+  "ci_high": 0.1866,
+  "p_value": 0.12557,
+  "lag1": 0.2027,
+  "pct_change_per_decade": 10.95,
+  "q_value": 0.224232,
+  "status": "posible_casualidad"
  }
 }

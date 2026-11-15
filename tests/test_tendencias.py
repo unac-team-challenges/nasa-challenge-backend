@@ -30,9 +30,13 @@ class Clasificar(unittest.TestCase):
         self.assertEqual(t.clasificar(stats(lag1=-0.6), 0.013, 9)["status"], "posible_casualidad")
         self.assertEqual(t.clasificar(stats(lag1=0.5), 0.013, 9)["status"], "real")
 
-    def test_lluvia_nunca_sale_real(self):
-        self.assertTrue(t.VARIABLES["lluvia"]["sin_real"])
+    def test_imerg_nunca_sale_real_y_power_si_puede(self):
+        # Opción C (2026-11-15): la lluvia principal es POWER; IMERG (lluvia_imerg) es la segunda fuente
+        self.assertTrue(t.VARIABLES["lluvia_imerg"]["sin_real"])
+        self.assertNotIn("sin_real", t.VARIABLES["lluvia"])
         self.assertNotIn("sin_real", t.VARIABLES["temperatura"])
+        self.assertEqual(t.VARIABLES["lluvia"]["archivo"], "power.json")
+        self.assertEqual(t.VARIABLES["lluvia_imerg"]["archivo"], "gpm.json")
         self.assertEqual(t.clasificar(stats(), 0.001, 4, sin_real=True)["status"], "posible_casualidad")
         self.assertEqual(t.clasificar(stats(n_years=19), 0.001, 4, sin_real=True)["status"], "pocos_datos")
 
@@ -43,7 +47,7 @@ class Clasificar(unittest.TestCase):
 
     def test_aviso(self):
         self.assertNotIn("aviso", t.clasificar(stats(), 0.5, 10))
-        imerg = t.VARIABLES["lluvia"]["aviso"]
+        imerg = t.VARIABLES["lluvia_imerg"]["aviso"]
         self.assertIn("2014", t.clasificar(stats(), 0.5, 10, imerg)["aviso"])
         ambos = t.clasificar(stats(lag1=0.6), 0.5, 10, imerg)["aviso"]
         self.assertTrue(ambos.startswith(imerg) and ambos.endswith(t.AVISO_LAG1))
