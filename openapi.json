@@ -29,6 +29,7 @@
         ],
         "responses": {
           "200": {
+            "description": "Celdas con su valor anual",
             "content": {
               "application/json": {
                 "schema": {
@@ -38,6 +39,7 @@
             }
           },
           "400": {
+            "description": "Falta `variable`, no es válida o no tiene malla",
             "content": {
               "application/json": {
                 "schema": {
@@ -58,6 +60,7 @@
         "operationId": "cobertura",
         "responses": {
           "200": {
+            "description": "Recuadros de selva con su serie de árboles",
             "content": {
               "application/json": {
                 "schema": {
@@ -81,6 +84,7 @@
         "operationId": "variables",
         "responses": {
           "200": {
+            "description": "Variables con unidad, fuente y rango de años",
             "content": {
               "application/json": {
                 "schema": {
@@ -104,6 +108,7 @@
         "operationId": "vegetacion",
         "responses": {
           "200": {
+            "description": "Valles con su serie de NDVI y área verde",
             "content": {
               "application/json": {
                 "schema": {
@@ -138,6 +143,7 @@
         ],
         "responses": {
           "200": {
+            "description": "Las 25 zonas con su tendencia",
             "content": {
               "application/json": {
                 "schema": {
@@ -150,6 +156,7 @@
             }
           },
           "400": {
+            "description": "Falta `variable` o no es válida",
             "content": {
               "application/json": {
                 "schema": {
@@ -191,6 +198,7 @@
         ],
         "responses": {
           "200": {
+            "description": "Serie anual y tendencia de la zona",
             "content": {
               "application/json": {
                 "schema": {
@@ -200,6 +208,7 @@
             }
           },
           "400": {
+            "description": "Falta `variable` o no es válida",
             "content": {
               "application/json": {
                 "schema": {
@@ -209,6 +218,7 @@
             }
           },
           "404": {
+            "description": "La zona no existe",
             "content": {
               "application/json": {
                 "schema": {
