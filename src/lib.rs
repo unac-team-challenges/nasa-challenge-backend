@@ -15,7 +15,9 @@ use data::Estado;
 use tower_http::{
     cors::{AllowOrigin, CorsLayer},
     set_header::SetResponseHeaderLayer,
+    trace::{DefaultMakeSpan, DefaultOnResponse, TraceLayer},
 };
+use tracing::Level;
 
 pub fn app(datos: Estado, origenes: Vec<String>) -> Router {
     let cors = CorsLayer::new().allow_origin(AllowOrigin::predicate(move |o, _| {
@@ -28,5 +30,13 @@ pub fn app(datos: Estado, origenes: Vec<String>) -> Router {
         header::CACHE_CONTROL,
         HeaderValue::from_static("public, max-age=3600, s-maxage=86400"),
     );
-    routes::router().layer(cache).layer(cors).with_state(datos)
+    // Una línea por petición (método, ruta, estado, ms) a nivel INFO; RUST_LOG la sube o la apaga.
+    let logs = TraceLayer::new_for_http()
+        .make_span_with(DefaultMakeSpan::new().level(Level::INFO))
+        .on_response(DefaultOnResponse::new().level(Level::INFO));
+    routes::router()
+        .layer(cache)
+        .layer(cors)
+        .layer(logs)
+        .with_state(datos)
 }

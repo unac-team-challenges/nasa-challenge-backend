@@ -25,13 +25,19 @@ async fn apagar() {
 
 #[tokio::main]
 async fn main() {
+    // RUST_LOG manda (p. ej. RUST_LOG=warn los apaga); por defecto, INFO.
+    tracing_subscriber::fmt()
+        .with_env_filter(
+            tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| "info".into()),
+        )
+        .init();
     let cfg = Config::desde_env();
     let datos = Arc::new(Datos::cargar().expect("data/*.json no encaja con src/models"));
     let addr = format!("0.0.0.0:{}", cfg.puerto);
     let l = tokio::net::TcpListener::bind(&addr)
         .await
         .unwrap_or_else(|e| panic!("no se pudo abrir {addr}: {e}"));
-    println!("http://{addr}");
+    tracing::info!("escuchando en http://{addr}");
     axum::serve(l, app(datos, cfg.origenes))
         .with_graceful_shutdown(apagar())
         .await
