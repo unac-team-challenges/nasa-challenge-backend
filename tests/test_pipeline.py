@@ -4,6 +4,8 @@ import json
 import sys
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "pipeline"))
 
@@ -31,6 +33,26 @@ class Incremental(unittest.TestCase):
 
     def test_json_incompleto_no_se_reusa(self):
         self.assertEqual(gpm.guardados([]), ({}, {}))
+
+
+class VersionesNuevas(unittest.TestCase):
+    def _buscar(self, *versiones, **kw):
+        cols = [SimpleNamespace(version=v) for v in versiones]
+        with mock.patch.object(gpm.earthaccess, "search_datasets", return_value=cols, **kw):
+            return gpm.versiones_nuevas()
+
+    def test_solo_v07_no_avisa(self):
+        self.assertEqual(self._buscar("07"), [])
+
+    def test_aparece_v08(self):
+        self.assertEqual(self._buscar("07", "08"), ["08"])
+
+    def test_sin_red_avisa_y_sigue(self):
+        err = io.StringIO()
+        with mock.patch.object(gpm.earthaccess, "search_datasets", side_effect=OSError("sin red")), \
+                mock.patch.object(sys, "stderr", err):
+            self.assertEqual(gpm.versiones_nuevas(), [])
+        self.assertIn("AVISO", err.getvalue())
 
 
 class Avisos(unittest.TestCase):
