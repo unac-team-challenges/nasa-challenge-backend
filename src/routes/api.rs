@@ -36,7 +36,7 @@ fn variable(p: Params) -> Result<Variable, ApiError> {
 
 /// Variables del producto con unidad, fuente y rango de años (`data/variables.json`).
 #[utoipa::path(get, path = "/api/variables", tag = "api",
-    responses((status = 200, body = Vec<VariableInfo>)))]
+    responses((status = 200, description = "Variables con unidad, fuente y rango de años", body = Vec<VariableInfo>)))]
 pub async fn variables(State(d): State<Estado>) -> Response {
     Json(&d.variables).into_response()
 }
@@ -44,7 +44,7 @@ pub async fn variables(State(d): State<Estado>) -> Response {
 /// Las 25 zonas (departamentos) con su tendencia, sin series.
 #[utoipa::path(get, path = "/api/zonas", tag = "api",
     params(("variable" = Variable, Query, description = "Obligatoria: el plan B estático la necesita en la ruta")),
-    responses((status = 200, body = Vec<Zona>), (status = 400, body = ErrorRespuesta)))]
+    responses((status = 200, description = "Las 25 zonas con su tendencia", body = Vec<Zona>), (status = 400, description = "Falta `variable` o no es válida", body = ErrorRespuesta)))]
 pub async fn zonas(State(d): State<Estado>, Query(p): Query<Params>) -> Result<Response, ApiError> {
     let v = variable(p)?;
     Ok(Json(d.zonas(v).collect::<Vec<_>>()).into_response())
@@ -56,7 +56,7 @@ pub async fn zonas(State(d): State<Estado>, Query(p): Query<Params>) -> Result<R
         ("id" = String, Path, description = "Ubigeo del departamento, como texto", example = "15"),
         ("variable" = Variable, Query, description = "Obligatoria"),
     ),
-    responses((status = 200, body = ZonaDetalle), (status = 400, body = ErrorRespuesta), (status = 404, body = ErrorRespuesta)))]
+    responses((status = 200, description = "Serie anual y tendencia de la zona", body = ZonaDetalle), (status = 400, description = "Falta `variable` o no es válida", body = ErrorRespuesta), (status = 404, description = "La zona no existe", body = ErrorRespuesta)))]
 pub async fn zona(
     State(d): State<Estado>,
     Path(id): Path<String>,
@@ -79,7 +79,7 @@ pub async fn zona(
 /// serie anual (`ndvi_anual`, `area_verde_km2`), su tendencia y su `unidad_geografica` (un recuadro
 /// sobre el valle, **no** el promedio del departamento).
 #[utoipa::path(get, path = "/api/vegetacion", tag = "api",
-    responses((status = 200, body = Vec<ZonaVegetacion>)))]
+    responses((status = 200, description = "Valles con su serie de NDVI y área verde", body = Vec<ZonaVegetacion>)))]
 pub async fn vegetacion(State(d): State<Estado>) -> Response {
     Json(&d.vegetacion).into_response()
 }
@@ -88,7 +88,7 @@ pub async fn vegetacion(State(d): State<Estado>) -> Response {
 /// su serie anual (`arboles_pct`, `area_bosque_km2`), su tendencia y su `unidad_geografica`
 /// (un recuadro, **no** el promedio del departamento).
 #[utoipa::path(get, path = "/api/cobertura-arboles", tag = "api",
-    responses((status = 200, body = Vec<ZonaCobertura>)))]
+    responses((status = 200, description = "Recuadros de selva con su serie de árboles", body = Vec<ZonaCobertura>)))]
 pub async fn cobertura(State(d): State<Estado>) -> Response {
     Json(&d.cobertura).into_response()
 }
@@ -98,7 +98,7 @@ pub async fn cobertura(State(d): State<Estado>) -> Response {
 /// `lluvia_imerg` no tiene malla.
 #[utoipa::path(get, path = "/api/celdas", tag = "api",
     params(("variable" = Variable, Query, description = "Obligatoria: lluvia, temperatura o vegetacion")),
-    responses((status = 200, body = Malla), (status = 400, body = ErrorRespuesta)))]
+    responses((status = 200, description = "Celdas con su valor anual", body = Malla), (status = 400, description = "Falta `variable`, no es válida o no tiene malla", body = ErrorRespuesta)))]
 pub async fn celdas(
     State(d): State<Estado>,
     Query(p): Query<Params>,
