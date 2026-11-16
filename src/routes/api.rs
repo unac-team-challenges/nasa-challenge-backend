@@ -14,10 +14,10 @@ use crate::{
     schema::{ErrorRespuesta, ZonaDetalle},
 };
 use axum::{
+    Json,
     extract::{Path, Query, State},
     http::header,
     response::{IntoResponse, Response},
-    Json,
 };
 use serde::Deserialize;
 

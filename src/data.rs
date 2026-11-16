@@ -1,5 +1,6 @@
 use crate::{
     models::{
+        Region,
         celdas::Malla,
         cobertura::ZonaCobertura,
         gpm, ndvi, power,
@@ -7,7 +8,6 @@ use crate::{
         variable::{Variable, VariableInfo},
         vegetacion::ZonaVegetacion,
         zona::Zona,
-        Region,
     },
     schema::Punto,
     ubigeo::UBIGEOS,
