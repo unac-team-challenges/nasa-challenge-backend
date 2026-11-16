@@ -11,5 +11,4 @@ Logs de peticiones con `tracing` (pendiente de `docs/propuestas-mejora/README.md
 ## Notas
 - El router de los tests (`app()`) no inicia ningún suscriptor, así que `cargo test` no imprime logs.
 - La ruta se registra con su query (`?variable=...`); no hay datos personales en la API.
-- `docs/propuestas-mejora/README.md` sigue listando «logs de peticiones»: se quita al mezclar #80, #81 y este PR (las tres
-  ediciones tocan la misma línea; hacerlo en cada uno provocaría conflictos).
+- `docs/propuestas-mejora/README.md` ya no lista «logs de peticiones» entre los pendientes (era el último menor de la API).
