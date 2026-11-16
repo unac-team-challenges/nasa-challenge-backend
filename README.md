@@ -47,6 +47,8 @@ uv pip compile pipeline/requirements.txt --python-version 3.12 --python-platform
 | `GET /gpm/{region}` | Lluvia anual GPM IMERG de la región (`lluvia_mm_dia` por año; mismas reglas de búsqueda y 404 que `/power`) |
 | `GET /power/{region}` | Promedios anuales de la región (404 JSON si no existe; ignora mayúsculas y tildes: `/power/ancash`) |
 
+Logs: una línea por petición (método, ruta, estado, ms) a nivel INFO. `RUST_LOG=warn` los apaga; `RUST_LOG=debug` da más detalle.
+
 CORS: siempre `localhost`/`127.0.0.1`. Para añadir la URL de Vercel: variable de entorno `CORS_ORIGINS=https://tu-app.vercel.app` (varias separadas por coma, sin `/` final).
 
 ## Despliegue (Render)
