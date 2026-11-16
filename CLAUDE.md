@@ -27,6 +27,10 @@ cargo test cors                      # un test por nombre (tests/api.rs)
 cargo run                            # API en :3000 (PORT, CORS_ORIGINS)
 python pipeline/power.py 2001 2024   # regenera data/power.json (gpm.py: igual, con Earthdata)
 python pipeline/tendencias.py        # regenera data/variables.json y data/zonas/ (los sirve /api/zonas)
+python pipeline/ndvi.py enviar|estado|bajar|calcular            # AppEEARS, a mano (~3 h): data/ndvi.json
+python pipeline/cobertura.py ...     # igual: data/cobertura_arboles.json (selva, MOD44B)
+python pipeline/vegetacion_malla.py ...  # igual: data/celdas/vegetacion.json y ndvi_departamentos.json; luego tendencias.py
+bash tests/verificar.sh              # e2e + fmt + clippy + autopruebas, salida corta
 ```
 
 ## Lo esencial de la arquitectura
