@@ -15,5 +15,4 @@ Se generaron los tipos con `openapi-typescript` 7.13.0 (el del frontend) desde e
 En OpenAPI 3.1 `description` es obligatorio en cada respuesta; utoipa 6 lo omite cuando está vacío. Si algún validador estricto
 se queja, la solución es poner un texto en cada `responses(...)` de `src/routes/`, en un PR aparte.
 
-`docs/propuestas-mejora/README.md` sigue listando «`utoipa` 6» entre los pendientes: se quita al mezclar este PR junto con #80
-(las dos ediciones tocan la misma línea; hacerlo aquí provocaría conflicto).
+`docs/propuestas-mejora/README.md` ya no lista «`utoipa` 6» entre los pendientes (se quitó al mezclar con `developer`, tras #80).
