@@ -12,7 +12,7 @@ Este documento **no cambia código**: cada punto dice **por qué** importa y **c
 
 Aplicado el 2026-11-15: ver `changelog/`.
 
-Menores de la API que siguen sin hacerse: edición Rust 2024, `utoipa` 6 y logs de peticiones (`tracing`).
+Menores de la API que siguen sin hacerse: `utoipa` 6 y logs de peticiones (`tracing`).
 
 **Severidad:** *Alta* = puede romper la demo o dejar datos malos sin aviso. *Media* = afecta calidad o costo. *Baja* = pulido.
 

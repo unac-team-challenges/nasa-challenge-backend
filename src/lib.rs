@@ -8,8 +8,8 @@ pub mod schema;
 pub mod ubigeo;
 
 use axum::{
-    http::{header, HeaderValue},
     Router,
+    http::{HeaderValue, header},
 };
 use data::Estado;
 use tower_http::{
