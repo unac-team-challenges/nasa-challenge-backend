@@ -102,12 +102,19 @@ def a_celdas(anual, con_dato, lat, lon, paso=PASO, min_frac=MIN_FRAC_PIXELES):
     return salida
 
 
+ESCALA_S = {"seconds": 1, "minutes": 60, "hours": 3600, "days": 86400}  # segundos por unidad de tiempo
+
+
 def anios_de(valores, unidades):
-    """Año de cada tiempo de AppEEARS: unidades "seconds since 2000-01-01 ..." o "days since ..."."""
+    """Año de cada tiempo de AppEEARS: "seconds since 2000-01-01 ...", o "minutes", "hours", "days".
+    La base conserva su hora y los valores van en segundos (con decimales): un tiempo no pierde horas
+    ni fracciones al cruzar el cambio de año."""
     paso, base = unidades.split(" since ")
-    escala = {"seconds": "s", "days": "D", "hours": "h"}[paso.strip()]
-    fechas = np.datetime64(base.strip()[:10]) + np.asarray(valores).astype(f"timedelta64[{escala}]")
-    return fechas.astype("datetime64[Y]").astype(int) + 1970
+    if paso.strip() not in ESCALA_S:
+        raise ValueError(f"unidad de tiempo desconocida {paso.strip()!r} en {unidades!r}: {sorted(ESCALA_S)}")
+    inicio = np.datetime64(base.strip().split("+")[0].rstrip("Z").replace(" ", "T"), "s")
+    seg = np.rint(np.asarray(valores, dtype=float) * ESCALA_S[paso.strip()]).astype("int64")
+    return (inicio + seg.astype("timedelta64[s]")).astype("datetime64[Y]").astype(int) + 1970
 
 
 def malla_json(por_anio, dentro, anios=ANIOS):
@@ -139,7 +146,9 @@ def por_departamento(malla, dentro, regiones, capitales):
         celdas[r] = len(propias)
         if not propias:
             lat, lon = capitales[r]
-            propias = [min(malla["celdas"], key=lambda c: (c["lat"] - lat) ** 2 + (c["lon"] - lon) ** 2)]
+            # La más cercana con todos los años: una celda con huecos dejaría a Callao con menos años que Lima
+            completas = [c for c in malla["celdas"] if None not in c["valor"]] or malla["celdas"]
+            propias = [min(completas, key=lambda c: (c["lat"] - lat) ** 2 + (c["lon"] - lon) ** 2)]
             notas[r] = f"Sin celdas propias de {PASO}°: se usa la celda más cercana a su capital"
         if len(anios) < MIN_ANIOS_TENDENCIA:
             # pocos_datos por la serie corta, no por las celdas: la nota dice el motivo real
@@ -306,11 +315,21 @@ def autoprueba():
     datos, celdas, notas = por_departamento(m2, dentro2, regiones, dict.fromkeys(regiones, (-12.06, -77.13)))
     assert datos["Loreto"] == {"2001": {"ndvi": 0.7}, "2002": {"ndvi": 0.7}}, datos["Loreto"]
     assert datos["Lima"] == {"2001": {"ndvi": 0.1}} and celdas["Callao"] == 0
-    assert datos["Callao"] == datos["Lima"] and "capital" in notas["Callao"]
+    # Callao: la celda más cercana CON todos los años (la de Lima tiene un hueco: no sirve)
+    assert datos["Callao"] == {"2001": {"ndvi": 0.6}, "2002": {"ndvi": 0.7}} and "capital" in notas["Callao"], datos["Callao"]
     assert "solo 2 años" in notas["Loreto"] and "solo 2 años" in notas["Callao"]
     # Tiempo de AppEEARS: en segundos (MOD13A3 de 2026) o en días
     assert list(anios_de([0, 31_536_000 * 2], "seconds since 2000-01-01 00:00:00+00:00")) == [2000, 2001]
     assert list(anios_de([366, 400], "days since 2000-01-01")) == [2001, 2001]
+    # Decimales y hora de la base: 7 h después de las 18:00 del 31-dic ya es el año siguiente
+    assert list(anios_de([0.2, 365.75], "days since 1999-12-31 18:00:00")) == [1999, 2000]
+    assert list(anios_de([7 * 3600], "seconds since 1999-12-31 18:00:00+00:00")) == [2000]
+    assert list(anios_de([60 * 24 * 366], "minutes since 2000-01-01")) == [2001]
+    try:
+        anios_de([1], "fortnights since 2000-01-01")
+        raise AssertionError("debía rechazar la unidad")
+    except ValueError as e:
+        assert "fortnights" in str(e)
     print("autoprueba vegetacion_malla OK")
 
 
