@@ -1,7 +1,7 @@
 use axum::{
-    body::{to_bytes, Body},
-    http::{Request, StatusCode},
     Router,
+    body::{Body, to_bytes},
+    http::{Request, StatusCode},
 };
 use nasa_challenge_backend::{
     app,
@@ -61,11 +61,11 @@ async fn power_lima_tiene_anios_y_medidas() {
     assert_eq!(s, StatusCode::OK);
     let anios = b["anios"].as_object().unwrap();
     assert!(!anios.is_empty());
-    assert!(anios
-        .values()
-        .all(|m| ["PRECTOTCORR", "T2M", "T2M_MAX", "T2M_MIN"]
+    assert!(anios.values().all(|m| {
+        ["PRECTOTCORR", "T2M", "T2M_MAX", "T2M_MIN"]
             .iter()
-            .all(|k| m[*k].is_number())));
+            .all(|k| m[*k].is_number())
+    }));
 }
 
 #[tokio::test]
@@ -167,9 +167,11 @@ async fn api_zona_devuelve_serie_por_variable() {
         );
         let serie = b["serie"].as_array().unwrap();
         assert!(!serie.is_empty());
-        assert!(serie
-            .iter()
-            .all(|p| p["anio"].is_number() && p["valor"].is_number()));
+        assert!(
+            serie
+                .iter()
+                .all(|p| p["anio"].is_number() && p["valor"].is_number())
+        );
     }
 }
 
@@ -315,16 +317,20 @@ async fn zona_devuelve_la_nota_de_su_variable() {
 
 #[test]
 fn json_con_forma_incorrecta_se_rechaza() {
-    assert!(con_power_gpm(
-        r#"[{"region":"X","lat":1,"lon":2,"celdas":4,"anios":{"2020":{"T2M":null}}}]"#,
-        "[]"
-    )
-    .is_err());
-    assert!(con_power_gpm(
-        "[]",
-        r#"[{"region":"X","lat":1,"lon":2,"celdas":4,"anios":{"2020":{"lluvia_mm_dia":null}}}]"#
-    )
-    .is_err());
+    assert!(
+        con_power_gpm(
+            r#"[{"region":"X","lat":1,"lon":2,"celdas":4,"anios":{"2020":{"T2M":null}}}]"#,
+            "[]"
+        )
+        .is_err()
+    );
+    assert!(
+        con_power_gpm(
+            "[]",
+            r#"[{"region":"X","lat":1,"lon":2,"celdas":4,"anios":{"2020":{"lluvia_mm_dia":null}}}]"#
+        )
+        .is_err()
+    );
 }
 
 /// `openapi.json` (raíz del repo) es el contrato que copia el frontend: no puede quedar viejo.
@@ -562,11 +568,13 @@ fn zonas_y_variables_mal_formadas_se_rechazan() {
         }),
     ];
     // Una zona con su propio periodo, dentro del de variables.json (p. ej. le falta 2001), es válida.
-    assert!(con_zonas(|z| {
-        z[0]["stats"]["year_start"] = 2002.into();
-        z[0]["stats"]["n_years"] = 23.into();
-    })
-    .is_ok());
+    assert!(
+        con_zonas(|z| {
+            z[0]["stats"]["year_start"] = 2002.into();
+            z[0]["stats"]["n_years"] = 23.into();
+        })
+        .is_ok()
+    );
     for (caso, f) in malos {
         assert!(con_zonas(f).is_err(), "{caso}");
     }
@@ -602,10 +610,12 @@ async fn api_vegetacion_trae_las_3_zonas_del_caso_2() {
     ];
     for (z, (ubigeo, n01, a01, n24, a24)) in zonas.iter().zip(esperado) {
         assert_eq!(z["ubigeo"], ubigeo);
-        assert!(z["unidad_geografica"]
-            .as_str()
-            .unwrap()
-            .contains("recuadro"));
+        assert!(
+            z["unidad_geografica"]
+                .as_str()
+                .unwrap()
+                .contains("recuadro")
+        );
         assert!(status_valido(&z["stats"]["status"]));
         // Chavimochic e Ica son reales con margen; Olmos no se fija (puede cambiar con un año más),
         // pero siempre lleva su aviso
@@ -613,10 +623,12 @@ async fn api_vegetacion_trae_las_3_zonas_del_caso_2() {
             assert!(z["stats"]["aviso"].as_str().unwrap().contains("Lab 3"));
             // Mismo mensaje que el aviso: la caja mezcla riego y bosque seco, no es un valle irrigado
             assert_ne!(z["tipo"], "valle irrigado");
-            assert!(z["unidad_geografica"]
-                .as_str()
-                .unwrap()
-                .contains("bosque seco"));
+            assert!(
+                z["unidad_geografica"]
+                    .as_str()
+                    .unwrap()
+                    .contains("bosque seco")
+            );
         } else {
             assert_eq!(z["stats"]["status"], "real", "{}", z["id"]);
         }
@@ -716,16 +728,20 @@ async fn api_cobertura_arboles_trae_la_pampa_e_iquitos() {
     assert!(zonas[0]["stats"]["ci_high"].as_f64().unwrap() < 0.0);
     assert!(zonas[1]["stats"]["ci_low"].as_f64().unwrap() <= 0.0);
     // La Pampa explica su quiebre de 2009 (el umbral no cambia: puede seguir posible_casualidad)
-    assert!(zonas[0]["stats"]["aviso"]
-        .as_str()
-        .unwrap()
-        .contains("desde 2009"));
-    for (z, ubigeo) in zonas.iter().zip(["17", "16"]) {
-        assert_eq!(z["ubigeo"], ubigeo);
-        assert!(z["unidad_geografica"]
+    assert!(
+        zonas[0]["stats"]["aviso"]
             .as_str()
             .unwrap()
-            .contains("no es el promedio del departamento"));
+            .contains("desde 2009")
+    );
+    for (z, ubigeo) in zonas.iter().zip(["17", "16"]) {
+        assert_eq!(z["ubigeo"], ubigeo);
+        assert!(
+            z["unidad_geografica"]
+                .as_str()
+                .unwrap()
+                .contains("no es el promedio del departamento")
+        );
         assert!(status_valido(&z["stats"]["status"]));
         let serie = z["serie"].as_array().unwrap();
         assert_eq!(
@@ -792,9 +808,11 @@ async fn celdas_de_temperatura() {
     let anios = (b["anio_fin"].as_u64().unwrap() - b["anio_inicio"].as_u64().unwrap() + 1) as usize;
     let celdas = b["celdas"].as_array().unwrap();
     assert!(celdas.len() > 100, "Perú tiene cientos de celdas de 0,5°");
-    assert!(celdas
-        .iter()
-        .all(|c| c["t2m"].as_array().unwrap().len() == anios && c.get("valor").is_none()));
+    assert!(
+        celdas
+            .iter()
+            .all(|c| c["t2m"].as_array().unwrap().len() == anios && c.get("valor").is_none())
+    );
 }
 
 /// Celda con centro más cercano a (lat, lon) y la media de sus años con dato.
@@ -846,9 +864,11 @@ async fn celdas_de_vegetacion() {
     let anios = (b["anio_fin"].as_u64().unwrap() - b["anio_inicio"].as_u64().unwrap() + 1) as usize;
     let celdas = b["celdas"].as_array().unwrap();
     assert!(celdas.len() > 1500, "Perú tiene ~2 000 celdas de 0,25°");
-    assert!(celdas
-        .iter()
-        .all(|c| c["valor"].as_array().unwrap().len() == anios && c.get("t2m").is_none()));
+    assert!(
+        celdas
+            .iter()
+            .all(|c| c["valor"].as_array().unwrap().len() == anios && c.get("t2m").is_none())
+    );
     // Cifras reales de MODIS: la selva de Iquitos es verde; el desierto de Ica, casi sin vegetación
     assert!(media_cerca(&b, -3.75, -73.25) > 0.7);
     assert!(media_cerca(&b, -14.5, -75.5) < 0.2);
@@ -947,10 +967,14 @@ fn mallas_nuevas_mal_formadas_se_rechazan() {
             1.5.into())
         .is_err()
     );
-    assert!(con_malla(Variable::Lluvia, |m| m["celdas"][0]["valor"][0] =
-        1.5.into())
-    .is_ok());
-    assert!(con_malla(Variable::Lluvia, |m| m["celdas"][0]["valor"][0] =
-        (-1.0).into())
-    .is_err());
+    assert!(
+        con_malla(Variable::Lluvia, |m| m["celdas"][0]["valor"][0] =
+            1.5.into())
+        .is_ok()
+    );
+    assert!(
+        con_malla(Variable::Lluvia, |m| m["celdas"][0]["valor"][0] =
+            (-1.0).into())
+        .is_err()
+    );
 }

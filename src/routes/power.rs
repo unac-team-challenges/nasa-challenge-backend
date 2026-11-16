@@ -1,8 +1,8 @@
 use crate::{data::Estado, error::ApiError};
 use axum::{
+    Json,
     extract::{Path, State},
     response::{IntoResponse, Response},
-    Json,
 };
 
 /// Serializa la región prestada del estado: sin copiar sus años.

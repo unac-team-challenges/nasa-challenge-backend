@@ -1,10 +1,10 @@
 use crate::data::Estado;
 use axum::{
-    http::{header, StatusCode, Uri},
-    routing::get,
     Json, Router,
+    http::{StatusCode, Uri, header},
+    routing::get,
 };
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use std::sync::LazyLock;
 
 pub mod api;
