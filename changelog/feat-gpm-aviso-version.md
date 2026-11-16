@@ -16,3 +16,6 @@ Avisa si CMR publica otra versión de `GPM_3IMERGM` además de la v07. Cierra el
 
 ## Nota
 `earthaccess` 0.19.0 no tiene `search_collections`; el equivalente es `search_datasets`, y `version` es una propiedad.
+
+## Docs
+- `docs/propuestas-mejora/02-pipeline-y-datos.md`: el paso 3 queda marcado como hecho.

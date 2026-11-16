@@ -24,7 +24,7 @@ curl -s "https://cmr.earthdata.nasa.gov/search/collections.json?short_name=GPM_3
 
 1. Documentar en `docs/reglas-datos.md` que la lluvia termina en 2024 mientras siga V07.
 2. Quitar `gpm.py` del cron mensual, o hacerlo **incremental**: leer `data/gpm.json` y descargar solo los años que faltan.
-3. Añadir un aviso barato: un paso del workflow que consulte CMR y falle (o abra un *issue*) si aparece una versión distinta de `07`. Cuando aparezca, se reprocesa **toda** la serie con la versión nueva.
+3. Añadir un aviso barato: un paso del workflow que consulte CMR y falle (o abra un *issue*) si aparece una versión distinta de `07`. Cuando aparezca, se reprocesa **toda** la serie con la versión nueva. **Hecho** en `feat/gpm-aviso-version`: `gpm.py` avisa por stderr (no hace fallar el cron); abrir un *issue* sigue pendiente.
 4. **No** rellenar 2025 con IMERG *Late/Early*: son otro producto y violan la regla 3 (una fuente = un número).
 
 ---
