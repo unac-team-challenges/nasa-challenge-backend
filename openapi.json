@@ -29,7 +29,6 @@
         ],
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -39,7 +38,6 @@
             }
           },
           "400": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -60,7 +58,6 @@
         "operationId": "cobertura",
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -84,7 +81,6 @@
         "operationId": "variables",
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -108,7 +104,6 @@
         "operationId": "vegetacion",
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -143,7 +138,6 @@
         ],
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -156,7 +150,6 @@
             }
           },
           "400": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -198,7 +191,6 @@
         ],
         "responses": {
           "200": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -208,7 +200,6 @@
             }
           },
           "400": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {
@@ -218,7 +209,6 @@
             }
           },
           "404": {
-            "description": "",
             "content": {
               "application/json": {
                 "schema": {

@@ -7,9 +7,9 @@ Pipeline de datos (Python) y API de solo lectura (Rust/Axum) que sirve los JSON 
 ## Estructura
 | Ruta | Qué es |
 |---|---|
-| `pipeline/` | Scripts Python: `power.py` (NASA POWER), `gpm.py` (GPM IMERG), `departamentos.py` (máscara de los 25 departamentos) y `tendencias.py` (Mann-Kendall, Sen, Benjamini-Hochberg). Escriben `data/`. `exploracion/` guarda los laboratorios del equipo |
-| `data/` | JSON ya procesados: `power.json` y `gpm.json` (promedio anual por departamento) y las tendencias (`variables.json`, `zonas/`) que escribe `pipeline/tendencias.py` |
-| `src/` | API Axum: `main.rs` (arranque), `lib.rs` (router + CORS), `config.rs`, `data.rs` (carga e índice), `models/` (forma de los JSON), `schema.rs` (respuestas), `routes/`, `error.rs`. Embebe `data/power.json` y `data/gpm.json` al compilar |
+| `pipeline/` | Scripts Python que escriben `data/`: `power.py` (NASA POWER y mallas de temperatura y lluvia), `gpm.py` (GPM IMERG), `departamentos.py` (máscara de los 25 departamentos), `tendencias.py` (Mann-Kendall, Sen, Benjamini-Hochberg) y `tendencia_comun.py` (criterio único de «tendencia real»). Vegetación vía AppEEARS: `ndvi.py` (valles del Caso 2), `cobertura.py` (árboles de la selva), `vegetacion_malla.py` (NDVI por celda y departamento) y `appeears.py` (cliente común). `exploracion/` guarda los laboratorios del equipo |
+| `data/` | JSON ya procesados: `power.json` y `gpm.json` (promedio anual por departamento), las tendencias (`variables.json`, `zonas/`) que escribe `pipeline/tendencias.py`, `ndvi.json`, `cobertura_arboles.json`, `ndvi_departamentos.json` y las mallas por celda en `celdas/` |
+| `src/` | API Axum: `main.rs` (arranque), `lib.rs` (router + CORS), `config.rs`, `data.rs` (carga e índice), `models/` (forma de los JSON), `schema.rs` (respuestas), `routes/`, `error.rs`. Embebe todos los `data/*.json` al compilar (`include_str!`) |
 | `tests/` | `api.rs` (integración, `cargo test`) y `e2e.sh` (todo junto) |
 | `docs/` | [`reglas-datos.md`](docs/reglas-datos.md) (reglas y fuentes elegidas) · [`datos.md`](docs/datos.md) (POWER y sus límites) · [`guia-pipeline.md`](docs/guia-pipeline.md) (cómo añadir una fuente) · [`tendencias.md`](docs/tendencias.md) (método de las tendencias) · [`vegetacion.md`](docs/vegetacion.md) (NDVI) |
 | `changelog/` | Un archivo por rama con sus cambios |
@@ -21,6 +21,8 @@ pip install -r pipeline/requirements.txt
 python pipeline/power.py 2001 2024   # regenera data/power.json
 python pipeline/gpm.py 2001 2024     # regenera data/gpm.json (necesita .env con Earthdata)
 python pipeline/tendencias.py        # regenera variables.json y zonas/ desde power.json y gpm.json
+# Vegetación (AppEEARS, a mano una vez al año, tarda horas; cada script tiene enviar|estado|bajar|calcular|autoprueba):
+python pipeline/ndvi.py enviar       # valles del Caso 2 -> data/ndvi.json (también cobertura.py y vegetacion_malla.py)
 cargo run                            # http://0.0.0.0:3000 (PORT para cambiarlo)
 bash tests/e2e.sh                    # verifica que todo corre
 ```

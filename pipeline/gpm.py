@@ -32,6 +32,7 @@ from dotenv import load_dotenv
 from departamentos import a_json, mascara, promedios
 from power import REGIONES
 
+VERSION = "07"  # la única que usamos: no se mezcla con otra (docs/reglas-datos.md)
 MM_HORA_A_MM_DIA = 24  # IMERG viene en mm/hr
 OPENDAP = "https://gpm1.gesdisc.eosdis.nasa.gov/opendap/GPM_L3/GPM_3IMERGM.07"
 # Índices de la malla global de 0,1° (centros en x.x5) que cubren Perú:
@@ -85,7 +86,7 @@ def anio_promedio(anio, sesion):
     válidos no tiene ese año (nunca NaN ni promedios sesgados).
     """
     granulos = earthaccess.search_data(
-        short_name="GPM_3IMERGM", version="07",
+        short_name="GPM_3IMERGM", version=VERSION,
         temporal=(f"{anio}-01-01", f"{anio}-12-31"),
     )
     if not granulos:
@@ -106,6 +107,15 @@ def anio_promedio(anio, sesion):
     return anual, {reg: v[1] for reg, v in meses[0].items()}
 
 
+def versiones_nuevas():
+    """Versiones de GPM_3IMERGM en CMR distintas de la que usamos. Si la red falla, avisa y devuelve []."""
+    try:
+        return sorted({c.version for c in earthaccess.search_datasets(short_name="GPM_3IMERGM")} - {VERSION})
+    except Exception as e:  # noqa: BLE001 - un aviso no debe tumbar el cron
+        print(f"AVISO: no se pudo consultar CMR por versiones nuevas de IMERG ({e})", file=sys.stderr)
+        return []
+
+
 if __name__ == "__main__":
     todo = "--todo" in sys.argv
     args = [a for a in sys.argv[1:] if a != "--todo"]
@@ -114,6 +124,9 @@ if __name__ == "__main__":
         json.loads(JSON.read_text(encoding="utf-8")))
     load_dotenv()
     earthaccess.login()  # .env/entorno, o ~/.netrc
+    for v in versiones_nuevas():
+        print(f"AVISO: CMR publica GPM_3IMERGM versión {v}; v{VERSION} sigue siendo la que usamos "
+              "(docs/reglas-datos.md)", file=sys.stderr)
     sesion = earthaccess.get_requests_https_session()
 
     datos = {reg: {} for reg in REGIONES}
